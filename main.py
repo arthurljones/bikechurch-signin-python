@@ -1,4 +1,5 @@
 import MySQLdb
+import csv
 
 gDBLocation = "localhost"
 gDBName = "signin_db"
@@ -23,11 +24,11 @@ def CreateTables():
 	
 	cursor.execute("""CREATE TABLE persons
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-				first_name CHAR(64) NOT NULL,
-				last_name CHAR(64),
-				street_address CHAR(128),
-				email_address CHAR(64),
-				phone_number CHAR(20),			
+				first_name VARCHAR(64) NOT NULL,
+				last_name VARCHAR(64),
+				street_address VARCHAR(128),
+				email_address VARCHAR(64),
+				phone_number VARCHAR(32),			
 			PRIMARY KEY(id),
 			INDEX(last_name, first_name) )
 			CHARSET=utf8 ENGINE=InnoDB;""")
@@ -75,10 +76,10 @@ def CreateTables():
 	cursor.execute("""CREATE TABLE bikes
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 				person_id INT UNSIGNED NOT NULL UNIQUE,
-				color CHAR(32) NOT NULL,
-				brand CHAR(32),
-				model CHAR(32),
-				serial CHAR(32),
+				color VARCHAR(64) NOT NULL,
+				brand VARCHAR(64),
+				model VARCHAR(64),
+				serial VARCHAR(64),
 			PRIMARY KEY(id),
 			INDEX(person_id),
 			INDEX(serial(10)),
@@ -101,5 +102,9 @@ def CreateTables():
 	conn.commit()
 	cursor.close()
 	conn.close()
+
+def ReadMembersFromCSV(filename):
+	reader = csv.Reader(filename)
+	
 
 CreateTables()
