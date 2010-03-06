@@ -58,28 +58,50 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 			numFailed += 1
 			continue
 			
-		#TODO: do some input validation here, and toss broken membership lines somwhere to be manually fixed
+		endDate = None
+		if duration != None:
+			endDate = startDate + duration
+			
 		lastName = row[1].strip()
 		firstName = row[2].strip()
-		
-		personID = conn.FindPersonIDByFullName(firstName, lastName)
-		if personID is None:
-			personID = conn.CreatePerson(firstName, lastName)
 
-		if conn.PersonIsAMember(personID):
-			#update member
-			pass
+		#TODO: Do more validation before we get to this point
+		person = conn.GetPersonByFullName(firstName, lastName)
+		if person is None:
+			person = conn.EmptyPerson()
+			person["firstName"] = firstName
+			person["lastName"] = lastName
+			conn.Insert(person)
+
+		member = conn.GetMemberByPersonID(person["id"])
+		if member is None:
+			member = conn.EmptyMember()
+			member["personId"] = person["id"]
+			member["streetAddress"] = row[3].strip()
+			member["phoneNumber"] = row[4].strip()
+			member["emailAddress"] = row[5].strip()
+			member["donation"] =  money
+			member["notes"] = row[8].strip()
+			member["startDate"] = startDate
+			member["endDate"] = endDate
+					
+			conn.Insert(member)
 		else:
-			address = row[3].strip()
-			phone = row[4].strip()
-			email = row[5].strip()
-			notes = row[8].strip()
-			endDate = None
-			if duration != None:
-				endDate = startDate + duration
-			
-			conn.CreateMember(personID, startDate, endDate,
-					address, email, phone, money, notes)	
+			alreadyLifer = member["endDate"] is None
+			nowLifer = endDate is None
+			if nowLifer and not alreadyLifer or \
+				(not alreadyLifer and not nowLifer and member["endDate"] < endDate):
+
+				member["endDate"] = endDate
+				member["streetAddress"] = row[3].strip()
+				member["phoneNumber"] = row[4].strip()
+				member["emailAddress"] = row[5].strip()
+				member["donation"] =  money
+				member["notes"] = row[8].strip()
+				member["startDate"] = startDate
+				member["endDate"] = endDate
+				
+			conn.Update(member)
 					
 		succeeded.writerow(row)
 		numSucceeded += 1
