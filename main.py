@@ -1,14 +1,8 @@
-import csvImport, db, ui
+import csvImport, db, ui, ui_forms
 from copy import copy
+import wx
 
-def DebugStuff():	
-	name = "jac"
-	conn = db.SigninDBConnection()
-	persons = conn.FindPersonsByPartialName(name)
-	print("\nPeople matching {0}:".format(name))
-	for person in persons:
-		print("\t{0} ({1})".format(person.name, person.id))
-	
+def DebugStuff(conn):
 	#Get all current lifetime members we know about
 	conn.cursor.execute("SELECT members.endDate \
 				FROM persons JOIN members \
@@ -17,6 +11,11 @@ def DebugStuff():
 				
 	print("{0} lifetime members".format(conn.cursor.rowcount))
 				 
-db.CreateTablesFromScratch()
-csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")
-DebugStuff()
+#db.CreateTablesFromScratch()
+#csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")		
+
+conn = db.SigninDBConnection()
+app = wx.App()
+form = ui.MainWindow(None, conn)
+form.Show()
+app.MainLoop()

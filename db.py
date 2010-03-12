@@ -70,7 +70,7 @@ class RowObject:
 							
 	def FromQuery(self, query):
 		for column in self.columns:
-			self.values[column.name] = query[0]
+			self[column.name] = query[0]
 			query = query[1:]
 		if len(query) != 0:
 			print("RowObject.FromQuery discarded excess column values: {0}".format(query))
@@ -139,40 +139,31 @@ class SigninDBConnection:
 		self.cursor.execute("UPDATE {0} SET {1} WHERE id = %s;"
 			.format(rowObject.table, setString), valuesList)
 	
-	def EmptyPerson(self):
-		return RowObject("persons", self.tables["persons"])
-		
-	def EmptyMember(self):
-		return RowObject("members", self.tables["members"])
+	def EmptyRow(self, table):
+		return RowObject(table, self.tables[table])
 
 	def GetPersonByFullName(self, firstName, lastName):
 		self.cursor.execute("SELECT * FROM persons WHERE firstName = %s AND lastName = %s;",
 			(firstName, lastName))
 		if self.cursor.rowcount == 0: return None
-		else: return self.EmptyPerson().FromQuery(self.cursor.fetchone())
+		else: return self.EmptyRow("persons").FromQuery(self.cursor.fetchone())
 
 	def GetMemberByPersonID(self, personID):
 		self.cursor.execute("SELECT * FROM members WHERE personId = %s;", (personID,))
 		if self.cursor.rowcount == 0: return None
-		else: return self.EmptyMember().FromQuery(self.cursor.fetchone())
-		
-	def UpdateMember(self, newMemberValues, oldMemberValues = None):
-		pass
+		else: return self.EmptyRow("members").FromQuery(self.cursor.fetchone())
 		
 	def FindPersonsByPartialName(self, partialName):
 		partialLen = len(partialName)
-		self.cursor.execute("SELECT CONCAT(persons.firstName, \" \", persons.lastName), persons.id \
+		self.cursor.execute("SELECT CONCAT(persons.firstName, \" \", persons.lastName) \
 				FROM persons \
-				WHERE LEFT(persons.firstName, %s) = %s or LEFT(persons.lastName, %s) = %s\
+				WHERE LEFT(persons.firstName, %s) = %s \
+					OR LEFT(persons.lastName, %s) = %s \
+					OR LEFT(CONCAT(persons.firstname, \" \", persons.lastname), %s) = %s \
 				ORDER BY persons.firstName;",
-				(partialLen, partialName, partialLen, partialName))
-				
-		class NameResult:
-			def __init__(self, name, id):
-				self.name = name
-				self.id = id
+				(partialLen, partialName, partialLen, partialName, partialLen, partialName))
 
-		return (NameResult(row[0], row[1]) for row in self.cursor.fetchall())
+		return [row[0] for row in self.cursor.fetchall()]
 
 
 def CreateTablesFromScratch():
@@ -217,11 +208,11 @@ def CreateTablesFromScratch():
 	cursor.execute("""CREATE TABLE hours
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 				personID INT UNSIGNED NOT NULL UNIQUE,
-				startDate DATE NOT NULL,
-				startTime TIME,
+				start DATETIME NOT NULL,
 				duration TIME NOT NULL,
 				type ENUM(
 					'shoptime',
+					'parts',
 					'worktrade',
 					'volunteer',
 					'mechanic',

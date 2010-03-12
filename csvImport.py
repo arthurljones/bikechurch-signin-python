@@ -68,14 +68,14 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 		#TODO: Do more validation before we get to this point
 		person = conn.GetPersonByFullName(firstName, lastName)
 		if person is None:
-			person = conn.EmptyPerson()
+			person = conn.EmptyRow("persons")
 			person["firstName"] = firstName
 			person["lastName"] = lastName
 			conn.Insert(person)
 
 		member = conn.GetMemberByPersonID(person["id"])
 		if member is None:
-			member = conn.EmptyMember()
+			member = conn.EmptyRow("members")
 			member["personId"] = person["id"]
 			member["streetAddress"] = row[3].strip()
 			member["phoneNumber"] = row[4].strip()
