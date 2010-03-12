@@ -12,9 +12,10 @@ def DebugStuff(conn):
 				WHERE members.endDate IS NULL;")
 				
 	print("{0} lifetime members".format(conn.cursor.rowcount))
-				 
-#db.CreateTablesFromScratch()
-#csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")		
+
+if 0:				 
+	db.CreateTablesFromScratch()
+	csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")		
 
 conn = db.SigninDBConnection()
 app = wx.App()

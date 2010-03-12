@@ -57,7 +57,7 @@ class ColumnDef:
 		self.nullAllowed = row[2]
 		self.key = row[3]
 		self.default = row[4]
-		self.extra = row[5]	
+		self.extra = row[5]
 
 class RowObject:
 	#TODO: Create methods to validate params
@@ -83,6 +83,19 @@ class RowObject:
 			print("RowObject.FromQuery discarded excess column values: {0}".format(query))
 			raise ValueError("Excess column values")
 		return self
+
+class TempRowObject:
+	def __init__(self, columnNames, row):
+		self.values = {}
+		for columnName in columnNames:
+			self.values[columnName] = row[0]
+			row = row[1:]
+		if len(row) != 0:
+			print("TempRowObject.FromQuery discarded excess column values: {0}".format(row))
+			raise ValueError("Excess column values")
+			
+	def __getitem__(self, itemName):
+		return self.values[itemName]
 
 class SigninDBConnection:
 	def __init__(self):
@@ -154,6 +167,12 @@ class SigninDBConnection:
 			(firstName, lastName))
 		if self.cursor.rowcount == 0: return None
 		else: return self.EmptyRow("persons").FromQuery(self.cursor.fetchone())
+		
+	def GetPersonByCombinedName(self, combinedName):
+		self.cursor.execute("SELECT * FROM persons\
+				WHERE CONCAT(firstName, \" \", lastName) = %s", (combinedName))
+		if self.cursor.rowcount == 0: return None
+		else: return self.EmptyRow("persons").FromQuery(self.cursor.fetchone())
 
 	def GetMemberByPersonID(self, personID):
 		self.cursor.execute("SELECT * FROM members WHERE personId = %s;", (personID,))
@@ -172,15 +191,15 @@ class SigninDBConnection:
 
 		return [row[0] for row in self.cursor.fetchall()]
 		
-	def GetHoursInProgress(self):
-		self.cursor.execute("SELECT persons.firstName, persons.lastName, hours.start, hours.type \
-				FROM hours INNER JOIN persons \
-				ON hours.personID = persons.id \
-				WHERE hours.duration == 0 \
-				ORDER BY persons.firstName;")
-				
-		return self.cursor.fetchall()
-
+	def GetPersonsInShop(self):
+		self.cursor.execute("SELECT persons.firstName, persons.lastName, \
+				personsInShop.start, personsInShop.type \
+				FROM persons INNER JOIN personsInShop \
+				ON persons.id = personsInShop.personID \
+				ORDER BY personsInShop.start;")
+		colNames = ["firstName", "lastName", "start", "type"]
+		if self.cursor.rowcount == 0: return None
+		else: return [TempRowObject(colNames, row) for row in self.cursor.fetchall()]
 
 def CreateTablesFromScratch():
 	print("Creating database tables from scratch...")
@@ -250,8 +269,8 @@ def CreateTablesFromScratch():
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")
 			
-	cursor.execute("""CREATE TABLE hoursInProgress LIKE hours""")
-	cursor.execute("""ALTER TABLE hoursInProgress
+	cursor.execute("""CREATE TABLE personsInShop LIKE hours""")
+	cursor.execute("""ALTER TABLE personsInShop
 				DROP COLUMN duration,
 				DROP COLUMN notes""")
 			
