@@ -171,6 +171,15 @@ class SigninDBConnection:
 				(partialLen, partialName, partialLen, partialName, partialLen, partialName))
 
 		return [row[0] for row in self.cursor.fetchall()]
+		
+	def GetHoursInProgress(self):
+		self.cursor.execute("SELECT persons.firstName, persons.lastName, hours.start, hours.type \
+				FROM hours INNER JOIN persons \
+				ON hours.personID = persons.id \
+				WHERE hours.duration == 0 \
+				ORDER BY persons.firstName;")
+				
+		return self.cursor.fetchall()
 
 
 def CreateTablesFromScratch():
@@ -184,7 +193,9 @@ def CreateTablesFromScratch():
 		db = "signin_db")
 		
 	cursor = conn.cursor()
-	cursor.execute("""drop table if exists bikes, hours, members, persons;""")
+	cursor.execute("""SHOW TABLES""")
+	for table in cursor.fetchall():
+		cursor.execute("DROP TABLE {0}".format(table[0]))
 	
 	cursor.execute("""CREATE TABLE persons
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
@@ -230,7 +241,7 @@ def CreateTablesFromScratch():
 					'ordering',
 					'tools',
 					'other') NOT NULL,
-				notes VARCHAR(200),	
+				notes VARCHAR(200),
 			PRIMARY KEY(id),
 			INDEX(personId),
 			INDEX(type),
@@ -238,6 +249,11 @@ def CreateTablesFromScratch():
 				ON DELETE NO ACTION
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")
+			
+	cursor.execute("""CREATE TABLE hoursInProgress LIKE hours""")
+	cursor.execute("""ALTER TABLE hoursInProgress
+				DROP COLUMN duration,
+				DROP COLUMN notes""")
 			
 	cursor.execute("""CREATE TABLE bikes
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
@@ -253,10 +269,6 @@ def CreateTablesFromScratch():
 				ON DELETE NO ACTION
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")
-			
-	cursor.execute("""show tables""")
-	raw_tables = cursor.fetchall()
-	tables = (table[0] for table in raw_tables)
 
 	conn.commit()
 	cursor.close()

@@ -1,4 +1,5 @@
-import wx
+import db
+import wx, datetime
 
 class ShopOccupantsArea():
 	def __init__(self, parent):
@@ -8,10 +9,9 @@ class ShopOccupantsArea():
 		self.parent = parent
 
 		titleFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
-		
 		self.titleText = wx.StaticText(parent, wx.ID_ANY, u"Who's in the Shop:")
 		self.titleText.SetFont(titleFont)
-		self.dateText = wx.StaticText(parent, wx.ID_ANY, u"Wednesday 3/10/10")
+		self.dateText = wx.StaticText(parent, wx.ID_ANY, u"")
 		self.dateText.SetFont(titleFont)
 		
 		titleSizer = wx.BoxSizer()
@@ -32,14 +32,21 @@ class ShopOccupantsArea():
 		self.gridSizer.AddGrowableCol(1)
 		self.gridSizer.Add(titleSizer, 1, wx.EXPAND)
 		self.gridSizer.Add(self.listSizer, 1, wx.EXPAND)
+		
+		self.UpdateTimes()
 	
 	def GetOuterSizer(self):
 		return self.gridSizer
-		
-	def RefreshShopOccupantList(self):
+	
+	def AddOccupantLine(self):
+		pass
+	
+	def RemoveOccupantLine(self):
 		pass
 		
-	
+	def UpdateTimes(self):
+		self.dateText.SetLabel(datetime.datetime.now().strftime("%A %b %d  %I:%M %p"))
+		
 		
 class SignInArea():
 	def __init__(self, parent):
@@ -53,11 +60,11 @@ class SignInArea():
 		
 		startHereText = wx.StaticText(parent, wx.ID_ANY, u"Sign In Here")
 		startHereText.SetFont(bigFont)
-		enterNameText = wx.StaticText(parent, wx.ID_ANY, "Hi! What's your name?")
+		enterNameText = wx.StaticText(parent, wx.ID_ANY, u"Hi! What's your name?")
 		startHereText.SetFont(mediumFont)
-		selectNameText = wx.StaticText(parent, wx.ID_ANY, "Click your name if it's in the list:")
+		selectNameText = wx.StaticText(parent, wx.ID_ANY, u"Click your name if it's in the list:")
 		startHereText.SetFont(mediumFont)
-		whatToDoText = wx.StaticText(parent, wx.ID_ANY, "What did you want to do in the shop today?")
+		whatToDoText = wx.StaticText(parent, wx.ID_ANY, u"What did you want to do in the shop today?")
 		startHereText.SetFont(mediumFont)
 		
 		self.nameEntryDefaultText = u"Type your name here."
@@ -86,21 +93,13 @@ class SignInArea():
 		self.nameEntry.Bind(wx.EVT_SET_FOCUS, self.OnNameEntryFocus)
 		
 	def OnNameEntryChange(self, event):
-		cursor = self.parent.GetDBCursor()
 		self.nameList.Clear()
 		partialName = self.nameEntry.GetValue()
 		partialNameLen = len(partialName)
 					
 		if partialNameLen > 1:
-			cursor.execute("SELECT CONCAT(firstName, \" \", lastName) \
-					FROM persons \
-					WHERE LEFT(firstName, %s) = %s \
-						OR LEFT(lastName, %s) = %s \
-						OR LEFT(CONCAT(firstName, \" \", lastName), %s) = %s;",
-					(partialNameLen, partialName,
-					 partialNameLen, partialName,
-					 partialNameLen, partialName))
-			matchingNames = [row[0] for row in cursor.fetchall()]
+			conn = self.parent.GetDBConnection()
+			matchingNames = conn.FindPersonsByPartialName(partialName)
 			self.nameList.SetItems(matchingNames)
 	
 	def OnNameEntryFocus(self, event):
@@ -128,14 +127,20 @@ class MainWindow(wx.Frame):
 		self.SetSizer(self.sizer)
 		self.Layout()
 		self.Centre(wx.BOTH)
+		
+		self.updateTimer = wx.Timer(self)
+		self.updateTimer.Start(1000 * 20)
 
-		wx.EVT_SIZE(self, self.OnResize)
+		self.Bind(wx.EVT_SIZE, self.OnResize)
+		self.Bind(wx.EVT_TIMER, self.OnTimer)
 
 	# Frame resize event method
 	def OnResize(self, event):
 		self.Layout()
-		pass
+	
+	def OnTimer(self, event):
+		self.occupantsPanel.UpdateTimes()
 		
-	def GetDBCursor(self):
-		return self.dbConnection.cursor
+	def GetDBConnection(self):
+		return self.dbConnection
 		

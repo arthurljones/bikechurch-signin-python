@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import csvImport, db, ui, ui_forms
 from copy import copy
 import wx
