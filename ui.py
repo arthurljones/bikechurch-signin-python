@@ -3,20 +3,30 @@ import wx
 from datetime import datetime, timedelta
 import random
 
-class ShopOccupantLine():
-	timeTypeStrings = {
-		"shoptime":	"Working on a Bike",
-		"parts":	"Looking for Parts",
-		"worktrade":	"Doing Worktrade",
-		"volunteer":	"Volunteering"
-		}
-	
-	def __init__(self, parent, sizer, firstName, lastName, startTime, type):
+sTypeDescriptions = {
+	"shoptime":	"Working on a Bike",
+	"parts":	"Looking for Parts",
+	"worktrade":	"Doing Worktrade",
+	"volunteer":	"Volunteering"
+	}
+
+def GetShoptimeTypeDescription(type):
+	if type in sTypeDescriptions:
+		return sTypeDescriptions[type]
+	else:
+		return "\"{0}\"".format(type)
+
+class ShopOccupantLine():	
+	def __init__(self, parent, sizer, controller, personID, startTime, type):
 		self.parent = parent
-		self.firstName = firstName
-		self.lastName = lastName
+		self.controller = controller
+		self.personID = personID
+		name = controller.GetPersonNameByID(personID)
+		firstName = name[0]
+		lastName = name[1]
 		self.startTime = startTime
-		self.type = type
+		type = type
+		self.elements = []
 		
 		possesiveChar = "s"
 		if firstName[-1] == "s":
@@ -24,8 +34,9 @@ class ShopOccupantLine():
 
 		def AddText(parent, sizer, string, flags = 0):
 			text = wx.StaticText(parent, wx.ID_ANY, string)
-			text.SetFont(wx.Font(10, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL))
+			text.SetFont(wx.Font(9, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL))
 			sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | flags)
+			self.elements.append(text)
 			return text
 			 
 		def AddButton(parent, sizer, string, onClick):
@@ -33,23 +44,29 @@ class ShopOccupantLine():
 			button.SetMaxSize(wx.Size(-1, 25))
 			sizer.Add(button, 1, wx.ALIGN_CENTER_VERTICAL)
 			button.Bind(wx.EVT_BUTTON, onClick)
+			self.elements.append(button)
+		 
 		 
 		AddText(parent, sizer, u"{0} {1}".format(firstName, lastName))
-		AddText(parent, sizer, u"{0}".format(ShopOccupantLine.timeTypeStrings[type]))
+		AddText(parent, sizer, u"{0}".format(GetShoptimeTypeDescription(type)))
 		self.timeText = AddText(parent, sizer, u"", wx.ALIGN_RIGHT)
-		 
+		
 		buttonSizer = wx.BoxSizer()
+		self.elements.append(buttonSizer)
 		AddButton(parent, buttonSizer, u"View Info", self.OnViewInfoClicked)
 		AddButton(parent, buttonSizer, u"Sign Out", self.OnSignOutClicked)
 		sizer.Add(buttonSizer, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
 		
 		self.UpdateTime()
 		
+	def GetElements(self):
+		return self.elements
+		
 	def OnViewInfoClicked(self, event):
-		print("View info for {0} {1}".format(self.firstName, self.lastName))
+		print("View info for {0}".format(self.personID))
 		
 	def OnSignOutClicked(self, event):
-		print("Sign out {0} {1}".format(self.firstName, self.lastName))
+		self.controller.SignPersonOut(self.personID)
 		
 	def UpdateTime(self):
 		timediff = datetime.now() - self.startTime
@@ -71,11 +88,12 @@ class ShopOccupantLine():
 		self.timeText.SetLabel(timeString)
 		
 class ShopOccupantsArea():
-	def __init__(self, parent):
+	def __init__(self, parent, controller):
 		if not isinstance(parent, wx.Window):
 			raise TypeError("Parent must be a wx.Window")
 			
 		self.parent = parent
+		self.controller = controller
 		self.occupants = []
 
 		titleFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
@@ -109,15 +127,14 @@ class ShopOccupantsArea():
 		AddColumnHeader(self.scrollbox, self.listSizer, u"Time In Shop")
 		AddColumnHeader(self.scrollbox, self.listSizer, u"")
 		
-		personsInShop = self.parent.GetDBConnection().GetPersonsInShop()
-		if personsInShop is not None:
-			for person in self.parent.GetDBConnection().GetPersonsInShop():
-				self.occupants.append(ShopOccupantLine(self.scrollbox, self.listSizer,
-					person["firstName"], person["lastName"],
-					person["start"], person["type"]))
+		peopleInShop = self.controller.GetPeopleInShop()
+		if peopleInShop is not None:
+			for person in self.controller.GetPeopleInShop():
+				self.AddOccupantLine(person["personID"], person["start"], person["type"])
 		
 		self.scrollbox.SetSizer(self.listSizer)
-		self.scrollbox.SetScrollRate(0, 5)
+		self.scrollbox.SetScrollRate(0, 20)
+		self.scrollbox.Bind(wx.EVT_SCROLLWIN_THUMBTRACK, self.OnThumbTrack)
 				
 		self.gridSizer = wx.FlexGridSizer(2, 1)
 		self.gridSizer.SetFlexibleDirection(wx.BOTH)
@@ -131,15 +148,30 @@ class ShopOccupantsArea():
 	def GetOuterSizer(self):
 		return self.gridSizer
 	
-	def AddOccupantLine(self, firstName, lastName, startTime, type):
+	def AddOccupantLine(self, personID, startTime, type):
 		occupant = ShopOccupantLine(self.scrollbox, self.listSizer,
-			firstName, lastName, startTime, type)
+			self.controller, personID, startTime, type)
 		self.occupants.append(occupant)
-		self.listSizer.Layout()
-		self.gridSizer.Layout()
+		
+		if hasattr(self, "listSizer"):
+			self.listSizer.Layout()
+		if hasattr(self, "gridSizer"):
+			self.gridSizer.Layout()
 	
-	def RemoveOccupantLine(self, name):
+	def RemoveOccupantLine(self, personID):
+		for occupant in self.occupants:
+			if occupant.personID == personID:
+				for element in occupant.GetElements():
+					self.listSizer.Detach(element)
+					element.Destroy()
+				self.occupants.remove(occupant)
+				break
+											
+		self.gridSizer.Layout()
+				
+	def OnThumbTrack(self, event):
 		pass
+		#event.Skip()
 		
 	def UpdateTimes(self):
 		self.dateText.SetLabel(datetime.now().strftime("%A %b %d  %I:%M %p"))
@@ -148,11 +180,13 @@ class ShopOccupantsArea():
 		self.gridSizer.Layout()
 		
 class SignInArea():
-	def __init__(self, parent):
+	def __init__(self, parent, controller):
 		if not isinstance(parent, wx.Window):
 			raise TypeError("Parent must be a wx.Window")
 		
 		self.parent = parent
+		self.controller = controller
+		self.nameList = []
 		self.suppressNextListChange = False
 		
 		def AddText(parent, sizer, font, string, flags = 0):
@@ -185,11 +219,11 @@ class SignInArea():
 		
 		AddText(parent, self.sizer, medFont, u"If you've been here before,\nclick your name in the list:")
 		
-		self.nameList = wx.ListBox(parent, wx.ID_ANY)
-		self.nameList.Bind(wx.EVT_LISTBOX, self.OnListClick)
-		self.nameList.Bind(wx.EVT_LISTBOX_DCLICK, self.OnListClick)
-		self.sizer.Add(self.nameList, 0, wx.EXPAND)
-		self.sizer.SetItemMinSize(self.nameList, wx.Size(-1, 150))
+		self.nameListBox = wx.ListBox(parent, wx.ID_ANY)
+		self.nameListBox.Bind(wx.EVT_LISTBOX, self.OnListClick)
+		self.nameListBox.Bind(wx.EVT_LISTBOX_DCLICK, self.OnListClick)
+		self.sizer.Add(self.nameListBox, 0, wx.EXPAND)
+		self.sizer.SetItemMinSize(self.nameListBox, wx.Size(-1, 150))
 		
 		AddText(parent, self.sizer, medFont, u"What do you want to do?")
 		AddButton(parent, self.sizer, u"Work on my bike!", lambda e: self.OnSigninClick(e, "shoptime"))
@@ -198,89 +232,98 @@ class SignInArea():
 		AddButton(parent, self.sizer, u"Volunteer!", lambda e: self.OnSigninClick(e, "volunteer"))
 		
 	def OnNameEntryChange(self, event):
+		"Name Entry Change"
 		if self.suppressNextListChange:
 			self.suppressNextListChange = False
 			event.Skip()
 			return
 			
-		self.nameList.Clear()
+		self.nameListBox.Clear()
 		partialName = self.nameEntry.GetValue()
 		partialNameLen = len(partialName)
 					
 		if partialNameLen > 1:
-			conn = self.parent.GetDBConnection()
-			matchingNames = conn.FindPersonsByPartialName(partialName)
-			self.nameList.SetItems(matchingNames)
+			self.nameList = self.controller.FindPeopleByPartialName(partialName)
+			if len(self.nameList) > 0:
+				names = ["{0} {1}".format(n["firstName"], n["lastName"])
+					for n in self.nameList]
+				self.nameListBox.SetItems(names)
+
+				self.nameListBox.SetSelection(-1)
+				for i in range(len(names)):
+					if partialName.lower() == names[i].lower():
+						self.nameListBox.SetSelection(i)
+					break
 	
 	def OnNameEntryFocus(self, event):
-		if self.nameEntry.GetValue() == self.nameEntryDefaultText:
+		name = self.nameEntry.GetValue()
+		if name == self.nameEntryDefaultText:
 			self.nameEntry.SetValue("")
+		elif name.lower() != self.nameListBox.GetStringSelection().lower():
+			self.nameListBox.SetSelection(-1)
 	
 	def OnListClick(self, event):
-		selection = self.nameList.GetStringSelection()
+		selection = self.nameListBox.GetStringSelection()
 		if selection != "":
 			self.suppressNextListChange = True
 			self.nameEntry.SetValue(selection)
 	
 	def OnSigninClick(self, event, type):
-		name = self.nameEntry.GetValue()
-		if name == "" or name == self.nameEntryDefaultText:
-			#Flash the name box
-			pass
+		selection = self.nameListBox.GetSelection()
+		if selection < 0:
+			enteredName = self.nameListBox.GetStringSelection()
+			self.controller.ShowNewPersonScreen(enteredName, type)
 		else:
-			conn = self.parent.GetDBConnection()
-			person = conn.GetPersonByCombinedName(name)
-			if person is None:
-				print("Signin: new person doing {0}".format(type))
-			else:
-				personInShop = conn.EmptyRow("personsInShop")
-				personInShop["personID"] = person["id"]
-				personInShop["start"] = datetime.now()
-				personInShop["type"] = type
-				conn.Insert(personInShop)
-				conn.Commit()
-				
-				self.parent.occupantsArea.AddOccupantLine(
-					person["firstName"], person["lastName"], datetime.now(), type)
+			print self.nameList[selection].values
+			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
 			
-			self.nameEntry.SetValue(self.nameEntryDefaultText)
-			self.nameList.Clear()
+	def Reset(self):
+		self.nameEntry.SetValue(self.nameEntryDefaultText)
+		self.nameListBox.Clear()
+		self.nameList = []
 	
 	def GetOuterSizer(self):
 		return self.sizer
 	
-class MainWindow(wx.Frame):
-	def __init__(self, parent, dbConnection):
-		wx.Frame.__init__(self, parent, id = wx.ID_ANY, title = u"Welcome To The Bike Church!",
-			pos = wx.DefaultPosition, size = wx.Size(900, 480),
-			style = wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL, name = "MainWindow")
+class MainWindow():
+	def __init__(self, controller):
+				
+		self.controller = controller
+		controller.SetUI(self)
 		
-		self.dbConnection = dbConnection
+		self.frame = wx.Frame(None, id = wx.ID_ANY, title = u"Welcome To The Bike Church!",
+			size = wx.Size(900, 480), style = wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 		
-		self.occupantsArea = ShopOccupantsArea(self)
-		self.signInArea = SignInArea(self)
+		self.occupantsArea = ShopOccupantsArea(self.frame, controller)
+		self.signinArea = SignInArea(self.frame, controller)
 		
-		self.sizer = wx.BoxSizer(wx.HORIZONTAL)		
-		self.sizer.Add(self.signInArea.GetOuterSizer(), 0, wx.ALL, 8)
-		self.sizer.Add(self.occupantsArea.GetOuterSizer(), 1, wx.EXPAND | wx.ALL, 8)
+		sizer = wx.BoxSizer(wx.HORIZONTAL)		
+		sizer.Add(self.signinArea.GetOuterSizer(), 0, wx.ALL, 8)
+		sizer.Add(self.occupantsArea.GetOuterSizer(), 1, wx.EXPAND | wx.ALL, 8)
 		
-		self.SetSizer(self.sizer)
-		self.Layout()
-		self.Centre(wx.BOTH)
+		self.frame.SetSizer(sizer)
+		self.frame.Layout()
+		self.frame.Centre(wx.BOTH)
+		self.frame.Show()
 		
-		self.updateTimer = wx.Timer(self)
+		self.updateTimer = wx.Timer(self.frame)
 		self.updateTimer.Start(1000 * 60)
 
-		self.Bind(wx.EVT_SIZE, self.OnResize)
-		self.Bind(wx.EVT_TIMER, self.OnTimer)
+		self.frame.Bind(wx.EVT_SIZE, self.OnResize)
+		self.frame.Bind(wx.EVT_TIMER, self.OnTimer)
 
 	# Frame resize event method
 	def OnResize(self, event):
-		self.Layout()
+		self.frame.Layout()
 	
 	def OnTimer(self, event):
 		self.occupantsArea.UpdateTimes()
 		
-	def GetDBConnection(self):
-		return self.dbConnection
+	def ResetSignin(self):
+		self.signinArea.Reset()
 		
+	def AddPersonToShopList(self, personID, start, type):
+		self.occupantsArea.AddOccupantLine(personID, start, type)
+		
+	def RemovePersonFromShopList(self, personID):
+		self.occupantsArea.RemoveOccupantLine(personID)

@@ -97,7 +97,7 @@ class TempRowObject:
 	def __getitem__(self, itemName):
 		return self.values[itemName]
 
-class SigninDBConnection:
+class Connection:
 	def __init__(self):
 		self.connection = MySQLdb.connect(
 			host = "localhost", user = "signin", passwd = "signin", db = "signin_db")
@@ -159,47 +159,39 @@ class SigninDBConnection:
 		self.cursor.execute("UPDATE {0} SET {1} WHERE id = %s;"
 			.format(rowObject.table, setString), valuesList)
 	
+	'''TODO: Combine these query types. The only distinction is the use of RowObject, which
+		allows editing and updating. Using full names for complex queries should allow
+		editing and then updates, but the class that handles that still needs writing.
+	'''
+	def SimpleQuery(self, table, where, order = "", args = (), multipleResults = True):
+		query = "SELECT * FROM {0} WHERE {1}".format(table, where)
+		if order: query += "ORDER BY {0}".format(order)
+		query += ";"
+		self.cursor.execute(query, args)
+		if multipleResults: 
+			return [self.EmptyRow(table).FromQuery(q) for q in self.cursor.fetchall()]
+		else:
+			if self.cursor.rowcount == 0 :
+				return None
+			else: 
+				return self.EmptyRow(table).FromQuery(self.cursor.fetchone())
+	
+	def ComplexQuery(self, fields, tables = (), join = "", on = "", where = "", order = "", args = (), stripPrefixes = True):
+		query = "SELECT {0}".format(", ".join(fields))
+		if tables: query += " FROM {0}".format((" {0} ".format(join)).join(tables))
+		if on: query += " ON {0}".format(on)
+		if where: query += " WHERE {0}".format(where)
+		if order: query += " ORDER BY {0}".format(order)
+		query += ";"
+		
+		self.cursor.execute(query, args)
+		if (stripPrefixes):
+			fields = [field.split(".")[-1] for field in fields]
+			
+		return [TempRowObject(fields, row) for row in self.cursor.fetchall()]
+	
 	def EmptyRow(self, table):
 		return RowObject(table, self.tables[table])
-
-	def GetPersonByFullName(self, firstName, lastName):
-		self.cursor.execute("SELECT * FROM persons WHERE firstName = %s AND lastName = %s;",
-			(firstName, lastName))
-		if self.cursor.rowcount == 0: return None
-		else: return self.EmptyRow("persons").FromQuery(self.cursor.fetchone())
-		
-	def GetPersonByCombinedName(self, combinedName):
-		self.cursor.execute("SELECT * FROM persons\
-				WHERE CONCAT(firstName, \" \", lastName) = %s", (combinedName))
-		if self.cursor.rowcount == 0: return None
-		else: return self.EmptyRow("persons").FromQuery(self.cursor.fetchone())
-
-	def GetMemberByPersonID(self, personID):
-		self.cursor.execute("SELECT * FROM members WHERE personId = %s;", (personID,))
-		if self.cursor.rowcount == 0: return None
-		else: return self.EmptyRow("members").FromQuery(self.cursor.fetchone())
-		
-	def FindPersonsByPartialName(self, partialName):
-		partialLen = len(partialName)
-		self.cursor.execute("SELECT CONCAT(persons.firstName, \" \", persons.lastName) \
-				FROM persons \
-				WHERE LEFT(persons.firstName, %s) = %s \
-					OR LEFT(persons.lastName, %s) = %s \
-					OR LEFT(CONCAT(persons.firstname, \" \", persons.lastname), %s) = %s \
-				ORDER BY persons.firstName;",
-				(partialLen, partialName, partialLen, partialName, partialLen, partialName))
-
-		return [row[0] for row in self.cursor.fetchall()]
-		
-	def GetPersonsInShop(self):
-		self.cursor.execute("SELECT persons.firstName, persons.lastName, \
-				personsInShop.start, personsInShop.type \
-				FROM persons INNER JOIN personsInShop \
-				ON persons.id = personsInShop.personID \
-				ORDER BY personsInShop.start;")
-		colNames = ["firstName", "lastName", "start", "type"]
-		if self.cursor.rowcount == 0: return None
-		else: return [TempRowObject(colNames, row) for row in self.cursor.fetchall()]
 
 def CreateTablesFromScratch():
 	print("Creating database tables from scratch...")
@@ -216,7 +208,7 @@ def CreateTablesFromScratch():
 	for table in cursor.fetchall():
 		cursor.execute("DROP TABLE {0}".format(table[0]))
 	
-	cursor.execute("""CREATE TABLE persons
+	cursor.execute("""CREATE TABLE people
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 				firstName VARCHAR(64) NOT NULL,
 				lastName VARCHAR(64),			
@@ -237,7 +229,7 @@ def CreateTablesFromScratch():
 				notes VARCHAR(200),	
 			PRIMARY KEY(id),
 			INDEX(personId),
-			FOREIGN KEY(personId) REFERENCES persons(id)
+			FOREIGN KEY(personId) REFERENCES people(id)
 				ON DELETE NO ACTION 
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")
@@ -264,13 +256,13 @@ def CreateTablesFromScratch():
 			PRIMARY KEY(id),
 			INDEX(personId),
 			INDEX(type),
-			FOREIGN KEY(personId) REFERENCES persons(id)
+			FOREIGN KEY(personId) REFERENCES people(id)
 				ON DELETE NO ACTION
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")
 			
-	cursor.execute("""CREATE TABLE personsInShop LIKE hours""")
-	cursor.execute("""ALTER TABLE personsInShop
+	cursor.execute("""CREATE TABLE peopleInShop LIKE hours""")
+	cursor.execute("""ALTER TABLE peopleInShop
 				DROP COLUMN duration,
 				DROP COLUMN notes""")
 			
@@ -284,7 +276,7 @@ def CreateTablesFromScratch():
 			PRIMARY KEY(id),
 			INDEX(personId),
 			INDEX(serialNumber(10)),
-			FOREIGN KEY(personId) REFERENCES persons(id)
+			FOREIGN KEY(personId) REFERENCES people(id)
 				ON DELETE NO ACTION
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")

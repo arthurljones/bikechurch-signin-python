@@ -1,4 +1,4 @@
-import db
+import db, control
 import sys, csv
 from datetime import date, timedelta
 
@@ -48,7 +48,8 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 	print("Loading existing membership data...")
 	sys.stdout.flush()
 	
-	conn = db.SigninDBConnection()
+	connection = db.Connection()
+	controller = control.Controller(connection)
 	
 	for row in reader:
 		startDate = ParseCSVDate(row[0])
@@ -66,54 +67,49 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 		firstName = row[2].strip()
 
 		#TODO: Do more validation before we get to this point
-		person = conn.GetPersonByFullName(firstName, lastName)
+		person = controller.GetPersonByFullName(firstName, lastName)
 		if person is None:
-			person = conn.EmptyRow("persons")
+			person = connection.EmptyRow("people")
 			person["firstName"] = firstName
 			person["lastName"] = lastName
-			conn.Insert(person)
+			connection.Insert(person)
 
-		member = conn.GetMemberByPersonID(person["id"])
+		member = controller.GetMemberByPersonID(person["id"])
+		action = None
 		if member is None:
-			member = conn.EmptyRow("members")
-			member["personId"] = person["id"]
-			member["streetAddress"] = row[3].strip()
-			member["phoneNumber"] = row[4].strip()
-			member["emailAddress"] = row[5].strip()
-			member["donation"] =  money
-			member["notes"] = row[8].strip()
-			member["startDate"] = startDate
-			member["endDate"] = endDate
-					
-			conn.Insert(member)
+			member = connection.EmptyRow("members")
+			action = connection.Insert
 		else:
 			alreadyLifer = member["endDate"] is None
 			nowLifer = endDate is None
 			if nowLifer and not alreadyLifer or \
 				(not alreadyLifer and not nowLifer and member["endDate"] < endDate):
-
-				member["endDate"] = endDate
-				member["streetAddress"] = row[3].strip()
-				member["phoneNumber"] = row[4].strip()
-				member["emailAddress"] = row[5].strip()
-				member["donation"] =  money
-				member["notes"] = row[8].strip()
-				member["startDate"] = startDate
-				member["endDate"] = endDate
-				
-			conn.Update(member)
+				action = connection.Update
+					
+		member["personId"] = person["id"]
+		member["endDate"] = endDate
+		member["streetAddress"] = row[3].strip()
+		member["phoneNumber"] = row[4].strip()
+		member["emailAddress"] = row[5].strip()
+		member["donation"] =  money
+		member["notes"] = row[8].strip()
+		member["startDate"] = startDate
+		member["endDate"] = endDate		
+		
+		if action is not None:		
+			action(member)
 					
 		succeeded.writerow(row)
 		numSucceeded += 1
 		
-	conn.Commit()
+	connection.Commit()
 	
 	print("\t{0} rows successfuly parsed, {1} rows failed to parse".format(numSucceeded, numFailed))
 
-	conn.cursor.execute("SELECT COUNT(id) FROM persons")
-	memberCount = conn.cursor.fetchone()[0]
+	connection.cursor.execute("SELECT COUNT(id) FROM people")
+	memberCount = connection.cursor.fetchone()[0]
 	print("{0} people in database".format(memberCount))
 
-	conn.cursor.execute("SELECT COUNT(id) FROM members")
-	memberCount = conn.cursor.fetchone()[0]
+	connection.cursor.execute("SELECT COUNT(id) FROM members")
+	memberCount = connection.cursor.fetchone()[0]
 	print("{0} members in database".format(memberCount))
