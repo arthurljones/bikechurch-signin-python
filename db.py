@@ -264,7 +264,8 @@ def CreateTablesFromScratch():
 	cursor.execute("""CREATE TABLE peopleInShop LIKE hours""")
 	cursor.execute("""ALTER TABLE peopleInShop
 				DROP COLUMN duration,
-				DROP COLUMN notes""")
+				DROP COLUMN notes,
+				ADD UNIQUE INDEX(personID);""")
 			
 	cursor.execute("""CREATE TABLE bikes
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,

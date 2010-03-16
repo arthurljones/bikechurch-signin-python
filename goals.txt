@@ -1,0 +1,6 @@
+Daily database backups to local and remote storage
+Extensive documentation of code and design methodologies
+Remote access for mechanic tasks
+Human readable exports (for printing/archiving)
+Standard machine-readable exports (for migrating away from this system)
+

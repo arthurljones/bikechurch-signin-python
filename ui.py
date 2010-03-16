@@ -274,7 +274,6 @@ class SignInArea():
 			enteredName = self.nameListBox.GetStringSelection()
 			self.controller.ShowNewPersonScreen(enteredName, type)
 		else:
-			print self.nameList[selection].values
 			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
 			
 	def Reset(self):
@@ -381,7 +380,6 @@ class AddPersonArea():
 			enteredName = self.nameListBox.GetStringSelection()
 			self.controller.ShowNewPersonScreen(enteredName, type)
 		else:
-			print self.nameList[selection].values
 			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
 			
 	def Reset(self):

@@ -11,11 +11,12 @@ name=bikechurch_signin/trunk/signin
 base_path=/home/aj/projects/bikechurch_signin/trunk/
 make_in_base_path=false
 description=
-run_cmd=
+run_cmd=python main.py
 
 [files]
-current_page=3
-FILE_NAME_0=0;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/control.py;0
-FILE_NAME_1=0;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/db.py;0
-FILE_NAME_2=0;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/main.py;0
-FILE_NAME_3=0;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/ui.py;0
+current_page=4
+FILE_NAME_0=2572;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/control.py;0
+FILE_NAME_1=8029;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/db.py;0
+FILE_NAME_2=251;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/main.py;0
+FILE_NAME_3=13451;Python;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/ui.py;0
+FILE_NAME_4=260;None;0;16;1;1;0;/home/aj/projects/bikechurch_signin/trunk/goals.txt;0

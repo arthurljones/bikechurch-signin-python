@@ -1,5 +1,9 @@
 import db
+import MySQLdb
 from datetime import datetime
+
+def PrintableName(name):
+	return "{0} {1}".format(name[0], name[1])
 
 class Controller:
 	def __init__(self, dbConnection):
@@ -23,7 +27,10 @@ class Controller:
 			where = "id = %s",
 			args = (personID, ))
 		
-		return (name[0]["firstName"], name[0]["lastName"])
+		if len(name) == 0:
+			return None
+		else:
+			return (name[0]["firstName"], name[0]["lastName"])
 
 	def GetMemberByPersonID(self, personID):
 		return self.connection.SimpleQuery(
@@ -39,21 +46,44 @@ class Controller:
 		
 	def GetPeopleInShop(self):	
 		return self.connection.ComplexQuery(
-			fields = ("peopleInShop.personID", "peopleInShop.start", "peopleInShop.type"),
+			fields = ("personID", "start", "type"),
 			tables = ("peopleInShop",),
-			order = "peopleInShop.start")	
+			order = "start")	
+			
+	def GetPersonInShopByPersonID(self, personID):
+		person = self.connection.ComplexQuery(
+			fields = ("personID", "start", "type"),
+			tables = ("peopleInShop",),
+			where = "personID = %s",
+			args = (personID, ),
+			order = "start")
+			
+		if len(person) == 0:
+			return None
+		else:
+			return person[0]
 
 	def ShowNewPersonScreen(self, personName, type):
 		pass
 
 	def SignPersonIn(self, personID, type):
+		person = self.GetPersonInShopByPersonID(personID)
+		if person is not None:
+			if person["type"] == type:
+				#TODO: Flash existing entry in people list
+				print("{0} is already signed in to do {1}".format(
+					PrintableName(self.GetPersonNameByID(personID)), type))
+				return
+			else:
+				self.SignPersonOut(personID)
+		
 		new = self.connection.EmptyRow("peopleInShop")
 		new["personID"] = personID
 		new["start"] = datetime.now()
 		new["type"] = type
 		self.connection.Insert(new)
 		self.connection.Commit()
-		
+		#TODO: Flash new entry in people list
 		self.ui.AddPersonToShopList(personID, datetime.now(), type)
 		self.ui.ResetSignin()
 
@@ -78,7 +108,6 @@ class Controller:
 			hours["type"] = person["peopleInShop.type"]
 			hours["notes"] = ""
 			self.connection.Insert(hours)
-			print hours["type"]
 			
 			self.connection.cursor.execute(
 				"DELETE FROM peopleInShop WHERE id = %s", (person["peopleInShop.id"]))
