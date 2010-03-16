@@ -285,6 +285,113 @@ class SignInArea():
 	def GetOuterSizer(self):
 		return self.sizer
 	
+		
+class AddPersonArea():
+	def __init__(self, parent, controller):
+		if not isinstance(parent, wx.Window):
+			raise TypeError("Parent must be a wx.Window")
+		
+		self.parent = parent
+		self.controller = controller
+		self.nameList = []
+		self.suppressNextListChange = False
+		
+		def AddText(parent, sizer, font, string, flags = 0):
+			text = wx.StaticText(parent, wx.ID_ANY, string)
+			if font is not None:
+				text.SetFont(font)
+			sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | flags, 5)
+			return text
+			 
+		def AddButton(parent, sizer, string, onClick):
+			button = wx.Button(parent, wx.ID_ANY, string)
+			button.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL))
+			sizer.Add(button, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+			button.Bind(wx.EVT_BUTTON, onClick)
+			return button
+		
+		staticBox = wx.StaticBox(parent)
+		self.sizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
+		
+		bigFont = wx.Font(16, wx.FONTFAMILY_SWISS, wx.FONTWEIGHT_BOLD, wx.NORMAL)
+		medFont = wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
+		AddText(parent, self.sizer, bigFont, u"Sign In Here", wx.ALIGN_CENTER)
+		AddText(parent, self.sizer, medFont, u"Hi! What's your name?")
+		
+		self.nameEntryDefaultText = u"Type your name here."
+		self.nameEntry = wx.TextCtrl(parent, wx.ID_ANY, self.nameEntryDefaultText)
+		self.nameEntry.Bind(wx.EVT_TEXT, self.OnNameEntryChange)
+		self.nameEntry.Bind(wx.EVT_SET_FOCUS, self.OnNameEntryFocus)
+		self.sizer.Add(self.nameEntry, 0, wx.EXPAND)
+		
+		AddText(parent, self.sizer, medFont, u"If you've been here before,\nclick your name in the list:")
+		
+		self.nameListBox = wx.ListBox(parent, wx.ID_ANY)
+		self.nameListBox.Bind(wx.EVT_LISTBOX, self.OnListClick)
+		self.nameListBox.Bind(wx.EVT_LISTBOX_DCLICK, self.OnListClick)
+		self.sizer.Add(self.nameListBox, 0, wx.EXPAND)
+		self.sizer.SetItemMinSize(self.nameListBox, wx.Size(-1, 150))
+		
+		AddText(parent, self.sizer, medFont, u"What do you want to do?")
+		AddButton(parent, self.sizer, u"Work on my bike!", lambda e: self.OnSigninClick(e, "shoptime"))
+		AddButton(parent, self.sizer, u"Look for parts!", lambda e: self.OnSigninClick(e, "parts"))
+		AddButton(parent, self.sizer, u"Do work trade!", lambda e: self.OnSigninClick(e, "worktrade"))
+		AddButton(parent, self.sizer, u"Volunteer!", lambda e: self.OnSigninClick(e, "volunteer"))
+		
+	def OnNameEntryChange(self, event):
+		"Name Entry Change"
+		if self.suppressNextListChange:
+			self.suppressNextListChange = False
+			event.Skip()
+			return
+			
+		self.nameListBox.Clear()
+		partialName = self.nameEntry.GetValue()
+		partialNameLen = len(partialName)
+					
+		if partialNameLen > 1:
+			self.nameList = self.controller.FindPeopleByPartialName(partialName)
+			if len(self.nameList) > 0:
+				names = ["{0} {1}".format(n["firstName"], n["lastName"])
+					for n in self.nameList]
+				self.nameListBox.SetItems(names)
+
+				self.nameListBox.SetSelection(-1)
+				for i in range(len(names)):
+					if partialName.lower() == names[i].lower():
+						self.nameListBox.SetSelection(i)
+					break
+	
+	def OnNameEntryFocus(self, event):
+		name = self.nameEntry.GetValue()
+		if name == self.nameEntryDefaultText:
+			self.nameEntry.SetValue("")
+		elif name.lower() != self.nameListBox.GetStringSelection().lower():
+			self.nameListBox.SetSelection(-1)
+	
+	def OnListClick(self, event):
+		selection = self.nameListBox.GetStringSelection()
+		if selection != "":
+			self.suppressNextListChange = True
+			self.nameEntry.SetValue(selection)
+	
+	def OnSigninClick(self, event, type):
+		selection = self.nameListBox.GetSelection()
+		if selection < 0:
+			enteredName = self.nameListBox.GetStringSelection()
+			self.controller.ShowNewPersonScreen(enteredName, type)
+		else:
+			print self.nameList[selection].values
+			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
+			
+	def Reset(self):
+		self.nameEntry.SetValue(self.nameEntryDefaultText)
+		self.nameListBox.Clear()
+		self.nameList = []
+	
+	def GetOuterSizer(self):
+		return self.sizer	
+	
 class MainWindow():
 	def __init__(self, controller):
 				
@@ -296,6 +403,7 @@ class MainWindow():
 		
 		self.occupantsArea = ShopOccupantsArea(self.frame, controller)
 		self.signinArea = SignInArea(self.frame, controller)
+		#self.addPersonArea = AddPersonArea(self.frame, controller)
 		
 		sizer = wx.BoxSizer(wx.HORIZONTAL)		
 		sizer.Add(self.signinArea.GetOuterSizer(), 0, wx.ALL, 8)

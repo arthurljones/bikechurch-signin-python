@@ -236,7 +236,7 @@ def CreateTablesFromScratch():
 						
 	cursor.execute("""CREATE TABLE hours
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-				personID INT UNSIGNED NOT NULL UNIQUE,
+				personID INT UNSIGNED NOT NULL,
 				start DATETIME NOT NULL,
 				duration TIME NOT NULL,
 				type ENUM(
