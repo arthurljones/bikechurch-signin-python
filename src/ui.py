@@ -66,6 +66,9 @@ class MainWindow():
 		self.currentScreen = None
 
 	############
+	def __getattr__(self, attr):
+		if hasattr(self.currentScreen, attr):
+			return getattr(self.currentScreen, attr)
 
 	def ShowMainScreen(self):
 		self.HideAllScreens()
@@ -81,13 +84,3 @@ class MainWindow():
 	
 	def GetCurrentScreen(self):
 		return self.currentScreen
-		
-		
-	def ResetSignin(self):
-		self.mainScreen.signinPanel.Reset()
-		
-	def AddPersonToShopList(self, personID, start, type):
-		self.mainScreen.signinPanel.AddOccupantLine(personID, start, type)
-		
-	def RemovePersonFromShopList(self, personID):
-		self.mainScreen.signinPanel.RemoveOccupantLine(personID)

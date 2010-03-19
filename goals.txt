@@ -1,5 +1,7 @@
 Short Term/TODO:
-Get "Add New Person" screen functional - validates information and adds it to the database
+Get "Add New Person" screen functional
+Be able to flash textboxes and non-invasive error messages
+Validate "add new person" screen
 Get "View Person" screen functional - shows bikes, visits, membership info
 Get "Edit Person" screen working
 Get mechanic password prompt working

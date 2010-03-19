@@ -9,8 +9,11 @@ class Screen(wx.Panel):
 		
 		self.Hide()
 
-	def AddElement(self, element):
-		self.elements.append(element)
+	def __del__(self):
+		wx.Panel.__del__(self)
+
+	def AddElement(self, child):
+		self.elements.append(child)
 
 	def Show(self):
 		sizer = self.GetParent().GetSizer()
@@ -25,7 +28,14 @@ class Screen(wx.Panel):
 			sizer.Detach(self)
 			
 	def Layout(self):
-		for element in self.elements:
-			element.Layout()
+		for child in self.elements:
+			child.Layout()
 		wx.Panel.Layout(self)
+		
+	def __getattr__(self, attr):
+		for child in self.elements:
+			if hasattr(child, attr):
+				return getattr(child, attr)
+				
+		raise AttributeError("Cannot delegate \"{0}\"".format(attr))
 			

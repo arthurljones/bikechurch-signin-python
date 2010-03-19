@@ -1,6 +1,20 @@
 import wx
 from datetime import datetime
 
+sTypeDescriptions = {
+	"shoptime":	"Working on a Bike",
+	"parts":	"Looking for Parts",
+	"worktrade":	"Doing Worktrade",
+	"volunteer":	"Volunteering"
+	}
+
+def GetShoptimeTypeDescription(type):
+	if type in sTypeDescriptions:
+		return sTypeDescriptions[type]
+	else:
+		return "\"{0}\"".format(type)
+
+
 class OccupantLine():	
 	def __init__(self, parent, sizer, controller, personID, startTime, type):
 		self.parent = parent
@@ -104,7 +118,8 @@ class OccupantsList(wx.Panel):
 		peopleInShop = self.controller.GetPeopleInShop()
 		if peopleInShop is not None:
 			for person in self.controller.GetPeopleInShop():
-				self.AddOccupantLine(person["personID"], person["start"], person["type"])
+				self.AddOccupant(person["personID"],
+					person["start"], person["type"])
 		
 		self.scrollbox.SetSizer(self.listSizer)
 		self.scrollbox.SetScrollRate(0, 20)
@@ -128,8 +143,8 @@ class OccupantsList(wx.Panel):
 		localSizer.Add(wx.StaticLine(self.scrollbox), 0, wx.EXPAND)
 		sizer.Add(localSizer, 0, wx.ALIGN_CENTER | wx.EXPAND)	
 	
-	def AddOccupantLine(self, personID, startTime, type):
-		occupant = ShopOccupantLine(self.scrollbox, self.listSizer,
+	def AddOccupant(self, personID, startTime, type):
+		occupant = OccupantLine(self.scrollbox, self.listSizer,
 			self.controller, personID, startTime, type)
 		self.occupants.append(occupant)
 		
@@ -138,7 +153,7 @@ class OccupantsList(wx.Panel):
 		if hasattr(self, "gridSizer"):
 			gridSizer.Layout()
 	
-	def RemoveOccupantLine(self, personID):
+	def RemoveOccupant(self, personID):
 		for occupant in self.occupants:
 			if occupant.personID == personID:
 				for element in occupant.GetElements():

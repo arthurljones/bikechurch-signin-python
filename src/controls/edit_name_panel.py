@@ -1,5 +1,5 @@
 import wx
-from ..src.ui_utils import AddField, MakeInfoEntrySizer
+from ..ui_utils import AddField, MakeInfoEntrySizer
 
 class EditNamePanel(wx.Panel):
 	def __init__(self, parent):

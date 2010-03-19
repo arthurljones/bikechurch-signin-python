@@ -80,7 +80,7 @@ class Controller:
 		self.connection.Insert(new)
 		self.connection.Commit()
 		#TODO: Flash new entry in people list
-		self.ui.AddPersonToShopList(personID, datetime.now(), type)
+		self.ui.AddOccupant(personID, datetime.now(), type)
 		self.ui.ResetSignin()
 
 	def SignPersonOut(self, personID):	
@@ -109,6 +109,6 @@ class Controller:
 				"DELETE FROM peopleInShop WHERE id = %s", (person["peopleInShop.id"]))
 			self.connection.Commit()
 				
-		self.ui.RemovePersonFromShopList(personID)
+		self.ui.RemoveOccupant(personID)
 			
 		

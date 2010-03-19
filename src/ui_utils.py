@@ -1,12 +1,5 @@
 import wx
 
-sTypeDescriptions = {
-	"shoptime":	"Working on a Bike",
-	"parts":	"Looking for Parts",
-	"worktrade":	"Doing Worktrade",
-	"volunteer":	"Volunteering"
-	}
-
 def MakeInfoEntrySizer():
 	sizer = wx.FlexGridSizer(0, 2)
 	sizer.AddGrowableCol(1)
@@ -25,9 +18,3 @@ def AddLabel(parent, sizer, font, string, flags = 0, type = wx.StaticText):
 	label.SetFont(font)
 	sizer.Add(label, 0, flags | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 	return label
-
-def GetShoptimeTypeDescription(type):
-	if type in sTypeDescriptions:
-		return sTypeDescriptions[type]
-	else:
-		return "\"{0}\"".format(type)

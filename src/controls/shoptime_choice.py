@@ -1,5 +1,5 @@
 import wx
-from ..src.ui_utils import AddLabel
+from ..ui_utils import AddLabel
 
 class ShoptimeChoice(wx.Panel):
 	def __init__(self, parent, onClick, sizer = wx.BoxSizer(wx.VERTICAL)):

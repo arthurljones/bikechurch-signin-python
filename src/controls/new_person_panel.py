@@ -1,5 +1,5 @@
 import wx
-from ..src.ui_utils import AddLabel
+from ..ui_utils import AddLabel
 from autowrapped_static_text import AutowrappedStaticText
 from edit_name_panel import EditNamePanel
 from edit_bike_panel import EditBikePanel
