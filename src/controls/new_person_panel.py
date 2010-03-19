@@ -44,3 +44,6 @@ class NewPersonPanel(wx.Panel):
 	
 	def OnSigninClick(self, event, type):
 		pass
+		
+	def SetPersonName(self, firstName, lastName):
+		self.editNamePanel.SetValues(firstName, lastName)

@@ -1,6 +1,7 @@
 import db
 import MySQLdb
 from datetime import datetime
+from math import ceil
 
 def PrintableName(name):
 	return "{0} {1}".format(name[0], name[1])
@@ -61,6 +62,14 @@ class Controller:
 
 	def ShowNewPersonScreen(self, personName, type):
 		self.ui.ShowAddPersonScreen()
+		
+		nameWords = personName.split()
+		numWords = len(nameWords)
+		halfWords = int(ceil(numWords / 2.0))
+		firstName = " ".join(nameWords[:halfWords])
+		lastName = " ".join(nameWords[halfWords:])
+			
+		self.ui.SetPersonName(firstName, lastName)
 
 	def SignPersonIn(self, personID, type):
 		person = self.GetPersonInShopByPersonID(personID)
