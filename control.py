@@ -9,10 +9,6 @@ class Controller:
 	def __init__(self, dbConnection):
 		self.connection = dbConnection
 		
-		self.connection.cursor.execute("select * from hours;")
-		for line in self.connection.cursor.fetchall():
-			print line
-		
 	def SetUI(self, ui):
 		self.ui = ui
 
@@ -64,7 +60,7 @@ class Controller:
 			return person[0]
 
 	def ShowNewPersonScreen(self, personName, type):
-		pass
+		self.ui.ShowAddPersonScreen()
 
 	def SignPersonIn(self, personID, type):
 		person = self.GetPersonInShopByPersonID(personID)

@@ -1,6 +1,15 @@
+Short Term/TODO:
+Get "Add New Person" screen functional - validates information and adds it to the database
+Get "View Person" screen functional - shows bikes, visits, membership info
+Get "Edit Person" screen working
+Get mechanic password prompt working
+Write text for "Add New Person" screen to replace lorem ipsum
+Polish GUI behavior
+
+
+Long Term:
 Daily database backups to local and remote storage
 Extensive documentation of code and design methodologies
 Remote access for mechanic tasks
 Human readable exports (for printing/archiving)
 Standard machine-readable exports (for migrating away from this system)
-

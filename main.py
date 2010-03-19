@@ -4,8 +4,12 @@ import csvImport, db, ui, control
 import wx, sys
 
 import cProfile, pstats
-	
+
+#python -u main.py 2>&1 | grep -Ev 'Gtk-WARNING'
+
 def main(createDB = False):
+	#sys.stderr = sys.stdout
+
 	if createDB:				 
 		db.CreateTablesFromScratch()
 		csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")
@@ -15,7 +19,6 @@ def main(createDB = False):
 	app = wx.App()
 	form = ui.MainWindow(controller)
 	app.MainLoop()
-	
 	
 if __name__ == "__main__":
 	#cProfile.run("main()", "mainprof")
