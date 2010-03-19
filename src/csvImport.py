@@ -1,4 +1,4 @@
-import db, control
+import db, controller
 import sys, csv
 from datetime import date, timedelta
 
