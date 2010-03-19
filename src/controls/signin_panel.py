@@ -43,7 +43,6 @@ class SignInPanel(wx.Panel):
 		return text
 		
 	def OnNameEntryChange(self, event):
-		"Name Entry Change"
 		if self.suppressNextListChange:
 			self.suppressNextListChange = False
 			event.Skip()
@@ -81,9 +80,12 @@ class SignInPanel(wx.Panel):
 	
 	def OnSigninClick(self, event, type):
 		selection = self.nameListBox.GetSelection()
-		if self.nameListBox.GetCount() > 0 or selection < 0:
-			enteredName = self.nameListBox.GetStringSelection()
-			self.controller.ShowNewPersonScreen(enteredName, type)
+		nameEntered = self.nameEntry.GetValue()
+		if not nameEntered or nameEntered == self.nameEntryDefaultText:
+			#TODO: Flash name box
+			pass
+		elif self.nameListBox.GetCount() == 0 or selection < 0:
+			self.controller.ShowNewPersonScreen(self.nameEntry.GetValue(), type)
 		else:
 			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
 			
