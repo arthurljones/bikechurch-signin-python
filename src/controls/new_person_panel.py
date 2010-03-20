@@ -23,14 +23,14 @@ class NewPersonPanel(wx.Panel):
 		
 		staticBox = wx.StaticBox(self, wx.ID_ANY, u"Your Name")
 		nameEntrySizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
-		AddLabel(self, nameEntrySizer, medFont, u"Type your name:")
+		AddLabel(self, nameEntrySizer, medFont, u"Type Your Name:")
 		self.editNamePanel = EditNamePanel(self)
 		nameEntrySizer.Add(self.editNamePanel, 0, wx.EXPAND)
 		outerSizer.Add(nameEntrySizer, 0, wx.EXPAND)
 		
 		staticBox = wx.StaticBox(self, wx.ID_ANY, "Your Bike")
 		bikeEntrySizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
-		AddLabel(self, bikeEntrySizer, medFont, "If you have a bike, describe it:")			
+		AddLabel(self, bikeEntrySizer, medFont, "Describe Your Bike (if you have one):")			
 		self.editBikePanel = EditBikePanel(self)
 		bikeEntrySizer.Add(self.editBikePanel, 0, wx.EXPAND)
 		outerSizer.Add(bikeEntrySizer, 0, wx.EXPAND)
@@ -43,7 +43,25 @@ class NewPersonPanel(wx.Panel):
 		self.GetSizer().SetMinSize((200, 0))
 	
 	def OnSigninClick(self, event, type):
-		pass
+		print "signin"
+		if self.editNamePanel.Validate():
+			print "name validated"
+			personID = self.controller.CreatePerson(
+				self.editNamePanel.GetValues())
+			
+			if not self.editBikePanel.IsEmpty():
+				print "bikepanel filled"
+				if self.editBikePanel.Validate():
+					print "bikepanel validated"
+					self.controller.CreateBike(
+						self.editBikePanel.GetValues(),
+						personID)
+				
+			self.controller.SignPersonIn(personID, type)
 		
 	def SetPersonName(self, firstName, lastName):
 		self.editNamePanel.SetValues(firstName, lastName)
+
+	def ResetValues(self):
+		self.editNamePanel.ResetValues()
+		self.editBikePanel.ResetValues()

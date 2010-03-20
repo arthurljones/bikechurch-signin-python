@@ -61,7 +61,7 @@ class Controller:
 			return person[0]
 
 	def ShowNewPersonScreen(self, personName, type):
-		self.ui.ShowAddPersonScreen()
+		self.ui.ShowNewPersonScreen()
 		
 		nameWords = personName.split()
 		numWords = len(nameWords)
@@ -90,9 +90,10 @@ class Controller:
 		self.connection.Commit()
 		#TODO: Flash new entry in people list
 		self.ui.AddOccupant(personID, datetime.now(), type)
-		self.ui.ResetSignin()
+		self.ui.ResetValues()
+		self.ui.ShowMainScreen()
 
-	def SignPersonOut(self, personID):	
+	def SignPersonOut(self, personID):
 		persons = self.connection.ComplexQuery(
 			fields = ("people.id", "peopleInShop.id", "peopleInShop.start", "peopleInShop.type"),
 			tables = ("peopleInShop", "people"),
@@ -120,4 +121,21 @@ class Controller:
 				
 		self.ui.RemoveOccupant(personID)
 			
+	def CreatePerson(self, name):
+		person = self.connection.EmptyRow("people")
+		person["firstName"] = name.firstName
+		person["lastName"] = name.lastName
+		self.connection.Insert(person)
+		return person["id"]
+		
+	def CreateBike(self, bikeDesc, personID = None):
+		bike = self.connection.EmptyRow("bikes")
+		bike["color"] = bikeDesc.color
+		bike["type"] = bikeDesc.type
+		bike["brand"] = bikeDesc.brand
+		bike["model"] = bikeDesc.model
+		bike["serial"] = bikeDesc.serial
+		bike["personID"] = personID
+		self.connection.Insert(bike)
+		return bike["id"]
 		

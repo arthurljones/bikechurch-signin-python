@@ -1,6 +1,7 @@
-import db, controller
+import db
 import sys, csv
 from datetime import date, timedelta
+from controller import Controller
 
 def ParseCSVDate(rawDate):
 	try:
@@ -49,7 +50,7 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 	sys.stdout.flush()
 	
 	connection = db.Connection()
-	controller = control.Controller(connection)
+	controller = Controller(connection)
 	
 	for row in reader:
 		startDate = ParseCSVDate(row[0])
@@ -86,7 +87,7 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 				(not alreadyLifer and not nowLifer and member["endDate"] < endDate):
 				action = connection.Update
 					
-		member["personId"] = person["id"]
+		member["personID"] = person["id"]
 		member["endDate"] = endDate
 		member["streetAddress"] = row[3].strip()
 		member["phoneNumber"] = row[4].strip()

@@ -5,9 +5,9 @@ class EditBikePanel(wx.Panel):
 	def __init__(self, parent):
 		wx.Panel.__init__(self, parent)
 		
-		bikes = ["Mountain Bike", "Road Bike", "Hybrid", 
+		bikes = ["Mountain", "Road", "Hybrid", 
 			"Cruiser", "Three Speed", "Recumbent", "Chopper",
-			"Mixte", "Tallbike", "Town Bike"]
+			"Mixte", "Tallbike", "Town Bike", "Touring"]
 		bikes.sort()
 		bikes.append("Other")
 		
@@ -18,18 +18,35 @@ class EditBikePanel(wx.Panel):
 		self.color = AddBikeField("Color:")
 		self.type = AddBikeField("Type:", wx.Choice)
 		self.type.SetItems(bikes)
-		self.maker = AddBikeField("Maker:")
+		self.brand = AddBikeField("Brand:")
 		self.model = AddBikeField("Model:")
 		self.serial = AddBikeField("Serial #:")
 		
 	def Validate(self):
-		pass
+		#TODO
+		return True
+		
+	def IsEmpty(self):
+		values = self.GetValues()
+		for key in values.__dict__:
+			if values.__dict__[key]:
+				return False
+				
+		return True
 		
 	def GetValues(self):
-		return {
-			"color":	self.color.GetValue(),
-			"type":		self.type.GetValue(),
-			"maker":	self.maker.GetValue(),
-			"model":	self.model.GetValue(),
-			"serial":	self.serial.GetValue(),
-			}
+		class BikeDescription: pass
+		bike = BikeDescription()
+		bike.color = self.color.GetValue()
+		bike.type = self.type.GetStringSelection()
+		bike.brand = self.brand.GetValue()
+		bike.model = self.model.GetValue()
+		bike.serial = self.serial.GetValue()
+		return bike
+
+	def ResetValues(self):
+		self.color.SetValue("")
+		self.type.SetSelection(-1)
+		self.brand.SetValue("")
+		self.model.SetValue("")
+		self.serial.SetValue("")

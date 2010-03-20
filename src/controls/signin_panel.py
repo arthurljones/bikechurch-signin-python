@@ -89,7 +89,7 @@ class SignInPanel(wx.Panel):
 		else:
 			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
 			
-	def ResetSignin(self):
+	def ResetValues(self):
 		self.nameEntry.SetValue(self.nameEntryDefaultText)
 		self.nameListBox.Clear()
 		self.nameList = []

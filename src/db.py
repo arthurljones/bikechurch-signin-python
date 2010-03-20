@@ -72,8 +72,6 @@ class RowObject:
 	def __setitem__(self, itemName, value):
 		if itemName in self.values:
 			self.values[itemName] = value
-		else:
-			raise KeyError("{0}".format(itemName))
 							
 	def FromQuery(self, query):
 		for column in self.columns:
@@ -219,7 +217,7 @@ def CreateTablesFromScratch():
 			
 	cursor.execute("""CREATE TABLE members
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-				personId INT UNSIGNED NOT NULL UNIQUE,
+				personID INT UNSIGNED NOT NULL UNIQUE,
 				startDate DATE NOT NULL,
 				endDate DATE,
 				streetAddress VARCHAR(128),
@@ -228,8 +226,8 @@ def CreateTablesFromScratch():
 				donation SMALLINT UNSIGNED,
 				notes VARCHAR(200),	
 			PRIMARY KEY(id),
-			INDEX(personId),
-			FOREIGN KEY(personId) REFERENCES people(id)
+			INDEX(personID),
+			FOREIGN KEY(personID) REFERENCES people(id)
 				ON DELETE NO ACTION 
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")
@@ -254,9 +252,9 @@ def CreateTablesFromScratch():
 					'other') NOT NULL,
 				notes VARCHAR(200),
 			PRIMARY KEY(id),
-			INDEX(personId),
+			INDEX(personID),
 			INDEX(type),
-			FOREIGN KEY(personId) REFERENCES people(id)
+			FOREIGN KEY(personID) REFERENCES people(id)
 				ON DELETE NO ACTION
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")
@@ -269,15 +267,16 @@ def CreateTablesFromScratch():
 			
 	cursor.execute("""CREATE TABLE bikes
 			(	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-				personId INT UNSIGNED NOT NULL UNIQUE,
+				personID INT UNSIGNED,
+				type VARCHAR(64) NOT NULL,
 				color VARCHAR(64) NOT NULL,
 				brand VARCHAR(64),
 				model VARCHAR(64),
-				serialNumber VARCHAR(64) NOT NULL,
+				serial VARCHAR(64) NOT NULL,
 			PRIMARY KEY(id),
 			INDEX(personId),
-			INDEX(serialNumber(10)),
-			FOREIGN KEY(personId) REFERENCES people(id)
+			INDEX(serial(10)),
+			FOREIGN KEY(personID) REFERENCES people(id)
 				ON DELETE NO ACTION
 				ON UPDATE CASCADE )
 			CHARSET=utf8 ENGINE=InnoDB;""")

@@ -42,6 +42,7 @@ class MainWindow():
 		self.frame.Show()
 	
 		self.ShowMainScreen()
+		#self.ShowNewPersonScreen()
 		
 		self.updateTimer = wx.Timer(self.frame)
 		self.updateTimer.Start(1000 * 60)
@@ -58,7 +59,7 @@ class MainWindow():
 		self.Layout()
 	
 	def OnTimer(self, event):
-		self.mainScreen.occupantsArea.UpdateTimes()
+		self.occupantsPanel.UpdateTimes()
 		
 	def HideAllScreens(self):
 		for screen in self.screens:
@@ -69,6 +70,9 @@ class MainWindow():
 	def __getattr__(self, attr):
 		if hasattr(self.currentScreen, attr):
 			return getattr(self.currentScreen, attr)
+		for screen in self.screens:
+			if hasattr(screen, attr):
+				return getattr(screen, attr)
 
 	def ShowMainScreen(self):
 		self.HideAllScreens()
@@ -76,7 +80,7 @@ class MainWindow():
 		self.frame.Layout()
 		self.currentScreen = self.mainScreen
 		
-	def ShowAddPersonScreen(self):
+	def ShowNewPersonScreen(self):
 		self.HideAllScreens()
 		self.newPersonScreen.Show()
 		self.frame.Layout()

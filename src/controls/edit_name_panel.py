@@ -13,11 +13,20 @@ class EditNamePanel(wx.Panel):
 		self.lastName = AddNameField("Last name:")
 		
 	def Validate(self):
-		pass
+		#TODO
+		return True
 		
 	def GetValues(self):
-		pass
+		class Name: pass
+		name = Name()
+		name.firstName = self.firstName.GetValue()
+		name.lastName = self.lastName.GetValue()
+		return name
 	
 	def SetValues(self, firstName, lastName):
 		self.firstName.SetValue(firstName)
 		self.lastName.SetValue(lastName)
+
+	def ResetValues(self):
+		self.firstName.SetValue("")
+		self.lastName.SetValue("")
