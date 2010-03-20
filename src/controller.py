@@ -1,3 +1,5 @@
+ # -*- coding: utf-8 -*-
+ 
 import db
 import MySQLdb
 from datetime import datetime

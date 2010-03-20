@@ -1,5 +1,6 @@
 #!/usr/bin/python
-
+ # -*- coding: utf-8 -*-
+ 
 import wx, sys	
 import src.csvImport as csvImport, src.db as db, src.ui as ui
 from src.controller import Controller
@@ -7,9 +8,8 @@ from src.controller import Controller
 #python -u main.py 2>&1 | grep -Ev 'Gtk-WARNING'
 
 def main(createDB = False):
-	#sys.stderr = sys.stdout
-
-
+	print "Starting up"
+	
 	if createDB:				 
 		db.CreateTablesFromScratch()
 		csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")

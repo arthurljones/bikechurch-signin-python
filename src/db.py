@@ -1,4 +1,5 @@
-
+ # -*- coding: utf-8 -*-
+ 
 #MySQLdb uses ImmutableSet, which is deprecated, so python complains by default
 import warnings
 with warnings.catch_warnings():
