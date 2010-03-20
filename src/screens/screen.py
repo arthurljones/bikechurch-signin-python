@@ -15,8 +15,7 @@ class Screen(wx.Panel):
 	def AddElement(self, child):
 		self.elements.append(child)
 
-	def Show(self):
-		sizer = self.GetParent().GetSizer()
+	def Show(self, sizer):
 		sizer.Add(self, 1, wx.EXPAND)
 		wx.Panel.Show(self)
 		self.Layout()
@@ -33,9 +32,14 @@ class Screen(wx.Panel):
 		wx.Panel.Layout(self)
 		
 	def __getattr__(self, attr):
-		for child in self.elements:
-			if hasattr(child, attr):
-				return getattr(child, attr)
-				
-		raise AttributeError("Cannot delegate \"{0}\"".format(attr))
+		if self.__dict__.has_key(attr):
+			return self.__dict__[attr]
+		
+		if self.__dict__.has_key("elements"):
+			for element in self.elements:
+				if hasattr(element, attr):
+					return getattr(element, attr)
+					
+		raise AttributeError("No attribute {0} in {1} or children".format(
+			attr, self.__class__.__name__))
 			

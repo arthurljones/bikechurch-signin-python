@@ -41,11 +41,11 @@ class Controller:
 			order = "people.firstName",
 			args = (len(partialName), partialName) * 3)
 		
-	def GetPeopleInShop(self):	
+	def GetPeopleInShop(self):
 		return self.connection.ComplexQuery(
 			fields = ("personID", "start", "type"),
 			tables = ("peopleInShop",),
-			order = "start")	
+			order = "start")
 			
 	def GetPersonInShopByPersonID(self, personID):
 		person = self.connection.ComplexQuery(
@@ -90,8 +90,8 @@ class Controller:
 		self.connection.Commit()
 		#TODO: Flash new entry in people list
 		self.ui.AddOccupant(personID, datetime.now(), type)
-		self.ui.ResetValues()
 		self.ui.ShowMainScreen()
+		self.ui.ResetValues()
 
 	def SignPersonOut(self, personID):
 		persons = self.connection.ComplexQuery(

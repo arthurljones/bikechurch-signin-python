@@ -133,6 +133,10 @@ class OccupantsList(wx.Panel):
 		gridSizer.Add(self.scrollbox, 1, wx.EXPAND)
 		self.SetSizer(gridSizer)
 		
+		self.Bind(wx.EVT_TIMER, self.OnTimer)
+		self.updateTimer = wx.Timer(self)
+		self.updateTimer.Start(1000)# * 60)
+		
 		self.UpdateTimes()
 	
 	def AddColumnHeader(self, sizer, name):
@@ -166,6 +170,9 @@ class OccupantsList(wx.Panel):
 				
 	def OnThumbTrack(self, event):
 		pass
+			
+	def OnTimer(self, event):
+		self.UpdateTimes()
 		
 	def UpdateTimes(self):
 		self.dateText.SetLabel(datetime.now().strftime("%A %b %d  %I:%M %p"))
