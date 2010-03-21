@@ -1,7 +1,6 @@
  # -*- coding: utf-8 -*-
  
 import wx
-from screen import Screen
 
 from ..ui_utils import AddLabel, MedFont
 from ..controls.autowrapped_static_text import AutowrappedStaticText
