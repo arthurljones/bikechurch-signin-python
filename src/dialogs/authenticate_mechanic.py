@@ -37,4 +37,4 @@ class AuthenticateMechanicDialog(wx.Dialog):
 		password = event.GetEventObject().GetValue()
 		hash = hashlib.sha1(password).hexdigest()
 		ok = self.FindWindowById(wx.ID_OK)
-		ok.Enable(hash == MechanicPasswordDialog.passHash)
+		ok.Enable(hash == AuthenticateMechanicDialog.passHash)

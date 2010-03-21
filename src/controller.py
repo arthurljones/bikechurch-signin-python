@@ -71,10 +71,8 @@ class Controller:
 		halfWords = int(ceil(numWords / 2.0))
 		firstName = " ".join(nameWords[:halfWords])
 		lastName = " ".join(nameWords[halfWords:])
-		
-		print "Showing new person dialog"
+
 		if self.ui.ShowNewPersonDialog(firstName, lastName):
-			print "Signing person in"
 			self.SignPersonIn(self.lastPersonCreated, type)
 
 	def SignPersonIn(self, personID, type):

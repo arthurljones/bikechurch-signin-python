@@ -3,12 +3,11 @@
 import wx
 
 from ui_utils import Delegator
-from screens.main import MainScreen
 from controls.status_bar import StatusBar
 from controls.occupants_list import OccupantsList
 from controls.signin_panel import SignInPanel
 
-from screens.new_person import NewPersonDialog
+from dialogs.new_person import NewPersonDialog
 from dialogs.authenticate_mechanic import AuthenticateMechanicDialog
 
 class MainWindow(wx.Frame, Delegator):
@@ -69,9 +68,7 @@ class MainWindow(wx.Frame, Delegator):
 		
 	def ShowNewPersonDialog(self, firstName = "", lastName = ""):
 		dialog = NewPersonDialog(self.controller, firstName, lastName)
-		result = dialog.ShowModal()
-		print result
-		return result == wx.ID_OK
+		return dialog.ShowModal() == wx.ID_OK
 
 	def AuthenticateMechanic(self, activity):
 		dialog = AuthenticateMechanicDialog(activity)
