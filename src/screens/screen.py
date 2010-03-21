@@ -1,26 +1,30 @@
  # -*- coding: utf-8 -*-
  
+ #TODO: delete
+ 
 import wx
+from ..ui_utils import Delegator
 
-class Screen(wx.Panel):
+class Screen(wx.Panel, Delegator):
 	def __init__(self, parent):
 		wx.Panel.__init__(self, parent)
+		Delegator.__init__(self)
 
 		self.SetSizer(wx.BoxSizer(wx.HORIZONTAL))
-		self.elements = []
+		self.windows = []
 		
 		self.Hide()
 
 	def __del__(self):
 		wx.Panel.__del__(self)
 
-	def AddElement(self, child):
-		self.elements.append(child)
-
+	def AddChildWindow(self, window):
+		self.windows.append(window)
+		self.PushDelegate(window)
+		
 	def Show(self, sizer):
 		sizer.Add(self, 1, wx.EXPAND)
 		wx.Panel.Show(self)
-		self.Layout()
 		
 	def Hide(self):
 		wx.Panel.Hide(self)
@@ -29,19 +33,7 @@ class Screen(wx.Panel):
 			sizer.Detach(self)
 			
 	def Layout(self):
-		for child in self.elements:
-			child.Layout()
+		for window in self.windows:
+			window.Layout()
 		wx.Panel.Layout(self)
 		
-	def __getattr__(self, attr):
-		if self.__dict__.has_key(attr):
-			return self.__dict__[attr]
-		
-		if self.__dict__.has_key("elements"):
-			for element in self.elements:
-				if hasattr(element, attr):
-					return getattr(element, attr)
-					
-		raise AttributeError("No attribute {0} in {1} or children".format(
-			attr, self.__class__.__name__))
-			
