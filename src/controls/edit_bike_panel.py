@@ -1,13 +1,14 @@
  # -*- coding: utf-8 -*-
  
 import wx
-from ..ui_utils import AddField, MakeInfoEntrySizer
+from ..ui_utils import AddField, MakeInfoEntrySizer, MedFont
 
 class EditBikePanel(wx.Panel):
-	def __init__(self, parent):
+	def __init__(self, parent, controller):
 		wx.Panel.__init__(self, parent)
+		self.controller = controller
 		
-		bikes = ["Mountain", "Road", "Hybrid", 
+		bikes = ["", "Mountain", "Road", "Hybrid", 
 			"Cruiser", "Three Speed", "Recumbent", "Chopper",
 			"Mixte", "Tallbike", "Town Bike", "Touring"]
 		bikes.sort()
@@ -15,8 +16,7 @@ class EditBikePanel(wx.Panel):
 		
 		sizer = MakeInfoEntrySizer()
 		self.SetSizer(sizer)
-		medFont = wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
-		AddBikeField = lambda *args: AddField(self, sizer, medFont, *args)
+		AddBikeField = lambda *args: AddField(self, sizer, MedFont(), *args)
 		self.color = AddBikeField("Color:")
 		self.type = AddBikeField("Type:", wx.Choice)
 		self.type.SetItems(bikes)
@@ -25,7 +25,25 @@ class EditBikePanel(wx.Panel):
 		self.serial = AddBikeField("Serial #:")
 		
 	def Validate(self):
-		#TODO
+		values = self.GetValues()
+		errors = []
+		if not values.color:
+			errors.append(self.color)
+		if not values.type:
+			errors.append(self.type)
+		if not values.brand:
+			errors.append(self.brand)
+		if not values.model:
+			errors.append(self.model)
+		if not values.serial:
+			errors.append(self.serial)
+			
+		if errors:
+			self.controller.FlashError(
+			"You must fill out all the bike information, or leave it blank",
+			errors)
+			return False
+			
 		return True
 		
 	def IsEmpty(self):
@@ -48,7 +66,7 @@ class EditBikePanel(wx.Panel):
 
 	def ResetValues(self):
 		self.color.SetValue("")
-		self.type.SetSelection(-1)
+		self.type.SetSelection(0)
 		self.brand.SetValue("")
 		self.model.SetValue("")
 		self.serial.SetValue("")

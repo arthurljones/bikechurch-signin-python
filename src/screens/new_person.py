@@ -3,23 +3,73 @@
 import wx
 from screen import Screen
 
-from ..controls.new_person_panel import NewPersonPanel
-from ..controls.bc_statement_panel import BCStatementPanel
+from ..ui_utils import AddLabel, MedFont
+from ..controls.autowrapped_static_text import AutowrappedStaticText
+from ..controls.edit_name_panel import EditNamePanel
+from ..controls.edit_bike_panel import EditBikePanel
 
-class NewPersonScreen(Screen):
-	def __init__(self, parent, controller):
-		Screen.__init__(self, parent)
+class NewPersonDialog(wx.Dialog):
+	def __init__(self, controller,  firstName = "", lastName = ""):
+		wx.Dialog.__init__(self, None, title = "New Person Information")
+		self.controller = controller
 		
-		sizer = wx.FlexGridSizer(0, 2)
-		sizer.SetFlexibleDirection(wx.HORIZONTAL)
-		sizer.AddGrowableCol(1)
-		self.SetSizer(sizer)
+		outerSizer = wx.BoxSizer(wx.VERTICAL)
+		self.SetSizer(outerSizer)
+
+		AddLabel(self, outerSizer, MedFont(), \
+			"Since you haven't used this system before, "
+			"please tell us your name and bike innformation.",
+			type = AutowrappedStaticText)
 		
-		self.newPersonPanel = NewPersonPanel(self, controller)
-		self.bcStatement = BCStatementPanel(self)
+		staticBox = wx.StaticBox(self, wx.ID_ANY, u"Your Name")
+		nameEntrySizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
+		AddLabel(self, nameEntrySizer, MedFont(), u"Type Your Name:")
+		self.editNamePanel = EditNamePanel(self, controller)
+		self.editNamePanel.SetValues(firstName, lastName)
+		nameEntrySizer.Add(self.editNamePanel, 0, wx.EXPAND)
+		outerSizer.Add(nameEntrySizer, 0, wx.EXPAND)
 		
-		self.GetSizer().Add(self.newPersonPanel, 1, wx.ALL | wx.EXPAND, 3)
-		self.GetSizer().Add(self.bcStatement, 1, wx.EXPAND | wx.ALL, 3)
+		staticBox = wx.StaticBox(self, wx.ID_ANY, "Your Bike")
+		bikeEntrySizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
+		AddLabel(self, bikeEntrySizer, MedFont(), "Describe Your Bike (if you have one):")			
+		self.editBikePanel = EditBikePanel(self, controller)
+		bikeEntrySizer.Add(self.editBikePanel, 0, wx.EXPAND)
+		outerSizer.Add(bikeEntrySizer, 0, wx.EXPAND)
 		
-		self.AddElement(self.newPersonPanel)
-		self.AddElement(self.bcStatement)
+		buttonSizer = self.CreateButtonSizer(wx.OK | wx.CANCEL)
+		outerSizer.Add(buttonSizer, 1, wx.ALIGN_RIGHT)
+		
+		ok = self.FindWindowById(wx.ID_OK)
+		cancel = self.FindWindowById(wx.ID_CANCEL)
+		
+		ok.Bind(wx.EVT_BUTTON, self.OnOK)
+		cancel.Bind(wx.EVT_BUTTON, self.OnCancel)
+		
+		self.GetSizer().SetMinSize((200, 0))
+	
+	def OnOK(self, event):
+		if self.editNamePanel.Validate():
+			createBike = False
+			if not self.editBikePanel.IsEmpty():
+				createBike = True
+				if not self.editBikePanel.Validate():
+					return
+						
+			personID = self.controller.CreatePerson(
+				self.editNamePanel.GetValues())
+			
+			if createBike:
+				self.controller.CreateBike(
+					self.editBikePanel.GetValues(),	personID)
+
+			self.EndModal(event.GetEventObject().GetId())
+		
+	def OnCancel(self, event):
+		self.Close()
+		
+	def SetPersonName(self, firstName, lastName):
+		self.editNamePanel.SetValues(firstName, lastName)
+
+	def ResetValues(self):
+		self.editNamePanel.ResetValues()
+		self.editBikePanel.ResetValues()

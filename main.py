@@ -8,8 +8,7 @@ from src.controller import Controller
 #python -u main.py 2>&1 | grep -Ev 'Gtk-WARNING'
 
 def main(createDB = False):
-	print "Starting up"
-	
+		
 	if createDB:				 
 		db.CreateTablesFromScratch()
 		csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")

@@ -1,16 +1,19 @@
 Short Term/TODO:
-Be able to flash textboxes and non-invasive error messages
-Validate "add new person" screen
+Make sure status bar shows up in all screens
+Protect against attempting adding of duplicate entries in DB in new person screen
 Get "View Person" screen functional - shows bikes, visits, membership info
 Get "Edit Person" screen working
-Get mechanic password prompt working
 Write text for "Add New Person" screen to replace lorem ipsum
-Wrap DELETE functionality in a method
+Bugfix: scroll functionality can get stuck in a weird position when removing items
+
+Medium Term/Cleanup:
 Polish GUI behavior
+Switch to SQLAlchemy for database functionality
 Check for duplicate bike serials and issue a warning
-Implement __getattr__ in RowObject to make syntax nicer
+Use _ to prefix implementation properties in classes
 
 Long Term:
+Instant switch between spanish/english
 Daily database backups to local and remote storage
 Extensive documentation of code and design methodologies
 Remote access for mechanic tasks

@@ -1,7 +1,6 @@
  # -*- coding: utf-8 -*-
  
-import db
-import MySQLdb
+import db, wx, MySQLdb
 from datetime import datetime
 from math import ceil
 
@@ -11,6 +10,7 @@ def PrintableName(name):
 class Controller:
 	def __init__(self, dbConnection):
 		self.connection = dbConnection
+		self.lastPersonCreated = None
 		
 	def SetUI(self, ui):
 		self.ui = ui
@@ -62,23 +62,27 @@ class Controller:
 		else:
 			return person[0]
 
-	def ShowNewPersonScreen(self, personName, type):
-		self.ui.ShowNewPersonScreen()
-		
+	def AuthenticateMechanic(self, activity):
+		return self.ui.AuthenticateMechanic(activity)
+
+	def ShowNewPersonDialog(self, personName, type):
 		nameWords = personName.split()
 		numWords = len(nameWords)
 		halfWords = int(ceil(numWords / 2.0))
 		firstName = " ".join(nameWords[:halfWords])
 		lastName = " ".join(nameWords[halfWords:])
-			
-		self.ui.SetPersonName(firstName, lastName)
+		
+		print "Showing new person dialog"
+		if self.ui.ShowNewPersonDialog(firstName, lastName):
+			print "Signing person in"
+			self.SignPersonIn(self.lastPersonCreated, type)
 
 	def SignPersonIn(self, personID, type):
 		person = self.GetPersonInShopByPersonID(personID)
 		if person is not None:
 			if person["type"] == type:
-				#TODO: Flash existing entry in people list
-				print("{0} is already signed in to do {1}".format(
+				self.ui.FlashError(
+					"{0} is already signed in to do {1}".format(
 					PrintableName(self.GetPersonNameByID(personID)), type))
 				return
 			else:
@@ -92,8 +96,6 @@ class Controller:
 		self.connection.Commit()
 		#TODO: Flash new entry in people list
 		self.ui.AddOccupant(personID, datetime.now(), type)
-		self.ui.ShowMainScreen()
-		self.ui.ResetValues()
 
 	def SignPersonOut(self, personID):
 		persons = self.connection.ComplexQuery(
@@ -128,6 +130,7 @@ class Controller:
 		person["firstName"] = name.firstName
 		person["lastName"] = name.lastName
 		self.connection.Insert(person)
+		self.lastPersonCreated = person["id"]
 		return person["id"]
 		
 	def CreateBike(self, bikeDesc, personID = None):
@@ -141,3 +144,15 @@ class Controller:
 		self.connection.Insert(bike)
 		return bike["id"]
 		
+	def FlashError(self, *argv, **argd):
+		self.ui.FlashError(*argv, **argd)
+		
+	def StopFlashing(self):
+		self.ui.ResetError()
+		
+	def ViewPersonInfo(self, personID):
+		personName = PrintableName(self.GetPersonNameByID(personID))
+		if self.AuthenticateMechanic("view info for {0}".format(personName)):
+			#TODO: Show view person screen here
+			print "TODO: View person not implemented yet."
+

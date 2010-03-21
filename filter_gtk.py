@@ -2,12 +2,17 @@
  
 import sys
 
+eatNewline = False
 while True:
 	line = sys.stdin.readline()
-	
+
 	if not line:
 		break
-	elif "Gtk-WARNING **:" in line:
-		sys.stdin.readline()
-	else:
+		
+	if eatNewline and line == '\n':
+		continue	
+		
+	if line.find("Gtk-WARNING **:") < 0:
 		print line,
+	else:
+		eatNewline = True

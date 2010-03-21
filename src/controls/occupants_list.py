@@ -16,7 +16,6 @@ def GetShoptimeTypeDescription(type):
 	else:
 		return "\"{0}\"".format(type)
 
-
 class OccupantLine():	
 	def __init__(self, parent, sizer, controller, personID, startTime, type):
 		self.parent = parent
@@ -64,7 +63,7 @@ class OccupantLine():
 		return self.elements
 		
 	def OnViewInfoClicked(self, event):
-		print("View info for {0}".format(self.personID))
+		self.controller.ViewPersonInfo(self.personID)
 		
 	def OnSignOutClicked(self, event):
 		self.controller.SignPersonOut(self.personID)
@@ -105,7 +104,7 @@ class OccupantsList(wx.Panel):
 		titleSizer.AddSpacer((0, 0), 1, wx.EXPAND, 5)
 		titleSizer.Add(self.dateText, 0, wx.ALL, 5)
 		
-		self.scrollbox = wx.ScrolledWindow(self, style = wx.VSCROLL)
+		self.scrollbox = wx.ScrolledWindow(self)
 
 		self.listSizer = wx.FlexGridSizer(rows = 0, cols = 4, hgap = 10, vgap = 0)
 		self.listSizer.SetFlexibleDirection(wx.BOTH)

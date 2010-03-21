@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*-
  
 import wx
+from ..ui_utils import MedFont
 from shoptime_choice import ShoptimeChoice
 
 class SignInPanel(wx.Panel):
@@ -14,10 +15,9 @@ class SignInPanel(wx.Panel):
 		sizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
 		self.SetSizer(sizer)
 		
-		bigFont = wx.Font(16, wx.FONTFAMILY_SWISS, wx.FONTWEIGHT_BOLD, wx.NORMAL)
-		medFont = wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
-		self.AddLabel(sizer, bigFont, u"Sign In Here", wx.ALIGN_CENTER)
-		self.AddLabel(sizer, medFont, u"Hi! What's your name?")
+		hugeFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTWEIGHT_BOLD, wx.NORMAL)
+		self.AddLabel(sizer, hugeFont, u"Sign In Here", wx.ALIGN_CENTER)
+		self.AddLabel(sizer, MedFont(), u"Hi! What's your name?")
 		
 		self.nameEntryDefaultText = u"Type your name here."
 		self.nameEntry = wx.TextCtrl(self, wx.ID_ANY, self.nameEntryDefaultText)
@@ -25,17 +25,20 @@ class SignInPanel(wx.Panel):
 		self.nameEntry.Bind(wx.EVT_SET_FOCUS, self.OnNameEntryFocus)
 		sizer.Add(self.nameEntry, 0, wx.EXPAND)
 		
-		self.AddLabel(sizer, medFont, u"If you've been here before,\nclick your name in the list:")
+		self.AddLabel(sizer, MedFont(),
+			u"If you've been here before,\nclick your name in the list:")
 		
 		self.nameListBox = wx.ListBox(self, wx.ID_ANY)
 		self.nameListBox.Bind(wx.EVT_LISTBOX, self.OnListClick)
 		self.nameListBox.Bind(wx.EVT_LISTBOX_DCLICK, self.OnListClick)
 		sizer.Add(self.nameListBox, 0, wx.EXPAND)
-		sizer.SetItemMinSize(self.nameListBox, wx.Size(-1, 150))
+		sizer.SetItemMinSize(self.nameListBox, wx.Size(-1, 125))
 		
 		self.shoptimeChoice = ShoptimeChoice(self, self.OnSigninClick)
 		sizer.Add(self.shoptimeChoice, 0, wx.EXPAND)
 		sizer.SetMinSize((200, 0))
+		
+		self.shoptimeChoice.Disable()
 	
 	def AddLabel(self, sizer, font, string, flags = 0):
 		text = wx.StaticText(self, wx.ID_ANY, string)
@@ -44,20 +47,14 @@ class SignInPanel(wx.Panel):
 		sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | flags, 5)
 		return text
 		
-	def OnNameEntryChange(self, event):
-		if self.suppressNextListChange:
-			self.suppressNextListChange = False
-			event.Skip()
-			return
-			
+	def _PopulateList(self, partialName):	
 		self.nameListBox.Clear()
-		partialName = self.nameEntry.GetValue()
 		partialNameLen = len(partialName)
 
-		if partialNameLen > 1:
+		if partialNameLen > 0:
 			self.nameList = self.controller.FindPeopleByPartialName(partialName)
 			if len(self.nameList) > 0:
-				names = ["{0} {1}".format(n["firstName"], n["lastName"])
+				names = ["{0} {1}".format(n["firstName"], n["lastName"]).strip()
 					for n in self.nameList]
 				self.nameListBox.SetItems(names)
 
@@ -65,8 +62,18 @@ class SignInPanel(wx.Panel):
 				for i in range(len(names)):
 					if partialName.lower() == names[i].lower():
 						self.nameListBox.SetSelection(i)
-					break
-	
+						break
+							
+	def OnNameEntryChange(self, event):
+		partialName = self.nameEntry.GetValue().strip()
+		nameEntered = partialName != "" and partialName != self.nameEntryDefaultText
+		self.shoptimeChoice.Enable(nameEntered)
+		
+		if self.suppressNextListChange:
+			self.suppressNextListChange = False
+		else:
+			self._PopulateList(partialName)
+			
 	def OnNameEntryFocus(self, event):
 		name = self.nameEntry.GetValue()
 		if name == self.nameEntryDefaultText:
@@ -81,18 +88,22 @@ class SignInPanel(wx.Panel):
 			self.nameEntry.SetValue(selection)
 	
 	def OnSigninClick(self, event, type):
+		if type == "worktrade":
+			if not self.controller.AuthenticateMechanic("do worktrade"):
+				return
+				
+		elif type == "volunteer":
+			if not self.controller.AuthenticateMechanic("volunteer"):
+				return
+			
+		
 		selection = self.nameListBox.GetSelection()
-		nameEntered = self.nameEntry.GetValue()
-		if not nameEntered or nameEntered == self.nameEntryDefaultText:
-			#TODO: Flash name box
-			pass
-		elif self.nameListBox.GetCount() == 0 or selection < 0:
-			self.controller.ShowNewPersonScreen(self.nameEntry.GetValue(), type)
+		if self.nameListBox.GetCount() == 0 or selection < 0:
+			self.controller.ShowNewPersonDialog(self.nameEntry.GetValue(), type)
 		else:
 			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
 			
 	def ResetValues(self):
-		print "reset values on signin panel"
 		self.nameEntry.SetValue(self.nameEntryDefaultText)
 		self.nameListBox.Clear()
 		self.nameList = []

@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*-
  
 import wx
+from ..ui_utils import BigFont
 from autowrapped_static_text import AutowrappedStaticText
 
 sBikeChurchStatement = \
@@ -22,7 +23,6 @@ class BCStatementPanel(wx.Panel):
 		sizer = wx.StaticBoxSizer(self.staticBox, wx.HORIZONTAL)
 		self.SetSizer(sizer)
 		
-		medFont = wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
 		text = AutowrappedStaticText(self, wx.ID_ANY, sBikeChurchStatement)
-		text.SetFont(medFont)
+		text.SetFont(BigFont())
 		sizer.Add(text, 1, wx.EXPAND)

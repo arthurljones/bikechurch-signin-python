@@ -2,109 +2,83 @@
  
 import wx
 
+from ui_utils import Delegator
 from screens.main import MainScreen
-from screens.new_person import NewPersonScreen
 from controls.status_bar import StatusBar
+from controls.occupants_list import OccupantsList
+from controls.signin_panel import SignInPanel
 
-class ErrorDisplay(wx.StaticText):
-	def __init__(self, parent, controller, label):
-		pass
-		
-class TextValidator(wx.PyValidator):
-	def __init__(self, onError):
-		wx.PyValidator.__init__(self)
+from screens.new_person import NewPersonDialog
+from dialogs.authenticate_mechanic import AuthenticateMechanicDialog
 
-	def Clone(self):
-		return TextValidator()
-
-	def TransferToWindow(self):
-		return True
-
-	def TransferFromWindow(self):
-		return True
-
-	def Validate(self, win):
-		textCtrl = self.GetWindow()
-		text = textCtrl.GetValue()
-
-class MainWindow():
+class MainWindow(wx.Frame, Delegator):
 	def __init__(self, controller):
-				
+		size = (900, 520)
+		wx.Frame.__init__(self, None, id = wx.ID_ANY,
+			title = u"Welcome To The Bike Church!", size = size,
+			style = wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
+		Delegator.__init__(self)
+		self.SetMinSize(size)
+		
+		wx.Font.SetDefaultEncoding(wx.FONTENCODING_UTF8)
+		
 		self.controller = controller
 		controller.SetUI(self)
-		
-		self.frame = wx.Frame(None, id = wx.ID_ANY, title = u"Welcome To The Bike Church!",
-			size = wx.Size(900, 500), style = wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 		
 		self.screens = []
 		self.currentScreen = None
 		
-		self.mainScreen = MainScreen(self.frame, controller)
-		self.screens.append(self.mainScreen)
-		self.newPersonScreen = NewPersonScreen(self.frame, controller)
-		self.screens.append(self.newPersonScreen)
-		
 		sizer = wx.FlexGridSizer(2, 1)
+		sizer.SetFlexibleDirection(wx.VERTICAL)
+		sizer.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
 		sizer.AddGrowableRow(0)
 		sizer.AddGrowableCol(0)
-		self.frame.SetSizer(sizer)
-		self.frame.Centre(wx.BOTH)
-		self.frame.Show()
+		self.SetSizer(sizer)
+		self.Centre(wx.BOTH)
 		
-		self.screenSizer = wx.BoxSizer(wx.HORIZONTAL)
-		sizer.Add(self.screenSizer, 1, wx.EXPAND)
-		self.statusBar = StatusBar(self.frame, self.controller)
+		screenSizer = wx.BoxSizer(wx.HORIZONTAL)
+		self.statusBar = StatusBar(self, self.controller)
+		self.PushDelegate(self.statusBar)
+		
+		sizer.Add(screenSizer, 1, wx.EXPAND)
 		sizer.Add(self.statusBar, 0, wx.EXPAND)
-	
-		self.ShowMainScreen()
-		#self.ShowNewPersonScreen()
+				
+		self.occupantsList = OccupantsList(self, controller)
+		self.signinPanel = SignInPanel(self, controller)
 		
-		self.frame.Bind(wx.EVT_SIZE, self.OnResize)
+		screenSizer.Add(self.signinPanel, 0, wx.ALL, 8)
+		screenSizer.Add(self.occupantsList, 1, wx.EXPAND | wx.ALL, 8)
+		
+		self.PushDelegate(self.occupantsList)
+		self.PushDelegate(self.signinPanel)
+				
+		self.Bind(wx.EVT_SIZE, self.OnResize)
+		self.Layout()
+		self.occupantsList.Layout()
+		self.signinPanel.Layout()
+		
+		self.Show()
 		
 	def Layout(self):
 		for screen in self.screens:
 			screen.Layout()
-		self.frame.Layout()
+		wx.Frame.Layout(self)
 		
 	def OnResize(self, event):
 		self.Layout()
-	
-	def HideAllScreens(self):
-		for screen in self.screens:
-			screen.Hide()
-		self.currentScreen = None
+		
+	def ShowNewPersonDialog(self, firstName = "", lastName = ""):
+		dialog = NewPersonDialog(self.controller, firstName, lastName)
+		result = dialog.ShowModal()
+		print result
+		return result == wx.ID_OK
 
-	############
-	
-	def __getattr__(self, attr):
-		
-		if self.__dict__.has_key(attr):
-			return self.__dict__[attr]
-		
-		if self.__dict__.has_key("currentScreen"):
-			if self.currentScreen and hasattr(self.currentScreen, attr):
-				return getattr(self.currentScreen, attr)
-		
-		if self.__dict__.has_key("screens"):
-			for screen in self.screens:
-				if hasattr(screen, attr):
-					return getattr(screen, attr)
-					
-		raise AttributeError("No attribute {0} in {1} or children".format(
-			attr, self.__class__.__name__))
-			
+	def AuthenticateMechanic(self, activity):
+		dialog = AuthenticateMechanicDialog(activity)
+		return dialog.ShowModal() == wx.ID_OK
 
-	def ShowMainScreen(self):
-		self.HideAllScreens()
-		self.mainScreen.Show(self.screenSizer)
-		self.frame.Layout()
-		self.currentScreen = self.mainScreen
-		
-	def ShowNewPersonScreen(self):
-		self.HideAllScreens()
-		self.newPersonScreen.Show(self.screenSizer)
-		self.frame.Layout()
-		self.currentScreen = self.newPersonScreen
-	
-	def GetCurrentScreen(self):
-		return self.currentScreen
+	def Reset(self, screen):
+		self.signinPanel.ResetValues()
+		self.statusBar.ResetError()
+
+
