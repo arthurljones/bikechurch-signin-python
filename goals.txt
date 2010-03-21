@@ -1,14 +1,12 @@
 Short Term/TODO:
-Make sure status bar shows up in all screens
+Get "View Person" screen functional - shows bikes, visits, (membership info?)
 Protect against attempting adding of duplicate entries in DB in new person screen
-Get "View Person" screen functional - shows bikes, visits, membership info
 Get "Edit Person" screen working
-Write text for "Add New Person" screen to replace lorem ipsum
-Bugfix: scroll functionality can get stuck in a weird position when removing items
 
 Medium Term/Cleanup:
 Polish GUI behavior
 Switch to SQLAlchemy for database functionality
+Bugfix: scroll functionality can get stuck in a weird position when removing items
 Check for duplicate bike serials and issue a warning
 Use _ to prefix implementation properties in classes
 
