@@ -74,6 +74,7 @@ class Controller:
 
 		if self.ui.ShowNewPersonDialog(firstName, lastName):
 			self.SignPersonIn(self.lastPersonCreated, type)
+			self.ui.ResetValues()
 
 	def SignPersonIn(self, personID, type):
 		person = self.GetPersonInShopByPersonID(personID)

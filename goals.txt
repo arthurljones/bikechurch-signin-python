@@ -2,6 +2,8 @@ Short Term/TODO:
 Get "View Person" screen functional - shows bikes, visits, (membership info?)
 Protect against attempting adding of duplicate entries in DB in new person screen
 Get "Edit Person" screen working
+Cleanup timers when closing window
+Feedback button
 
 Medium Term/Cleanup:
 Polish GUI behavior
@@ -19,3 +21,10 @@ Human readable exports (for printing/archiving)
 Standard machine-readable exports (for migrating away from this system)
 Automated unit tests, with regression tests for fixed bugs
 Integrated error reporting with trace and user comment
+
+add more bikes during add new person
+select from bikes at signin / add more bikes
+
+*** Process for determining what systems to implement and how
+$500 additional cap
+
