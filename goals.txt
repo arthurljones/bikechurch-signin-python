@@ -1,13 +1,11 @@
 Short Term/TODO:
 Get "View Person" screen functional - shows bikes, visits, (membership info?)
-Protect against attempting adding of duplicate entries in DB in new person screen
 Get "Edit Person" screen working
 Cleanup timers when closing window
 Feedback button
 
 Medium Term/Cleanup:
 Polish GUI behavior
-Switch to SQLAlchemy for database functionality
 Bugfix: scroll functionality can get stuck in a weird position when removing items
 Check for duplicate bike serials and issue a warning
 Use _ to prefix implementation properties in classes
@@ -16,7 +14,7 @@ Long Term:
 Instant switch between spanish/english
 Daily database backups to local and remote storage
 Extensive documentation of code and design methodologies
-Remote access for mechanic tasks
+Remote access for mechanic tasks using Google API and Google Docs
 Human readable exports (for printing/archiving)
 Standard machine-readable exports (for migrating away from this system)
 Automated unit tests, with regression tests for fixed bugs

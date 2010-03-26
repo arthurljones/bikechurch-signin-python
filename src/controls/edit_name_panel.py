@@ -21,14 +21,18 @@ class EditNamePanel(wx.Panel):
 			self.controller.FlashError(
 				"You must enter at least your first name.",
 				self.firstName)
-			return False
 		elif len(person.firstName) + len(person.lastName) < 3:
 			self.controller.FlashError(
 				"Your name must have at least three letters.",
 				[self.firstName, self.lastName])
-			return False
+		elif self.controller.GetPersonByFullName(person.firstName, person.lastName):
+			self.controller.FlashError(
+				"There's already somebody with that name in the database.",
+				[self.firstName, self.lastName])
+		else:
+			return True	
 			
-		return True
+		return False
 		
 	def GetPerson(self):
 		person = Person()

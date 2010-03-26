@@ -17,7 +17,7 @@ class NewPersonDialog(wx.Dialog):
 
 		AddLabel(self, outerSizer, MedFont(), \
 			"Since you haven't used this system before, "
-			"please tell us your name and bike innformation.",
+			"please tell us your name and bike information.",
 			type = AutowrappedStaticText)
 		
 		staticBox = wx.StaticBox(self, wx.ID_ANY, u"Your Name")
