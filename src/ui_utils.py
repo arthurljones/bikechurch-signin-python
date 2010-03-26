@@ -38,7 +38,7 @@ def BigFont():
 		
 	return _sBigFont
 
-class Delegator():
+class Delegator(object):
 	def __init__(self):
 		self._delegates = []
 		

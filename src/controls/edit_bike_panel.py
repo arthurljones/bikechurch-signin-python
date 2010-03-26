@@ -2,42 +2,56 @@
  
 import wx
 from ..ui_utils import AddField, MakeInfoEntrySizer, MedFont
+from ..db import Bike
+
+_values = ["color", "type", "brand", "model", "serial"]
+
+class Value(object):
+	def __init__(self, parent, name, control, getter = "GetValue", setter = "SetValue", zero = ""):
+		self.control = control
+		self.name = name
+		self.getter = lambda: getattr(control, getter)()
+		self.setter = lambda x: getattr(control, setter)(x)
+		self.zero = zero
+		
+	def Get(self):
+		return self.getter()
+		
+	def Set(self, value):
+		return self.setter(value)
+		
+	def Reset(self):
+		return self.setter(self.zero)
 
 class EditBikePanel(wx.Panel):
+	
 	def __init__(self, parent, controller):
 		wx.Panel.__init__(self, parent)
 		self.controller = controller
 		
-		bikes = ["", "Mountain", "Road", "Hybrid", 
-			"Cruiser", "Three Speed", "Recumbent", "Chopper",
-			"Mixte", "Tallbike", "Town Bike", "Touring"]
-		bikes.sort()
-		bikes.append("Other")
+		types = sorted(Bike.__table__.c.type.type.enums)
+		
+		self.values = []
 		
 		sizer = MakeInfoEntrySizer()
 		self.SetSizer(sizer)
-		AddBikeField = lambda *args: AddField(self, sizer, MedFont(), *args)
-		self.color = AddBikeField("Color:")
-		self.type = AddBikeField("Type:", wx.Choice)
-		self.type.SetItems(bikes)
-		self.brand = AddBikeField("Brand:")
-		self.model = AddBikeField("Model:")
-		self.serial = AddBikeField("Serial #:")
 		
+		AddValue = lambda *args : self.values.append(Value(self, *args))
+		AddBikeField = lambda *args: AddField(self, sizer, MedFont(), *args)
+		AddValue("color", AddBikeField("Color:"))
+		type = AddBikeField("Type:", wx.Choice)
+		type.SetItems(types)
+		AddValue("type", type, "GetStringSelection", "SetSelection", 0)
+		AddValue("brand", AddBikeField("Brand:"))
+		AddValue("model", AddBikeField("Model:"))
+		AddValue("serial", AddBikeField("Serial #:"))
+	
 	def Validate(self):
-		values = self.GetValues()
 		errors = []
-		if not values.color:
-			errors.append(self.color)
-		if not values.type:
-			errors.append(self.type)
-		if not values.brand:
-			errors.append(self.brand)
-		if not values.model:
-			errors.append(self.model)
-		if not values.serial:
-			errors.append(self.serial)
-			
+		for value in self.values:
+			if not value.Get():
+				errors.append(value.control)
+				
 		if errors:
 			self.controller.FlashError(
 			"You must fill out all the bike information, or leave it blank",
@@ -47,26 +61,17 @@ class EditBikePanel(wx.Panel):
 		return True
 		
 	def IsEmpty(self):
-		values = self.GetValues()
-		for key in values.__dict__:
-			if values.__dict__[key]:
+		for value in self.values:
+			if value.Get():
 				return False
-				
 		return True
 		
-	def GetValues(self):
-		class BikeDescription: pass
-		bike = BikeDescription()
-		bike.color = self.color.GetValue()
-		bike.type = self.type.GetStringSelection()
-		bike.brand = self.brand.GetValue()
-		bike.model = self.model.GetValue()
-		bike.serial = self.serial.GetValue()
+	def GetBike(self):
+		bike = Bike()
+		for value in self.values:
+			setattr(bike, value.name, value.Get())
 		return bike
 
 	def ResetValues(self):
-		self.color.SetValue("")
-		self.type.SetSelection(0)
-		self.brand.SetValue("")
-		self.model.SetValue("")
-		self.serial.SetValue("")
+		for value in self.values:
+			value.Reset()

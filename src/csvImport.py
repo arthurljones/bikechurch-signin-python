@@ -48,11 +48,10 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 	numFailed = 0
 	numSucceeded = 0
 	
-	print("Loading existing membership data...")
+	print "Loading existing membership data..."
 	sys.stdout.flush()
 	
-	connection = db.Connection()
-	controller = Controller(connection)
+	controller = Controller()
 	
 	for row in reader:
 		startDate = ParseCSVDate(row[0])
@@ -66,53 +65,45 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 		if duration != None:
 			endDate = startDate + duration
 			
-		lastName = row[1].strip()
-		firstName = row[2].strip()
+		lastName = unicode(row[1].strip())
+		firstName = unicode(row[2].strip())
 
 		#TODO: Do more validation before we get to this point
 		person = controller.GetPersonByFullName(firstName, lastName)
 		if person is None:
-			person = connection.EmptyRow("people")
-			person["firstName"] = firstName
-			person["lastName"] = lastName
-			connection.Insert(person)
+			person = db.Person()
+			person.firstName = firstName
+			person.lastName = lastName
+			db.session.add(person)
 
-		member = controller.GetMemberByPersonID(person["id"])
-		action = None
-		if member is None:
-			member = connection.EmptyRow("members")
-			action = connection.Insert
+		if person.memberInfo is None:
+			person.memberInfo = db.Member()
 		else:
-			alreadyLifer = member["endDate"] is None
+			memberEndDate = person.memberInfo.endDate
+			alreadyLifer = memberEndDate is None
 			nowLifer = endDate is None
-			if nowLifer and not alreadyLifer or \
-				(not alreadyLifer and not nowLifer and member["endDate"] < endDate):
-				action = connection.Update
+			if alreadyLifer or (not nowLifer and memberEndDate < endDate):
+				continue	
 					
-		member["personID"] = person["id"]
-		member["endDate"] = endDate
-		member["streetAddress"] = row[3].strip()
-		member["phoneNumber"] = row[4].strip()
-		member["emailAddress"] = row[5].strip()
-		member["donation"] =  money
-		member["notes"] = row[8].strip()
-		member["startDate"] = startDate
-		member["endDate"] = endDate		
-		
-		if action is not None:		
-			action(member)
+		person.memberInfo.personID = person.id
+		person.memberInfo.endDate = endDate
+		person.memberInfo.streetAddress = unicode(row[3].strip())
+		person.memberInfo.phoneNumber = unicode(row[4].strip())
+		person.memberInfo.emailAddress = unicode(row[5].strip())
+		person.memberInfo.donation =  money
+		person.memberInfo.notes = unicode(row[8].strip())
+		person.memberInfo.startDate = startDate
+		person.memberInfo.endDate = endDate		
 					
 		succeeded.writerow(row)
 		numSucceeded += 1
 		
-	connection.Commit()
+	print("\t...")
+	sys.stdout.flush()
+	db.session.commit()
 	
 	print("\t{0} rows successfuly parsed, {1} rows failed to parse".format(numSucceeded, numFailed))
 
-	connection.cursor.execute("SELECT COUNT(id) FROM people")
-	memberCount = connection.cursor.fetchone()[0]
-	print("{0} people in database".format(memberCount))
-
-	connection.cursor.execute("SELECT COUNT(id) FROM members")
-	memberCount = connection.cursor.fetchone()[0]
-	print("{0} members in database".format(memberCount))
+	numPeople = db.session.query(db.Person).count() 
+	print("\t{0} people in database".format(numPeople))
+	print("\tSuccess")

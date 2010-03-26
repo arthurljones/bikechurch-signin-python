@@ -17,19 +17,16 @@ def GetShoptimeTypeDescription(type):
 		return "\"{0}\"".format(type)
 
 class OccupantLine():	
-	def __init__(self, parent, sizer, controller, personID, startTime, type):
+	def __init__(self, parent, sizer, controller, person, startTime, type):
 		self.parent = parent
 		self.controller = controller
-		self.personID = personID
-		name = controller.GetPersonNameByID(personID)
-		firstName = name[0]
-		lastName = name[1]
+		self.person = person
 		self.startTime = startTime
 		type = type
 		self.elements = []
 		
 		possesiveChar = "s"
-		if firstName[-1] == "s":
+		if self.person.firstName[-1] == "s":
 			possesiveChar = ""
 
 		def AddLabel(parent, sizer, string, flags = 0):
@@ -47,7 +44,7 @@ class OccupantLine():
 			self.elements.append(button)
 		 
 		 
-		AddLabel(parent, sizer, u"{0} {1}".format(firstName, lastName))
+		AddLabel(parent, sizer, u"{0} {1}".format(self.person.firstName, self.person.lastName))
 		AddLabel(parent, sizer, u"{0}".format(GetShoptimeTypeDescription(type)))
 		self.timeText = AddLabel(parent, sizer, u"", wx.ALIGN_RIGHT)
 		
@@ -63,10 +60,10 @@ class OccupantLine():
 		return self.elements
 		
 	def OnViewInfoClicked(self, event):
-		self.controller.ViewPersonInfo(self.personID)
+		self.controller.ViewPersonInfo(self.person)
 		
 	def OnSignOutClicked(self, event):
-		self.controller.SignPersonOut(self.personID)
+		self.controller.SignPersonOut(self.person)
 		
 	def UpdateTime(self):
 		timediff = datetime.now() - self.startTime
@@ -119,8 +116,8 @@ class OccupantsList(wx.Panel):
 		peopleInShop = self.controller.GetPeopleInShop()
 		if peopleInShop is not None:
 			for person in self.controller.GetPeopleInShop():
-				self.AddOccupant(person["personID"],
-					person["start"], person["type"])
+				self.AddOccupant(person,
+					person.occupantInfo.start, person.occupantInfo.type)
 		
 		self.scrollbox.SetSizer(self.listSizer)
 		self.scrollbox.SetScrollRate(0, 20)
@@ -148,9 +145,9 @@ class OccupantsList(wx.Panel):
 		localSizer.Add(wx.StaticLine(self.scrollbox), 0, wx.EXPAND)
 		sizer.Add(localSizer, 0, wx.ALIGN_CENTER | wx.EXPAND)	
 	
-	def AddOccupant(self, personID, startTime, type):
+	def AddOccupant(self, person, startTime, type):
 		occupant = OccupantLine(self.scrollbox, self.listSizer,
-			self.controller, personID, startTime, type)
+			self.controller, person, startTime, type)
 		self.occupants.append(occupant)
 		
 		if hasattr(self, "listSizer"):
@@ -158,9 +155,9 @@ class OccupantsList(wx.Panel):
 		if hasattr(self, "gridSizer"):
 			gridSizer.Layout()
 	
-	def RemoveOccupant(self, personID):
+	def RemoveOccupant(self, person):
 		for occupant in self.occupants:
-			if occupant.personID == personID:
+			if occupant.person is person:
 				for element in occupant.GetElements():
 					self.listSizer.Detach(element)
 					element.Destroy()

@@ -53,13 +53,13 @@ class NewPersonDialog(wx.Dialog):
 				createBike = True
 				if not self.editBikePanel.Validate():
 					return
-						
-			personID = self.controller.CreatePerson(
-				self.editNamePanel.GetValues())
+			
+			person = self.controller.CreatePerson(
+				self.editNamePanel.GetPerson())
 			
 			if createBike:
 				self.controller.CreateBike(
-					self.editBikePanel.GetValues(),	personID)
+					self.editBikePanel.GetBike(), person)
 
 			self.EndModal(event.GetEventObject().GetId())
 		

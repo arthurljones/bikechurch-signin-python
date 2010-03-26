@@ -19,22 +19,29 @@ class AuthenticateMechanicDialog(wx.Dialog):
 		sizer.Add(text, 0, wx.EXPAND | wx.ALL, 8)
 				
 		entrySizer = MakeInfoEntrySizer()
-		password = AddField(self, entrySizer, None, "Password:",
-			style = wx.TE_PASSWORD)
+		self.password = AddField(self, entrySizer, None, "Password:",
+			style = wx.TE_PASSWORD | wx.TE_PROCESS_ENTER)
 		sizer.Add(entrySizer, 1, wx.EXPAND | wx.ALL, 5)
-		password.Bind(wx.EVT_TEXT, self.OnPasswordChange)
+		self.password.Bind(wx.EVT_TEXT, self.OnPasswordChange)
+		self.password.Bind(wx.EVT_TEXT_ENTER, self.OnEnter)
+		self.password.SetFocus()
 		
 		buttons = self.CreateButtonSizer(wx.OK | wx.CANCEL)
 		sizer.Add(buttons, 0, wx.EXPAND)
 		ok = self.FindWindowById(wx.ID_OK)
 		ok.Disable()
 
-		password.SetFocus()
-
 		self.Layout()
 	
-	def OnPasswordChange(self, event):
-		password = event.GetEventObject().GetValue()
+	def CheckPassword(self):
+		password = self.password.GetValue()
 		hash = hashlib.sha1(password).hexdigest()
+		return hash == AuthenticateMechanicDialog.passHash
+		
+	def OnPasswordChange(self, event):
 		ok = self.FindWindowById(wx.ID_OK)
-		ok.Enable(hash == AuthenticateMechanicDialog.passHash)
+		ok.Enable(self.CheckPassword())
+		
+	def OnEnter(self, event):
+		if self.CheckPassword():
+			event.Skip()

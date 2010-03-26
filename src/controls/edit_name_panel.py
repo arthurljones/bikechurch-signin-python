@@ -2,6 +2,7 @@
  
 import wx
 from ..ui_utils import AddField, MakeInfoEntrySizer, MedFont
+from ..db import Person
 
 class EditNamePanel(wx.Panel):
 	def __init__(self, parent, controller):
@@ -15,12 +16,13 @@ class EditNamePanel(wx.Panel):
 		self.lastName = AddNameField("Last name:")
 		
 	def Validate(self):
-		values = self.GetValues()
-		if not values.firstName:
+		person = self.GetPerson()
+		if not person.firstName:
 			self.controller.FlashError(
 				"You must enter at least your first name.",
 				self.firstName)
-		elif len(values.firstName) + len(values.lastName) < 3:
+			return False
+		elif len(person.firstName) + len(person.lastName) < 3:
 			self.controller.FlashError(
 				"Your name must have at least three letters.",
 				[self.firstName, self.lastName])
@@ -28,12 +30,11 @@ class EditNamePanel(wx.Panel):
 			
 		return True
 		
-	def GetValues(self):
-		class Name: pass
-		name = Name()
-		name.firstName = self.firstName.GetValue()
-		name.lastName = self.lastName.GetValue()
-		return name
+	def GetPerson(self):
+		person = Person()
+		person.firstName = self.firstName.GetValue()
+		person.lastName = self.lastName.GetValue()
+		return person
 	
 	def SetValues(self, firstName, lastName):
 		self.firstName.SetValue(firstName)

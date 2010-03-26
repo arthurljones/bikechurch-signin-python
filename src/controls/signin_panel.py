@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*-
  
 import wx
+from math import ceil
 from ..ui_utils import MedFont
 from shoptime_choice import ShoptimeChoice
 
@@ -49,20 +50,17 @@ class SignInPanel(wx.Panel):
 		
 	def _PopulateList(self, partialName):	
 		self.nameListBox.Clear()
-		partialNameLen = len(partialName)
-
-		if partialNameLen > 0:
-			self.nameList = self.controller.FindPeopleByPartialName(partialName)
-			if len(self.nameList) > 0:
-				names = ["{0} {1}".format(n["firstName"], n["lastName"]).strip()
-					for n in self.nameList]
-				self.nameListBox.SetItems(names)
-
-				self.nameListBox.SetSelection(-1)
-				for i in range(len(names)):
-					if partialName.lower() == names[i].lower():
-						self.nameListBox.SetSelection(i)
-						break
+		if partialName:
+			self.people = self.controller.FindPeopleByPartialName(partialName)
+			names = [person.Name() for person in self.people]
+			
+			self.nameListBox.SetItems(names)
+			self.nameListBox.SetSelection(-1)
+			
+			for i in range(len(names)):
+				if partialName.lower() == names[i].lower():
+					self.nameListBox.SetSelection(i)
+					break
 							
 	def OnNameEntryChange(self, event):
 		partialName = self.nameEntry.GetValue().strip()
@@ -96,12 +94,21 @@ class SignInPanel(wx.Panel):
 			if not self.controller.AuthenticateMechanic("volunteer"):
 				return
 			
-		
 		selection = self.nameListBox.GetSelection()
 		if self.nameListBox.GetCount() == 0 or selection < 0:
-			self.controller.ShowNewPersonDialog(self.nameEntry.GetValue(), type)
+			name = self.nameEntry.GetValue()
+			nameWords = name.split()
+			numWords = len(nameWords)
+			halfWords = int(ceil(numWords / 2.0))
+			firstName = " ".join(nameWords[:halfWords])
+			lastName = " ".join(nameWords[halfWords:])
+			
+			if self.controller.ShowNewPersonDialog(firstName, lastName):
+				self.controller.SignPersonIn(None, type)
+				self.ResetValues()
 		else:
-			self.controller.SignPersonIn(self.nameList[selection]["id"], type)
+			if self.controller.SignPersonIn(self.people[selection], type):
+				self.ResetValues()
 			
 	def ResetValues(self):
 		self.nameEntry.SetValue(self.nameEntryDefaultText)
