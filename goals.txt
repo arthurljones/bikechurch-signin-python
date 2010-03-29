@@ -3,9 +3,11 @@ Get "View Person" screen functional - shows bikes, visits, (membership info?)
 Get "Edit Person" screen working
 Cleanup timers when closing window
 Feedback button
+tell you what you owe on signout
 
 Medium Term/Cleanup:
 Polish GUI behavior
+Add "type" for worktrade
 Bugfix: scroll functionality can get stuck in a weird position when removing items
 Check for duplicate bike serials and issue a warning
 Use _ to prefix implementation properties in classes

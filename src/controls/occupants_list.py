@@ -2,24 +2,12 @@
  
 import wx
 from datetime import datetime
-
-sTypeDescriptions = {
-	"shoptime":	"Working on a Bike",
-	"parts":	"Looking for Parts",
-	"worktrade":	"Doing Worktrade",
-	"volunteer":	"Volunteering"
-	}
-
-def GetShoptimeTypeDescription(type):
-	if type in sTypeDescriptions:
-		return sTypeDescriptions[type]
-	else:
-		return "\"{0}\"".format(type)
+from ..ui_utils import FormatTimediff, GetShoptimeTypeDescription
 
 class OccupantLine():	
 	def __init__(self, parent, sizer, controller, person, startTime, type):
 		self.parent = parent
-		self.controller = controller
+		self._controller = controller
 		self.person = person
 		self.startTime = startTime
 		type = type
@@ -44,7 +32,7 @@ class OccupantLine():
 			self.elements.append(button)
 		 
 		 
-		AddLabel(parent, sizer, u"{0} {1}".format(self.person.firstName, self.person.lastName))
+		AddLabel(parent, sizer, person.Name())
 		AddLabel(parent, sizer, u"{0}".format(GetShoptimeTypeDescription(type)))
 		self.timeText = AddLabel(parent, sizer, u"", wx.ALIGN_RIGHT)
 		
@@ -60,34 +48,18 @@ class OccupantLine():
 		return self.elements
 		
 	def OnViewInfoClicked(self, event):
-		self.controller.ViewPersonInfo(self.person)
+		self._controller.ViewPersonInfo(self.person)
 		
 	def OnSignOutClicked(self, event):
-		self.controller.SignPersonOut(self.person)
+		self._controller.SignPersonOut(self.person)
 		
 	def UpdateTime(self):
-		timediff = datetime.now() - self.startTime
-		seconds = timediff.seconds
-		hours = int(timediff.seconds / (60 * 60))
-		seconds -= hours * (60 * 60)
-		hours += timediff.days * 24
-		minutes = seconds / 60
-		
-		if hours == 0 and minutes == 0:
-			minutes = 1
-	
-		timeString = ""
-		if (hours > 0):
-			timeString += " {0} hrs".format(hours)
-		if (minutes > 0):
-			timeString += " {0} min".format(minutes)
-			
-		self.timeText.SetLabel(timeString)
+		self.timeText.SetLabel(FormatTimediff(datetime.now() - self.startTime))
 		
 class OccupantsList(wx.Panel):
 	def __init__(self, parent, controller):
 		wx.Panel.__init__(self, parent)
-		self.controller = controller
+		self._controller = controller
 		self.occupants = []
 
 		titleFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
@@ -113,9 +85,9 @@ class OccupantsList(wx.Panel):
 		self.AddColumnHeader(self.listSizer, u"Time In Shop")
 		self.AddColumnHeader(self.listSizer, u"")
 		
-		peopleInShop = self.controller.GetPeopleInShop()
+		peopleInShop = self._controller.GetPeopleInShop()
 		if peopleInShop is not None:
-			for person in self.controller.GetPeopleInShop():
+			for person in self._controller.GetPeopleInShop():
 				self.AddOccupant(person,
 					person.occupantInfo.start, person.occupantInfo.type)
 		
@@ -147,7 +119,7 @@ class OccupantsList(wx.Panel):
 	
 	def AddOccupant(self, person, startTime, type):
 		occupant = OccupantLine(self.scrollbox, self.listSizer,
-			self.controller, person, startTime, type)
+			self._controller, person, startTime, type)
 		self.occupants.append(occupant)
 		
 		if hasattr(self, "listSizer"):

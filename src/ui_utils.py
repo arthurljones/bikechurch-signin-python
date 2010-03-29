@@ -2,6 +2,19 @@
  
 import wx
 
+_typeDescriptions = {
+	"shoptime":	"Working on a Bike",
+	"parts":	"Looking for Parts",
+	"worktrade":	"Doing Worktrade",
+	"volunteer":	"Volunteering"
+	}
+
+def GetShoptimeTypeDescription(type):
+	if type in _typeDescriptions:
+		return _typeDescriptions[type]
+	else:
+		return "\"{0}\"".format(type)
+
 def MakeInfoEntrySizer():
 	sizer = wx.FlexGridSizer(0, 2)
 	sizer.AddGrowableCol(1)
@@ -37,6 +50,21 @@ def BigFont():
 		_sBigFont = wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
 		
 	return _sBigFont
+
+def FormatTimediff(timediff):
+	seconds = timediff.seconds
+	hours = int(timediff.seconds / (60 * 60))
+	seconds -= hours * (60 * 60)
+	hours += timediff.days * 24
+	minutes = seconds / 60
+
+	timeString = []
+	if (hours > 0):
+		timeString.append("{0}hr".format(hours))
+	if (minutes > 0):
+		timeString.append("{0}min".format(minutes))
+		
+	return " ".join(timeString)
 
 class Delegator(object):
 	def __init__(self):

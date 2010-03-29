@@ -10,7 +10,7 @@ from ..controls.edit_bike_panel import EditBikePanel
 class NewPersonDialog(wx.Dialog):
 	def __init__(self, controller,  firstName = "", lastName = ""):
 		wx.Dialog.__init__(self, None, title = "New Person Information")
-		self.controller = controller
+		self._controller = controller
 		
 		outerSizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(outerSizer)
@@ -54,11 +54,11 @@ class NewPersonDialog(wx.Dialog):
 				if not self.editBikePanel.Validate():
 					return
 			
-			person = self.controller.CreatePerson(
+			person = self._controller.CreatePerson(
 				self.editNamePanel.GetPerson())
 			
 			if createBike:
-				self.controller.CreateBike(
+				self._controller.CreateBike(
 					self.editBikePanel.GetBike(), person)
 
 			self.EndModal(event.GetEventObject().GetId())

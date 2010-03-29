@@ -27,7 +27,7 @@ class EditBikePanel(wx.Panel):
 	
 	def __init__(self, parent, controller):
 		wx.Panel.__init__(self, parent)
-		self.controller = controller
+		self._controller = controller
 		
 		types = sorted(Bike.__table__.c.type.type.enums)
 		
@@ -48,13 +48,14 @@ class EditBikePanel(wx.Panel):
 	
 	def Validate(self):
 		errors = []
+		requiredValues = ["color", "type", "serial"]
 		for value in self.values:
-			if not value.Get():
+			if value.name in requiredValues and not value.Get():
 				errors.append(value.control)
 				
 		if errors:
-			self.controller.FlashError(
-			"You must fill out all the bike information, or leave it blank",
+			self._controller.FlashError(
+			"You need at least the color, type, and serial# for your bike",
 			errors)
 			return False
 			

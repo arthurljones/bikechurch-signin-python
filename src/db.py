@@ -23,7 +23,10 @@ class Person(Base):
 	bikes		= relationship('Bike', backref = 'owner')
 	
 	def Name(self):
-		return "{0} {1}".format(self.firstName, self.lastName)
+		return "{0}  {1}".format(self.firstName, self.lastName)
+		
+	def PosessiveFirstName(self):
+		return "{0}'{1}".format(self.firstName, "s" if self.firstName[-1] != 's' else "")
 		
 	def __repr__(self):
 		return "<{0}> {1}".format(self.__class__.__name__, self.Name())
@@ -78,6 +81,11 @@ class Shoptime(Base):
 	notes 		= Column(Unicode(200))
 	type 		= Column(MSEnum(*shoptimeChoices, strict = True),
 				nullable = False, index = True)
+				
+	
+	def __repr__(self):
+		return "<{0}> {1} On {2} For {3}".format(
+			self.__class__.__name__, self.type, self.start, self.duration)		
 	
 class ShopOccupant(Base):
 	__tablename__ = 'shopOccupants'
@@ -104,7 +112,9 @@ bikeTypes = [
 	'Mixte',
 	'Tallbike',
 	'Town Bike',
-	'Touring'
+	'Touring',
+	'Track',
+	'Other',
 ]
 				
 class Bike(Base):
@@ -123,6 +133,10 @@ class Bike(Base):
 	model		= Column(Unicode(64))
 	serial		= Column(Unicode(64), nullable = False, index = True)
 
+	def __repr__(self):
+		return "<{0}> {1} {2} {3} {4} {5}".format(
+			self.__class__.__name__, self.color, self.type, self.brand,
+			self.model, self.serial)	
 
 def CreateTablesFromScratch():
 	print("Creating database tables...")
@@ -134,7 +148,7 @@ def CreateTablesFromScratch():
 	
 	Base.metadata.create_all(bind = engine)
 	
-	print("\tSuccess")
+	print("...Success")
 
 _Session = None
 _engine = None

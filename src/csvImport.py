@@ -47,13 +47,19 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 	
 	numFailed = 0
 	numSucceeded = 0
-	
-	print "Loading existing membership data..."
+	print("Loading membership data...")
+	print("\tParsing membership data file")
 	sys.stdout.flush()
 	
 	controller = Controller()
 	
-	for row in reader:
+	FullName = lambda firstName, lastName: " ".join([firstName, lastName]).lower()
+	
+	people = {}
+	for person in db.session.query(db.Person).all():
+		people[FullName(person.firstName, person.lastName)] = person
+	
+	for row in reader:		
 		startDate = ParseCSVDate(row[0])
 		type, duration, money = ParseCSVMembershipTypeDurationAndDonation(row[6], row[7])
 		if startDate is None or type is None:
@@ -68,13 +74,17 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 		lastName = unicode(row[1].strip())
 		firstName = unicode(row[2].strip())
 
+		fullName = FullName(firstName, lastName)
+
 		#TODO: Do more validation before we get to this point
-		person = controller.GetPersonByFullName(firstName, lastName)
-		if person is None:
+		person = None
+		if fullName in people:
+			person = people[fullName]
+		else:
 			person = db.Person()
 			person.firstName = firstName
 			person.lastName = lastName
-			db.session.add(person)
+			people[fullName] = person
 
 		if person.memberInfo is None:
 			person.memberInfo = db.Member()
@@ -83,9 +93,8 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 			alreadyLifer = memberEndDate is None
 			nowLifer = endDate is None
 			if alreadyLifer or (not nowLifer and memberEndDate < endDate):
-				continue	
-					
-		person.memberInfo.personID = person.id
+				continue
+
 		person.memberInfo.endDate = endDate
 		person.memberInfo.streetAddress = unicode(row[3].strip())
 		person.memberInfo.phoneNumber = unicode(row[4].strip())
@@ -98,12 +107,13 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 		succeeded.writerow(row)
 		numSucceeded += 1
 		
-	print("\t...")
-	sys.stdout.flush()
+	print("\t\t{0} rows successfuly parsed".format(numSucceeded))
+	print("\t\t{0} rows failed to parse".format(numFailed))
+
+	print("\tCommiting data to database")
+	db.session.add_all(people.values())
 	db.session.commit()
-	
-	print("\t{0} rows successfuly parsed, {1} rows failed to parse".format(numSucceeded, numFailed))
 
 	numPeople = db.session.query(db.Person).count() 
 	print("\t{0} people in database".format(numPeople))
-	print("\tSuccess")
+	print("...Success")

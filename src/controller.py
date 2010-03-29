@@ -154,7 +154,7 @@ class Controller:
 		self._ui.ResetError()
 		
 	def ViewPersonInfo(self, person):
-		if self.AuthenticateMechanic("view info for {0}".format(person.Name())):
-			#TODO: Show view person screen here
-			print "TODO: View person not implemented yet."
+		#TODO: reenable authentication
+		if 1: #self.AuthenticateMechanic("view info for {0}".format(person.Name())):
+			self._ui.ShowViewPersonDialog(person)
 

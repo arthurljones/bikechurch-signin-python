@@ -7,7 +7,7 @@ from ..db import Person
 class EditNamePanel(wx.Panel):
 	def __init__(self, parent, controller):
 		wx.Panel.__init__(self, parent)
-		self.controller = controller
+		self._controller = controller
 		
 		sizer = MakeInfoEntrySizer()
 		self.SetSizer(sizer)
@@ -18,19 +18,19 @@ class EditNamePanel(wx.Panel):
 	def Validate(self):
 		person = self.GetPerson()
 		if not person.firstName:
-			self.controller.FlashError(
+			self._controller.FlashError(
 				"You must enter at least your first name.",
 				self.firstName)
 		elif len(person.firstName) + len(person.lastName) < 3:
-			self.controller.FlashError(
+			self._controller.FlashError(
 				"Your name must have at least three letters.",
 				[self.firstName, self.lastName])
-		elif self.controller.GetPersonByFullName(person.firstName, person.lastName):
-			self.controller.FlashError(
+		elif self._controller.GetPersonByFullName(person.firstName, person.lastName):
+			self._controller.FlashError(
 				"There's already somebody with that name in the database.",
 				[self.firstName, self.lastName])
 		else:
-			return True	
+			return True
 			
 		return False
 		
