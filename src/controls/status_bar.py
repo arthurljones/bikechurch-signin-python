@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*-
 
 import wx
-from ..ui_utils import MedFont
+from ..ui import MedFont
 from window_blinker import WindowBlinker
 		
 class StatusBar(wx.Panel):

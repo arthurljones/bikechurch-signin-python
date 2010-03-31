@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*-
  
 import wx, datetime
-from ..ui_utils import (AddLabel, MedFont, FormatTimediff, GetShoptimeTypeDescription, 
+from ..ui import (AddLabel, MedFont, FormatTimediff, GetShoptimeTypeDescription, 
 	EditPersonPanel, EditMemberPanel, MakeStaticBoxSizer)
 from ..controls.autowrapped_static_text import AutowrappedStaticText
 

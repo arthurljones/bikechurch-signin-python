@@ -2,7 +2,7 @@
  
 import wx
 from datetime import datetime
-from ..ui_utils import FormatTimediff, GetShoptimeTypeDescription
+from ..ui import FormatTimediff, GetShoptimeTypeDescription
 
 class OccupantLine():	
 	def __init__(self, parent, sizer, controller, person, startTime, type):

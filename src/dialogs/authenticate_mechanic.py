@@ -1,5 +1,5 @@
 import wx
-from ..ui_utils import MakeInfoEntrySizer, AddField
+from ..ui import MakeInfoEntrySizer, AddField
 import hashlib
 from copy import copy
 

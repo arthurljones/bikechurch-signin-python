@@ -2,7 +2,7 @@
  
 import wx
 from math import ceil
-from ..ui_utils import MedFont, MakeStaticBoxSizer
+from ..ui import MedFont, MakeStaticBoxSizer
 from shoptime_choice import ShoptimeChoice
 
 class SignInPanel(wx.Panel):

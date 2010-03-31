@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*-
  
 import wx
-from ..ui_utils import AddLabel, MedFont, BigFont
+from ..ui import AddLabel, MedFont, BigFont
 
 class ShoptimeChoice(wx.Panel):
 	def __init__(self, parent, onClick, sizer = wx.BoxSizer(wx.VERTICAL)):

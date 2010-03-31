@@ -2,7 +2,7 @@
  
 import wx
 from ..db import Person
-from ..ui_utils import AddLabel, MedFont, EditPersonPanel, EditBikePanel
+from ..ui import AddLabel, MedFont, EditPersonPanel, EditBikePanel
 from ..controls.autowrapped_static_text import AutowrappedStaticText
 
 class NewPersonDialog(wx.Dialog):
