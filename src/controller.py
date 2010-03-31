@@ -3,7 +3,7 @@
 import db, wx, MySQLdb, os
 from datetime import datetime
 from sqlalchemy import func, or_
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from db import Person, Member, Shoptime, ShopOccupant, Bike
 
 def PrintShortStack(start = 0, limit = None, prefix = ""):
@@ -34,7 +34,7 @@ class Controller:
 	def _Commit(self):
 		try:
 			db.session.commit()
-		except IntegrityError, error:
+		except (IntegrityError, OperationalError), error:
 			print("Error on commit ({0}): {1}".format(error.orig[0], error.orig[1]))
 			print("\tStatement: {0}".format(error.statement))
 			print("\tParams: {0}".format(error.params))
@@ -114,7 +114,7 @@ class Controller:
 			shoptime = Shoptime()
 			shoptime.personID = person.id
 			shoptime.start = person.occupantInfo.start
-			shoptime.duration = datetime.now() - shoptime.start
+			shoptime.end = datetime.now()
 			shoptime.type = person.occupantInfo.type
 			shoptime.notes = u""
 			

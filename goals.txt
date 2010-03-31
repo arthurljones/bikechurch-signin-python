@@ -1,18 +1,34 @@
 Short Term/TODO:
-Get "View Person" screen functional - shows bikes, visits, (membership info?)
-Get "Edit Person" screen working
-Cleanup timers when closing window
+Remove edit_*_panel.py source files in controls
+Rename ui_utils.py to ui.py and ui.py to main_window.py
+Get View Person screen validating and applying changes
+Enable/disable View Person list buttons on list selections
+Get View Person screen lists functional (add, edit, remove)
+Member/Not Member/Expired in view person and occupants list
 Feedback button
+Mechanic's Toolbox:
+	Bike by serial number
+	View Person (without signing them in)
+	View Feedback
+Cleanup timers when closing window
 tell you what you owe on signout
 
 Medium Term/Cleanup:
+Additional validation for CSV import
+"Lifetime" checkbox for membership expiration date (instead of end dates in 2068)
+MoneyField for donation amounts
+NumberField
+DateTimeField
+Field validation (numberField, moneyField, etc)
 Polish GUI behavior
 Add "type" for worktrade
 Bugfix: scroll functionality can get stuck in a weird position when removing items
 Check for duplicate bike serials and issue a warning
 Use _ to prefix implementation properties in classes
+Keyboard mnemonics for controls/commands
 
 Long Term:
+Document process for determining how and why to add a feature
 Instant switch between spanish/english
 Daily database backups to local and remote storage
 Extensive documentation of code and design methodologies
@@ -22,9 +38,6 @@ Standard machine-readable exports (for migrating away from this system)
 Automated unit tests, with regression tests for fixed bugs
 Integrated error reporting with trace and user comment
 
-add more bikes during add new person
-select from bikes at signin / add more bikes
-
-*** Process for determining what systems to implement and how
-$500 additional cap
-
+Suggestions From Others (To Prioritize):
+add more than one bike during add new person
+select from bikes or add another bike upon signin

@@ -1,11 +1,9 @@
  # -*- coding: utf-8 -*-
  
 import wx
-
-from ..ui_utils import AddLabel, MedFont
+from ..db import Person
+from ..ui_utils import AddLabel, MedFont, EditPersonPanel, EditBikePanel
 from ..controls.autowrapped_static_text import AutowrappedStaticText
-from ..controls.edit_name_panel import EditNamePanel
-from ..controls.edit_bike_panel import EditBikePanel
 
 class NewPersonDialog(wx.Dialog):
 	def __init__(self, controller,  firstName = "", lastName = ""):
@@ -20,16 +18,18 @@ class NewPersonDialog(wx.Dialog):
 			"please tell us your name and bike information.",
 			type = AutowrappedStaticText)
 		
-		staticBox = wx.StaticBox(self, wx.ID_ANY, u"Your Name")
-		nameEntrySizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
+		person = Person()
+		person.firstName = firstName
+		person.lastName = lastName
+		
+		nameEntrySizer = MakeStaticBoxSizer(self, u"Your Name", wx.VERTICAL)
 		AddLabel(self, nameEntrySizer, MedFont(), u"Type Your Name:")
-		self.editNamePanel = EditNamePanel(self, controller)
-		self.editNamePanel.SetValues(firstName, lastName)
+		self.editNamePanel = EditPersonPanel(self, controller)
+		self.editNamePanel.Set(person)
 		nameEntrySizer.Add(self.editNamePanel, 0, wx.EXPAND)
 		outerSizer.Add(nameEntrySizer, 0, wx.EXPAND)
 		
-		staticBox = wx.StaticBox(self, wx.ID_ANY, "Your Bike")
-		bikeEntrySizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
+		bikeEntrySizer = MakeStaticBoxSizer(self, u"Your Bike", wx.VERTICAL)
 		AddLabel(self, bikeEntrySizer, MedFont(), "Describe Your Bike (if you have one):")			
 		self.editBikePanel = EditBikePanel(self, controller)
 		bikeEntrySizer.Add(self.editBikePanel, 0, wx.EXPAND)
@@ -54,12 +54,10 @@ class NewPersonDialog(wx.Dialog):
 				if not self.editBikePanel.Validate():
 					return
 			
-			person = self._controller.CreatePerson(
-				self.editNamePanel.GetPerson())
+			person = self._controller.CreatePerson(self.editNamePanel.Get())
 			
 			if createBike:
-				self._controller.CreateBike(
-					self.editBikePanel.GetBike(), person)
+				self._controller.CreateBike(self.editBikePanel.Get(), person)
 
 			self.EndModal(event.GetEventObject().GetId())
 		

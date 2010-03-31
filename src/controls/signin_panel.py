@@ -2,7 +2,7 @@
  
 import wx
 from math import ceil
-from ..ui_utils import MedFont
+from ..ui_utils import MedFont, MakeStaticBoxSizer
 from shoptime_choice import ShoptimeChoice
 
 class SignInPanel(wx.Panel):
@@ -11,8 +11,7 @@ class SignInPanel(wx.Panel):
 		self._controller = controller
 		self._suppressNextListChange = False
 		
-		staticBox = wx.StaticBox(self)
-		sizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
+		sizer = MakeStaticBoxSizer(self, style = wx.VERTICAL)
 		self.SetSizer(sizer)
 		
 		hugeFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTWEIGHT_BOLD, wx.NORMAL)

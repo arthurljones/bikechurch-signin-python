@@ -17,10 +17,16 @@ class Person(Base):
 	id		= Column(Integer, primary_key = True, unique = True, nullable = False)
 	firstName	= Column(Unicode(64), nullable = False)
 	lastName 	= Column(Unicode(64))
+	
 	memberInfo	= relationship('Member', backref = 'person', uselist = False)
 	shoptimes	= relationship('Shoptime', backref = 'person')
 	occupantInfo	= relationship('ShopOccupant', backref = 'person', uselist = False)
 	bikes		= relationship('Bike', backref = 'owner')
+	
+	fields = [
+		("firstName", "First Name"),
+		("lastName", "Last Name"),
+	]
 	
 	def Name(self):
 		return "{0}  {1}".format(self.firstName, self.lastName)
@@ -45,12 +51,22 @@ class Member(Base):
 	personID	= Column(Integer, nullable = False, unique = True, index = True)
 	startDate	= Column(Date, nullable = False)
 	endDate		= Column(Date)
-	streetAddress	= Column(Unicode(128))
+	mailingAddress	= Column(Unicode(200))
 	emailAddress	= Column(Unicode(64))
 	phoneNumber	= Column(Unicode(32))
 	donation	= Column(Integer, nullable = False)
 	notes		= Column(Unicode(200))
-
+	
+	fields = [
+		("startDate", "Start Date"),
+		("endDate", "End Date"),
+		("donation", "Donation $"),
+		("phoneNumber", "Phone Number"),
+		("emailAddress", "Email Address"),
+		("mailingAddress", "Mailing Address"),
+		("notes", "Notes"),
+	]
+	
 shoptimeChoices = [
 	'shoptime',
 	'parts',
@@ -77,15 +93,22 @@ class Shoptime(Base):
 	id		= Column(Integer, primary_key = True, unique = True, nullable = False)
 	personID	= Column(Integer, nullable = False, index = True)
 	start		= Column(DateTime, nullable = False)
-	duration	= Column(Time, nullable = False)
+	end		= Column(DateTime, nullable = False)
 	notes 		= Column(Unicode(200))
 	type 		= Column(MSEnum(*shoptimeChoices, strict = True),
 				nullable = False, index = True)
 				
+	fields = [
+		("start", "Start Time"),
+		("end", "End Time"),
+		("emailAddress", "Email Address"),
+		("endDate", "End Date"),
+		("notes", "Notes"),
+	]
 	
 	def __repr__(self):
-		return "<{0}> {1} On {2} For {3}".format(
-			self.__class__.__name__, self.type, self.start, self.duration)		
+		return "<{0}> {1} From {2} Until {3}".format(
+			self.__class__.__name__, self.type, self.start, self.end)		
 	
 class ShopOccupant(Base):
 	__tablename__ = 'shopOccupants'
@@ -132,7 +155,15 @@ class Bike(Base):
 	brand		= Column(Unicode(64))
 	model		= Column(Unicode(64))
 	serial		= Column(Unicode(64), nullable = False, index = True)
-
+				
+	fields = [
+		("type", "Type"),
+		("color", "Color"),
+		("brand", "Brand"),
+		("model", "Model"),
+		("serial", "Serial #"),
+	]
+	
 	def __repr__(self):
 		return "<{0}> {1} {2} {3} {4} {5}".format(
 			self.__class__.__name__, self.color, self.type, self.brand,

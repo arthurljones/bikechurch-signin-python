@@ -1,15 +1,15 @@
  # -*- coding: utf-8 -*-
  
 import wx, datetime
-from ..ui_utils import AddLabel, MedFont, FormatTimediff, GetShoptimeTypeDescription
-from ..controls.edit_name_panel import EditNamePanel
+from ..ui_utils import (AddLabel, MedFont, FormatTimediff, GetShoptimeTypeDescription, 
+	EditPersonPanel, EditMemberPanel, MakeStaticBoxSizer)
 from ..controls.autowrapped_static_text import AutowrappedStaticText
 
 def _GetShoptimes(person):
 	result = []
 	for time in person.shoptimes:
 		startTime = time.start.strftime("%a %b %d %Y %I:%m%p")
-		duration =  time.duration.strftime("%H:%M")
+		duration =  FormatTimediff(time.end - time.start)
 		description = GetShoptimeTypeDescription(time.type)
 		string = "{0}: {2} for {1}".format(startTime, duration, description)
 		
@@ -36,10 +36,6 @@ def _GetBikes(person):
 	return result
 		
 class AddEditRemoveList(wx.Panel):
-	'''TODO:
-	OnSelect enables buttons
-	'''
-	
 	def __init__(self, parent, person, label, buttonSuffix, getItems,
 			onAdd, onEdit, onRemove):
 		'''getItems is a function that takes a db.Person and returns a list of tuples:
@@ -51,15 +47,12 @@ class AddEditRemoveList(wx.Panel):
 		self._onAddFunc = onAdd
 		self._onEditFunc = onEdit
 		self._onRemoveFunc = onRemove
-		
-		outerSizer = wx.FlexGridSizer(3, 1)
-		outerSizer.AddGrowableCol(0)
-		outerSizer.AddGrowableRow(1)
+
+		outerSizer = MakeStaticBoxSizer(self, label, wx.VERTICAL)
 		self.SetSizer(outerSizer)
 		
-		AddLabel(self, outerSizer, MedFont(), label)
 		self.list = wx.ListBox(self)
-		outerSizer.Add(self.list, 1, wx.EXPAND)
+		outerSizer.Add(self.list, 1, wx.EXPAND | wx.ALL, 2)
 	
 		add = wx.Button(self, wx.ID_ANY, "Add {0}".format(buttonSuffix))
 		edit = wx.Button(self, wx.ID_ANY, "Edit {0}".format(buttonSuffix))
@@ -124,11 +117,10 @@ class AddEditRemoveList(wx.Panel):
 		selection = self.list.GetSelection()
 		return self.items[selection] if selection >= 0 else None
 		
-
 class ViewPersonDialog(wx.Dialog):
 	def __init__(self, controller,  person):
 		wx.Dialog.__init__(self, None, title = "Viewing Info For {0} {1}".format(
-			person.firstName, person.lastName))
+			person.firstName, person.lastName), size = (720, 500))
 		self._controller = controller
 		
 		outerSizer = wx.FlexGridSizer(2, 1)
@@ -137,41 +129,51 @@ class ViewPersonDialog(wx.Dialog):
 		self.SetSizer(outerSizer)
 
 		panelsSizer = wx.FlexGridSizer(1, 2)
-		panelsSizer.AddGrowableCol(1)
+		panelsSizer.AddGrowableCol(0)
 		panelsSizer.AddGrowableRow(0)
-		outerSizer.Add(panelsSizer)
+		outerSizer.Add(panelsSizer, 1, wx.EXPAND)
+		
+		buttonSizer = self.CreateButtonSizer(wx.OK | wx.CANCEL)
+		outerSizer.Add(buttonSizer, 1, wx.ALIGN_RIGHT)
 
 		listsSizer = wx.BoxSizer(wx.VERTICAL)
+		infoSizer = wx.FlexGridSizer(1, 1)
+		infoSizer.AddGrowableCol(0)
+		
+		panelsSizer.Add(infoSizer, 1, wx.EXPAND)
 		panelsSizer.Add(listsSizer, 1, wx.EXPAND)
-
+		
 		posessive = person.PosessiveFirstName()
+		
 		shoptimes = AddEditRemoveList(self, person,
-			"{0} shop usage:".format(posessive), "Hours", _GetShoptimes,
+			"{0} Shop Usage".format(posessive), "Hours", _GetShoptimes,
 			self._AddShoptime, self._EditShoptime, self._RemoveShoptime)
 				
 		bikes = AddEditRemoveList(self, person,
-			"{0} bikes:".format(posessive), "Bike", _GetBikes,
+			"{0} Bikes".format(posessive), "Bike", _GetBikes,
 			self._AddBike, self._EditBike, self._RemoveBike)
 			
-		listsSizer.Add(shoptimes, 2, wx.EXPAND)
-		listsSizer.Add(bikes, 1, wx.EXPAND)
+		listsSizer.Add(shoptimes, 2, wx.EXPAND | wx.ALL, 8)
+		listsSizer.Add(bikes, 1, wx.EXPAND | wx.ALL, 8)
 				
-		buttonSizer = self.CreateButtonSizer(wx.OK | wx.CANCEL)
-		outerSizer.Add(buttonSizer, 1, wx.ALIGN_RIGHT)
-		
 		ok = self.FindWindowById(wx.ID_OK)
 		cancel = self.FindWindowById(wx.ID_CANCEL)
 		
 		ok.Bind(wx.EVT_BUTTON, self._OnOK)
 		cancel.Bind(wx.EVT_BUTTON, self._OnCancel)
 		
-		infoSizer = wx.BoxSizer(wx.VERTICAL)
-		panelsSizer.Add(infoSizer, 1, wx.EXPAND)
-		self._nameEdit = EditNamePanel(self, controller)
-		infoSizer.Add(self._nameEdit, 0, wx.EXPAND)
+		def AddEditPanel(label, PanelType):
+			editSizer = MakeStaticBoxSizer(self, "{0} {1}".format(posessive, label))
+			panel = PanelType(self, controller)
+			editSizer.Add(panel, 1, wx.EXPAND | wx.ALL, 8)
+			infoSizer.Add(editSizer, 1, wx.EXPAND | wx.ALL, 8)
+			return panel
 		
-		self.Layout()
-		self.Fit()
+		self._personEditPanel = AddEditPanel("Name", EditPersonPanel)
+		self._personEditPanel.Set(person)
+		self._memberEditPanel = AddEditPanel("Member Info", EditMemberPanel)
+		if person.memberInfo:
+			self._memberEditPanel.Set(person.memberInfo)
 	
 	def _OnOK(self, event):
 		self.EndModal(wx.ID_OK)

@@ -96,7 +96,7 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 				continue
 
 		person.memberInfo.endDate = endDate
-		person.memberInfo.streetAddress = unicode(row[3].strip())
+		person.memberInfo.mailingAddress = unicode(row[3].strip())
 		person.memberInfo.phoneNumber = unicode(row[4].strip())
 		person.memberInfo.emailAddress = unicode(row[5].strip())
 		person.memberInfo.donation =  money
