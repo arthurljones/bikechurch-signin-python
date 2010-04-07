@@ -1,14 +1,12 @@
 Short Term/TODO:
-Get View Person shoptime list validating
-Get View Person bikes list functional and validating
-Re-enable authentication for View Person screen
-Feedback button
+Implement feedback button
 Mechanic's Toolbox:
 	Bike by serial number
 	View Person (without signing them in)
 	View Feedback
 
 Medium Term/Cleanup:
+More functional alternative to timectrl (it sucks)
 Member/Not Member/Expired in view person and occupants list
 Allow ChoiceField to supply a name dictionary
 Cleanup timers when closing window

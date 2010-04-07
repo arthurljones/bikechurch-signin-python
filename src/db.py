@@ -91,13 +91,15 @@ class Shoptime(Base):
 		
 	id		= Column(Integer, primary_key = True, unique = True, nullable = False)
 	personID	= Column(Integer, nullable = False, index = True)
-	start		= Column(DateTime, nullable = False)
-	end		= Column(DateTime, nullable = False)
+	date		= Column(Date, nullable = False, index = True)	
+	start		= Column(Time, nullable = False)
+	end		= Column(Time, nullable = False)
 	notes 		= Column(Unicode(200))
 	type 		= Column(MSEnum(*shoptimeChoices, strict = True),
 				nullable = False, index = True)
 				
 	fields = [
+		("date", "Date"),
 		("start", "Start Time"),
 		("end", "End Time"),
 		("type", "Type"),
@@ -188,7 +190,7 @@ def Connect():
 	global _Session
 	global session
 	
-	_engine = create_engine('mysql://signin:signin@localhost/signin_db?charset=utf8')
+	_engine = create_engine('mysql://signin:signin@localhost/signin_db?charset=utf8', echo = True)
 	_Session = sessionmaker(bind = _engine)
 	session = _Session()
 

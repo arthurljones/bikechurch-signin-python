@@ -45,5 +45,5 @@ if __name__ == "__main__":
 	#cProfile.run("main()", "mainprof")
 	#stats = pstats.Stats("mainprof")
 	#stats.sort_stats('cumulative').print_stats(15)
-	main()
+	main(0)
 

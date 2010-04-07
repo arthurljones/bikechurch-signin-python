@@ -1,4 +1,4 @@
-import wx
+import wx, datetime
 from sqlalchemy import (Integer, Unicode, Date, DateTime, Time)
 from sqlalchemy.dialects.mysql.base import MSEnum 
 from ..db import Person, Member, Bike, Shoptime
@@ -139,8 +139,24 @@ class EditMemberPanel(EditPanel):
 class EditShoptimePanel(EditPanel):
 	def __init__(self, parent):
 		EditPanel.__init__(self, parent, Shoptime)
+		self["start"].Set(datetime.datetime.now() - datetime.timedelta(hours = 1))
 	
 	def Validate(self):
-		#TODO: Validate
-			
-		return True
+		shoptime = self.Get()
+		
+		dtStart = datetime.datetime.combine(shoptime.date, shoptime.start)
+		dtEnd = datetime.datetime.combine(shoptime.date, shoptime.end)
+		
+		if dtStart > datetime.datetime.now():
+			GetController().FlashError("Shoptime may not start in the future.",
+				[self["date"].Widget(), self["start"].Widget()])
+		elif dtEnd < dtStart:
+			GetController().FlashError("End time must be later than start time.",
+				[self["end"].Widget()])
+		elif not shoptime.type:
+			GetController().FlashError("You must select a type.",
+				[self["type"].Widget()])
+		else:
+			return True	
+		
+		return False

@@ -58,7 +58,7 @@ class DateField(Field):
 		Field.__init__(self, parent, sizer, column, label, self._date, default)
 		
 	def Get(self):
-		return DatetimeWxToPy(self.Widget().GetValue())
+		return DatetimeWxToPy(self.Widget().GetValue()).date()
 
 	def Set(self, value):
 		return self.Widget().SetValue(DatetimePyToWx(value))
@@ -104,7 +104,7 @@ class ForeverDateField(Field):
 		return retval
 		
 	def Widget(self):
-		return None	
+		return self._date, self._forever
 		
 class TimeField(Field):
 	def __init__(self, parent, sizer, column, label, default = datetime.now):
@@ -112,7 +112,7 @@ class TimeField(Field):
 		Field.__init__(self, parent, sizer, column, label, self._time, default)	\
 		
 	def Get(self):
-		return DatetimeWxToPy(self.Widget().GetValue())
+		return DatetimeWxToPy(self.Widget().GetWxDateTime()).time()
 
 	def Set(self, value):
 		return self.Widget().SetValue(DatetimePyToWx(value))
@@ -142,4 +142,4 @@ class DateTimeField(Field):
 		return True
 		
 	def Widget(self):
-		return None
+		return [self._date, self._time]

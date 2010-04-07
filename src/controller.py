@@ -24,23 +24,31 @@ def PrintShortStack(start = 0, limit = None, prefix = ""):
 		
 		file = os.path.sep.join(filename.split(os.path.sep)[-2:])
 		
-		print("{4}{0}({1}) in {2}: \"{3}\"".format(file, lineNumber, function, text, prefix))
+		print("{4}{0}({1}) in {2}:\n{4}\t\"{3}\"".format(
+			file, lineNumber, function, text, prefix))
 
-def PrintDBAPIError(error):
-	print("Error on commit ({0}): {1}".format(error.orig[0], error.orig[1]))
+def HandleDBAPIError(error):
+	print("***Error on commit ({0}): {1}".format(error.orig[0], error.orig[1]))
 	print("\tStatement: {0}".format(error.statement))
 	print("\tParams: {0}".format(error.params))
 	print("\tStacktrace follows:")	
-	PrintShortStack(limit = 4, start = 2)
+	PrintShortStack(limit = 4, start = 2, prefix = "\t")
 	
+	if error.connection_invalidated:
+		print("\tConnection to database invalidate - reconnecting")
+		db.Connect()
+	else:
+		db.session.rollback()
+		
 	print("")
 	
-def PrintSQLAlchemyError(error):
-	print("Error on commit ({0}): {1}".format(error.message, error.args))
+def HandleSQLAlchemyError(error):
+	print("*** Error on commit: {0}".format("; ".join(error.args)))
 	print("\tStacktrace follows:")	
-	PrintShortStack(limit = 4, start = 2)
+	PrintShortStack(limit = 4, start = 2, prefix = "\t")
+	print("")
 	
-	print("")	
+	db.session.rollback()
 
 class Controller:
 	def __init__(self):
@@ -53,21 +61,16 @@ class Controller:
 		try:
 			db.session.commit()
 		except (IntegrityError, OperationalError), error:					
-			PrintDBAPIError(error)
+			HandleDBAPIError(error)
 			
 		except (InvalidRequestError), error:
-			PrintSQLAlchemyError(error)
+			HandleSQLAlchemyError(error)
 			
 		else:
 			return True
 			
-		if error.connection_invalidated:
-			print("\tConnection to database invalidate - reconnecting")
-			db.Connect()
-		else:
-			db.session.rollback()
-
-			
+		return False
+					
 	def Rollback(self):
 		db.session.rollback()
 
@@ -177,7 +180,7 @@ class Controller:
 		self._ui.ResetError()
 		
 	def ViewPersonInfo(self, person):
-		if 1: #self.AuthenticateMechanic("view info for {0}".format(person.Name())):
+		if self.AuthenticateMechanic("view info for {0}".format(person.Name())):
 			self._ui.ShowViewPersonDialog(person)
 
 def GetController(): 

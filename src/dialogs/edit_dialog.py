@@ -6,7 +6,7 @@ class EditDialog(wx.Dialog):
 	def __init__(self, EditPanelType, typeName, size, object = None):
 		self._object = object
 		title = "{0} {1}".format("Edit" if object else "Add", typeName)
-		wx.Dialog.__init__(self, None, title = title, size = size)
+		wx.Dialog.__init__(self, None, title = title, size = size, style = wx.STAY_ON_TOP)
 
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(sizer)
@@ -28,7 +28,7 @@ class EditDialog(wx.Dialog):
 			self.EndModal(wx.ID_OK)
 		
 	def Validate(self):
-		return True		
+		return self._edit.Validate()	
 		
 	def Get(self):
 		if self._object is None:
@@ -42,17 +42,9 @@ class ShoptimeDialog(EditDialog):
 	def __init__(self, object = None):
 		EditDialog.__init__(self, EditShoptimePanel, "Shoptime", (300, 200), object)
 		
-	def Validate(self):
-		#TODO
-		return True
-	
 class BikeDialog(EditDialog):
 	def __init__(self, object = None):
-		EditDialog.__init__(self, EditBikePanel, "Bike", (300, 200), object)
-		
-	def Validate(self):
-		#TODO
-		return True
+		EditDialog.__init__(self, EditBikePanel, "Bike", (250, 200), object)
 	
 	
 	

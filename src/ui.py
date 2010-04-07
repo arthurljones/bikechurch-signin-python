@@ -80,16 +80,12 @@ def DatetimePyToWx(pydt):
 		wxdt.SetYear(pydt.year)
 		wxdt.SetMonth(pydt.month - 1)
 		wxdt.SetDay(pydt.day)
-	else:
-		wxdt.ResetDate()
 		
 	if hasattr(pydt, "hour"):
 		wxdt.SetHour(pydt.hour)
 		wxdt.SetMinute(pydt.minute)
 		wxdt.SetSecond(pydt.second)
 		wxdt.SetMillisecond(pydt.microsecond / 1000)
-	else:
-		wxdt.ResetTime()
 		
 	return wxdt
 

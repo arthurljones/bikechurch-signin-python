@@ -28,8 +28,10 @@ def _EditDialogFunc(EditorType):
 	return EditDialog
 
 def _ShoptimeListString(shoptime):
-	startTime = shoptime.start.strftime("%a %b %d %Y %I:%m%p")
-	duration =  shoptime.end - shoptime.start
+	dtStart = datetime.datetime.combine(shoptime.date, shoptime.start)
+	dtEnd = datetime.datetime.combine(shoptime.date, shoptime.end)
+	startTime = dtStart.strftime("%a %b %d %Y %I:%m%p")
+	duration =  dtEnd - dtStart		
 	return "{0}: {1} of {2}".format(startTime, FormatTimedelta(duration),
 		GetShoptimeTypeDescription(shoptime.type))
 						
@@ -49,7 +51,7 @@ def _BikeListString(bike):
 class ViewPersonDialog(wx.Dialog):
 	def __init__(self, person):
 		wx.Dialog.__init__(self, None, title = "Viewing Info For {0}".format(person.Name()),
-			size = (740, 500))
+			size = (740, 450))
 		self._person = person
 		
 		outerSizer = wx.FlexGridSizer(2, 1)
@@ -119,5 +121,4 @@ class ViewPersonDialog(wx.Dialog):
 	def _OnCancel(self, event):
 		GetController().Rollback()
 		self.EndModal(wx.ID_CANCEL)
-		
 
