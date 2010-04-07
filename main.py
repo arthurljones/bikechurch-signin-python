@@ -2,8 +2,10 @@
  # -*- coding: utf-8 -*-
  
 import wx, sys	
-import src.csvImport as csvImport, src.db as db, src.ui as ui
-from src.controller import Controller
+from src.csvImport import ReadMembersFromCSV
+from src.db import CreateTablesFromScratch
+from src.main_window import MainWindow
+from src.controller import ResetController
 
 from warnings import warn
 
@@ -31,12 +33,12 @@ def main(createDB = False):
 	CheckVersion("sqlalchemy", "0.6")
 
 	if createDB:				 
-		db.CreateTablesFromScratch()
-		csvImport.ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")
+		CreateTablesFromScratch()
+		ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")
 
-	controller = Controller()
+	ResetController()
 	app = wx.App()
-	form = ui.MainWindow(controller)
+	form = MainWindow()
 	app.MainLoop()
 	
 if __name__ == "__main__":

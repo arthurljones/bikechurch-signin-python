@@ -3,6 +3,7 @@
 import wx
 
 from ui import Delegator
+from controller import GetController
 from controls.status_bar import StatusBar
 from controls.occupants_list import OccupantsList
 from controls.signin_panel import SignInPanel
@@ -12,7 +13,7 @@ from dialogs.authenticate_mechanic import AuthenticateMechanicDialog
 from dialogs.view_person import ViewPersonDialog
 
 class MainWindow(wx.Frame, Delegator):
-	def __init__(self, controller):
+	def __init__(self):
 		size = (900, 520)
 		wx.Frame.__init__(self, None, id = wx.ID_ANY,
 			title = u"Welcome To The Bike Church!", size = size,
@@ -22,8 +23,7 @@ class MainWindow(wx.Frame, Delegator):
 		
 		wx.Font.SetDefaultEncoding(wx.FONTENCODING_UTF8)
 		
-		self._controller = controller
-		controller.SetUI(self)
+		GetController().SetUI(self)
 		
 		self.screens = []
 		self.currentScreen = None
@@ -38,14 +38,14 @@ class MainWindow(wx.Frame, Delegator):
 		screenSizer.AddGrowableCol(1)
 		screenSizer.AddGrowableRow(0)
 		
-		self.statusBar = StatusBar(self, self._controller)
+		self.statusBar = StatusBar(self)
 		self.PushDelegate(self.statusBar)
 		
 		sizer.Add(screenSizer, 1, wx.EXPAND)
 		sizer.Add(self.statusBar, 0, wx.EXPAND)
 				
-		self.occupantsList = OccupantsList(self, controller)
-		self.signinPanel = SignInPanel(self, controller)
+		self.occupantsList = OccupantsList(self)
+		self.signinPanel = SignInPanel(self)
 		
 		screenSizer.Add(self.signinPanel, 0, wx.EXPAND | wx.ALL, 8)
 		screenSizer.Add(self.occupantsList, 1, wx.EXPAND | wx.ALL, 8)
@@ -69,11 +69,11 @@ class MainWindow(wx.Frame, Delegator):
 		self.Layout()
 		
 	def ShowNewPersonDialog(self, firstName = "", lastName = ""):
-		dialog = NewPersonDialog(self._controller, firstName, lastName)
+		dialog = NewPersonDialog(firstName, lastName)
 		return dialog.ShowModal() == wx.ID_OK
 		
 	def ShowViewPersonDialog(self, person):
-		dialog = ViewPersonDialog(self._controller, person)
+		dialog = ViewPersonDialog(person)
 		return dialog.ShowModal() == wx.ID_OK
 
 	def AuthenticateMechanic(self, activity):
@@ -83,5 +83,3 @@ class MainWindow(wx.Frame, Delegator):
 	def Reset(self, screen):
 		self.signinPanel.ResetValues()
 		self.statusBar.ResetError()
-
-

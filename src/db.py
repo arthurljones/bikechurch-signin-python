@@ -1,12 +1,14 @@
  # -*- coding: utf-8 -*-
  
-import sys
-
+import sys, time
 from sqlalchemy import (create_engine, MetaData, Column, Table, Integer, Unicode,
 	Index, ForeignKeyConstraint, Date, DateTime, Time)
 from sqlalchemy.dialects.mysql.base import MSEnum 
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+
+#hack?
+from controls.field import ForeverDateField
 
 Base = declarative_base()
 
@@ -18,10 +20,14 @@ class Person(Base):
 	firstName	= Column(Unicode(64), nullable = False)
 	lastName 	= Column(Unicode(64))
 	
-	memberInfo	= relationship('Member', backref = 'person', uselist = False)
-	shoptimes	= relationship('Shoptime', backref = 'person')
-	occupantInfo	= relationship('ShopOccupant', backref = 'person', uselist = False)
-	bikes		= relationship('Bike', backref = 'owner')
+	memberInfo	= relationship('Member', backref = 'person', uselist = False,
+		cascade = "all, delete, delete-orphan")
+	shoptimes	= relationship('Shoptime', backref = 'person',
+		cascade = "all, delete, delete-orphan")
+	occupantInfo	= relationship('ShopOccupant', backref = 'person', uselist = False,
+		cascade = "all, delete, delete-orphan")
+	bikes		= relationship('Bike', backref = 'owner',
+		cascade = "all, delete, delete-orphan")
 	
 	fields = [
 		("firstName", "First Name"),
@@ -59,11 +65,11 @@ class Member(Base):
 	
 	fields = [
 		("startDate", "Start Date"),
-		("endDate", "End Date"),
+		("endDate", "End Date", ForeverDateField),
 		("donation", "Donation $"),
 		("phoneNumber", "Phone Number"),
 		("emailAddress", "Email Address"),
-		("mailingAddress", "Mailing Address"),
+		("mailingAddress", "Mail Address"),
 		("notes", "Notes"),
 	]
 	
@@ -72,14 +78,7 @@ shoptimeChoices = [
 	'parts',
 	'worktrade',
 	'volunteer',
-	'mechanic',
-	'accounting',
-	'extra_shift',
-	'facilities',
-	'outreach',
-	'ordering',
-	'tools',
-	'other'
+	#'clerkship',
 ]
 
 class Shoptime(Base):
@@ -101,8 +100,7 @@ class Shoptime(Base):
 	fields = [
 		("start", "Start Time"),
 		("end", "End Time"),
-		("emailAddress", "Email Address"),
-		("endDate", "End Date"),
+		("type", "Type"),
 		("notes", "Notes"),
 	]
 	

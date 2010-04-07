@@ -5,7 +5,7 @@ from ..ui import MedFont
 from window_blinker import WindowBlinker
 		
 class StatusBar(wx.Panel):
-	def __init__(self, parent, controller):
+	def __init__(self, parent):
 		wx.Panel.__init__(self, parent, 0)
 		
 		self.blinkers = []

@@ -2,13 +2,14 @@
  
 import wx
 from ..db import Person
-from ..ui import AddLabel, MedFont, EditPersonPanel, EditBikePanel
+from ..ui import AddLabel, MedFont, MakeStaticBoxSizer
+from ..controls.edit_panel import EditPersonPanel, EditBikePanel
 from ..controls.autowrapped_static_text import AutowrappedStaticText
+from ..controller import GetController
 
 class NewPersonDialog(wx.Dialog):
-	def __init__(self, controller,  firstName = "", lastName = ""):
+	def __init__(self, firstName = "", lastName = ""):
 		wx.Dialog.__init__(self, None, title = "New Person Information")
-		self._controller = controller
 		
 		outerSizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(outerSizer)
@@ -24,14 +25,14 @@ class NewPersonDialog(wx.Dialog):
 		
 		nameEntrySizer = MakeStaticBoxSizer(self, u"Your Name", wx.VERTICAL)
 		AddLabel(self, nameEntrySizer, MedFont(), u"Type Your Name:")
-		self.editNamePanel = EditPersonPanel(self, controller)
+		self.editNamePanel = EditPersonPanel(self)
 		self.editNamePanel.Set(person)
 		nameEntrySizer.Add(self.editNamePanel, 0, wx.EXPAND)
 		outerSizer.Add(nameEntrySizer, 0, wx.EXPAND)
 		
 		bikeEntrySizer = MakeStaticBoxSizer(self, u"Your Bike", wx.VERTICAL)
 		AddLabel(self, bikeEntrySizer, MedFont(), "Describe Your Bike (if you have one):")			
-		self.editBikePanel = EditBikePanel(self, controller)
+		self.editBikePanel = EditBikePanel(self)
 		bikeEntrySizer.Add(self.editBikePanel, 0, wx.EXPAND)
 		outerSizer.Add(bikeEntrySizer, 0, wx.EXPAND)
 		
@@ -54,10 +55,10 @@ class NewPersonDialog(wx.Dialog):
 				if not self.editBikePanel.Validate():
 					return
 			
-			person = self._controller.CreatePerson(self.editNamePanel.Get())
+			person = GetController().CreatePerson(self.editNamePanel.Get())
 			
 			if createBike:
-				self._controller.CreateBike(self.editBikePanel.Get(), person)
+				GetController().CreateBike(self.editBikePanel.Get(), person)
 
 			self.EndModal(event.GetEventObject().GetId())
 		

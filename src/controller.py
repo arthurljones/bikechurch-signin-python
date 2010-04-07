@@ -3,8 +3,10 @@
 import db, wx, MySQLdb, os
 from datetime import datetime
 from sqlalchemy import func, or_
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError, InvalidRequestError
 from db import Person, Member, Shoptime, ShopOccupant, Bike
+
+_controller = None
 
 def PrintShortStack(start = 0, limit = None, prefix = ""):
 	import traceback
@@ -24,6 +26,22 @@ def PrintShortStack(start = 0, limit = None, prefix = ""):
 		
 		print("{4}{0}({1}) in {2}: \"{3}\"".format(file, lineNumber, function, text, prefix))
 
+def PrintDBAPIError(error):
+	print("Error on commit ({0}): {1}".format(error.orig[0], error.orig[1]))
+	print("\tStatement: {0}".format(error.statement))
+	print("\tParams: {0}".format(error.params))
+	print("\tStacktrace follows:")	
+	PrintShortStack(limit = 4, start = 2)
+	
+	print("")
+	
+def PrintSQLAlchemyError(error):
+	print("Error on commit ({0}): {1}".format(error.message, error.args))
+	print("\tStacktrace follows:")	
+	PrintShortStack(limit = 4, start = 2)
+	
+	print("")	
+
 class Controller:
 	def __init__(self):
 		self._lastPersonCreated = None
@@ -31,27 +49,27 @@ class Controller:
 	def SetUI(self, ui):
 		self._ui = ui
 		
-	def _Commit(self):
+	def Commit(self):
 		try:
 			db.session.commit()
-		except (IntegrityError, OperationalError), error:
-			print("Error on commit ({0}): {1}".format(error.orig[0], error.orig[1]))
-			print("\tStatement: {0}".format(error.statement))
-			print("\tParams: {0}".format(error.params))
-			print("\tStacktrace follows:")	
-			PrintShortStack(limit = 4, start = 1)
+		except (IntegrityError, OperationalError), error:					
+			PrintDBAPIError(error)
 			
-			if error.connection_invalidated:
-				print("\tConnection to database invalidate - reconnecting")
-				db.Connect()
-			else:
-				db.session.rollback()
-				
-			print("")
-				
-			return False
+		except (InvalidRequestError), error:
+			PrintSQLAlchemyError(error)
+			
 		else:
 			return True
+			
+		if error.connection_invalidated:
+			print("\tConnection to database invalidate - reconnecting")
+			db.Connect()
+		else:
+			db.session.rollback()
+
+			
+	def Rollback(self):
+		db.session.rollback()
 
 	def GetPersonByFullName(self, firstName, lastName):
 		return db.session.query(Person) \
@@ -93,7 +111,8 @@ class Controller:
 		if person.occupantInfo is not None:
 			if person.occupantInfo.type == type:
 				self._ui.FlashError(
-					"{0} is already signed in to do {1}".format(person.Name()))
+					"{0} is already signed in to do {1}".format(
+					person.Name(), type))
 				return
 			else:
 				self.SignPersonOut(person)
@@ -102,8 +121,9 @@ class Controller:
 		occupant.personID = person.id
 		occupant.start = datetime.now()
 		occupant.type = type
-		db.session.add(occupant)
-		if self._Commit():
+		person.occupantInfo = occupant
+		
+		if self.Commit():
 			self._ui.AddOccupant(person, datetime.now(), type)
 			return occupant
 		else:
@@ -118,16 +138,19 @@ class Controller:
 			shoptime.type = person.occupantInfo.type
 			shoptime.notes = u""
 			
-			db.session.add(shoptime)
+			person.shoptimes.append(shoptime)
 			db.session.delete(person.occupantInfo)
 			
-			self._Commit()
+			self.Commit()
+		else:
+			raise RuntimeError("Trying to sign {0} out, "\
+				"but they aren't in the occupants table.".format(person))
 				
 		self._ui.RemoveOccupant(person)
 			
 	def CreatePerson(self, person):
 		db.session.add(person)
-		if self._Commit():
+		if self.Commit():
 			self._lastPersonCreated = person
 			return person
 		else:
@@ -139,7 +162,7 @@ class Controller:
 		else:
 			bike.personID = None
 		db.session.add(bike)
-		if self._Commit():
+		if self.Commit():
 			return bike
 		else:
 			return None
@@ -154,7 +177,17 @@ class Controller:
 		self._ui.ResetError()
 		
 	def ViewPersonInfo(self, person):
-		#TODO: reenable authentication
 		if 1: #self.AuthenticateMechanic("view info for {0}".format(person.Name())):
 			self._ui.ShowViewPersonDialog(person)
 
+def GetController(): 
+	global _controller
+	if not _controller:
+		_controller = Controller()
+		
+	return _controller
+	
+def ResetController():
+	global _controller
+	_controller = Controller()
+	return _controller

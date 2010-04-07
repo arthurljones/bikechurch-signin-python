@@ -3,7 +3,7 @@
 import db
 import sys, csv
 from datetime import date, timedelta
-from controller import Controller
+from controller import ResetController
 
 def ParseCSVDate(rawDate):
 	try:
@@ -51,7 +51,7 @@ def ReadMembersFromCSV(filename, succeededFilename, failedFilename):
 	print("\tParsing membership data file")
 	sys.stdout.flush()
 	
-	controller = Controller()
+	controller = ResetController()
 	
 	FullName = lambda firstName, lastName: " ".join([firstName, lastName]).lower()
 	

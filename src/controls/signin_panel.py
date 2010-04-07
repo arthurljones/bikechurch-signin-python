@@ -4,11 +4,11 @@ import wx
 from math import ceil
 from ..ui import MedFont, MakeStaticBoxSizer
 from shoptime_choice import ShoptimeChoice
+from ..controller import GetController
 
 class SignInPanel(wx.Panel):
-	def __init__(self, parent, controller):
-		wx.Window.__init__(self, parent)	
-		self._controller = controller
+	def __init__(self, parent):
+		wx.Window.__init__(self, parent)
 		self._suppressNextListChange = False
 		
 		sizer = MakeStaticBoxSizer(self, style = wx.VERTICAL)
@@ -47,7 +47,7 @@ class SignInPanel(wx.Panel):
 	def _PopulateList(self, partialName):	
 		self._nameListBox.Clear()
 		if partialName:
-			self._people = self._controller.FindPeopleByPartialName(partialName)
+			self._people = GetController().FindPeopleByPartialName(partialName)
 			names = [person.Name() for person in self._people]
 			
 			self._nameListBox.SetItems(names)
@@ -83,11 +83,11 @@ class SignInPanel(wx.Panel):
 	
 	def _OnSigninClick(self, event, type):
 		if type == "worktrade":
-			if not self._controller.AuthenticateMechanic("do worktrade"):
+			if not GetController().AuthenticateMechanic("do worktrade"):
 				return
 				
 		elif type == "volunteer":
-			if not self._controller.AuthenticateMechanic("volunteer"):
+			if not GetController().AuthenticateMechanic("volunteer"):
 				return
 			
 		selection = self._nameListBox.GetSelection()
@@ -99,11 +99,11 @@ class SignInPanel(wx.Panel):
 			firstName = " ".join(nameWords[:halfWords])
 			lastName = " ".join(nameWords[halfWords:])
 			
-			if self._controller.ShowNewPersonDialog(firstName, lastName):
-				self._controller.SignPersonIn(None, type)
+			if GetController().ShowNewPersonDialog(firstName, lastName):
+				GetController().SignPersonIn(None, type)
 				self.ResetValues()
 		else:
-			if self._controller.SignPersonIn(self._people[selection], type):
+			if GetController().SignPersonIn(self._people[selection], type):
 				self.ResetValues()
 			
 	def ResetValues(self):

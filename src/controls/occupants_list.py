@@ -2,12 +2,12 @@
  
 import wx
 from datetime import datetime
-from ..ui import FormatTimediff, GetShoptimeTypeDescription
+from ..ui import FormatTimedelta, GetShoptimeTypeDescription
+from ..controller import GetController
 
 class OccupantLine():	
-	def __init__(self, parent, sizer, controller, person, startTime, type):
+	def __init__(self, parent, sizer, person, startTime, type):
 		self.parent = parent
-		self._controller = controller
 		self.person = person
 		self.startTime = startTime
 		type = type
@@ -48,18 +48,17 @@ class OccupantLine():
 		return self.elements
 		
 	def OnViewInfoClicked(self, event):
-		self._controller.ViewPersonInfo(self.person)
+		GetController().ViewPersonInfo(self.person)
 		
 	def OnSignOutClicked(self, event):
-		self._controller.SignPersonOut(self.person)
+		GetController().SignPersonOut(self.person)
 		
 	def UpdateTime(self):
-		self.timeText.SetLabel(FormatTimediff(datetime.now() - self.startTime))
+		self.timeText.SetLabel(FormatTimedelta(datetime.now() - self.startTime))
 		
 class OccupantsList(wx.Panel):
-	def __init__(self, parent, controller):
+	def __init__(self, parent):
 		wx.Panel.__init__(self, parent)
-		self._controller = controller
 		self.occupants = []
 
 		titleFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
@@ -85,9 +84,9 @@ class OccupantsList(wx.Panel):
 		self.AddColumnHeader(self.listSizer, u"Time In Shop")
 		self.AddColumnHeader(self.listSizer, u"")
 		
-		peopleInShop = self._controller.GetPeopleInShop()
+		peopleInShop = GetController().GetPeopleInShop()
 		if peopleInShop is not None:
-			for person in self._controller.GetPeopleInShop():
+			for person in peopleInShop:
 				self.AddOccupant(person,
 					person.occupantInfo.start, person.occupantInfo.type)
 		
@@ -118,8 +117,7 @@ class OccupantsList(wx.Panel):
 		sizer.Add(localSizer, 0, wx.ALIGN_CENTER | wx.EXPAND)	
 	
 	def AddOccupant(self, person, startTime, type):
-		occupant = OccupantLine(self.scrollbox, self.listSizer,
-			self._controller, person, startTime, type)
+		occupant = OccupantLine(self.scrollbox, self.listSizer, person, startTime, type)
 		self.occupants.append(occupant)
 		
 		if hasattr(self, "listSizer"):
