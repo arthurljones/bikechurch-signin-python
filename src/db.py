@@ -25,7 +25,7 @@ class Person(Base):
 	shoptimes	= relationship('Shoptime', backref = 'person',
 		cascade = "all, delete, delete-orphan")
 	occupantInfo	= relationship('ShopOccupant', backref = 'person', uselist = False,
-		cascade = "all, delete, delete-orphan")
+		cascade = "all, delete")
 	bikes		= relationship('Bike', backref = 'owner',
 		cascade = "all, delete, delete-orphan")
 	
@@ -167,7 +167,27 @@ class Bike(Base):
 	def __repr__(self):
 		return "<{0}> {1} {2} {3} {4} {5}".format(
 			self.__class__.__name__, self.color, self.type, self.brand,
-			self.model, self.serial)	
+			self.model, self.serial)
+			
+class Feedback(Base):
+	__tablename__ = 'feedback'
+	__table_args__ = (
+		{ 'mysql_engine' : 'InnoDB', 'mysql_charset' : 'utf8' }
+	)
+		
+	id		= Column(Integer, primary_key = True, unique = True, nullable = False)
+	date		= Column(DateTime, default = None, index = True, nullable = False)
+	name		= Column(Unicode(64))
+	feedback	= Column(Unicode(500), nullable = False)
+				
+	fields = [
+		("name", "Your Name (Optional)"),
+		("feedback", "Your Feedback"),
+	]
+	
+	def __repr__(self):
+		return "<{0}> From {1} on {2}: \"{3}\"...".format(
+			self.__class__.__name__, self.name, self.date, self.feedback[:20])
 
 def CreateTablesFromScratch():
 	print("Creating database tables...")
@@ -190,7 +210,7 @@ def Connect():
 	global _Session
 	global session
 	
-	_engine = create_engine('mysql://signin:signin@localhost/signin_db?charset=utf8', echo = True)
+	_engine = create_engine('mysql://signin:signin@localhost/signin_db?charset=utf8')
 	_Session = sessionmaker(bind = _engine)
 	session = _Session()
 

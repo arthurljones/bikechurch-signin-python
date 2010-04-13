@@ -4,7 +4,7 @@ import db, wx, MySQLdb, os
 from datetime import datetime
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, OperationalError, InvalidRequestError
-from db import Person, Member, Shoptime, ShopOccupant, Bike
+from db import Person, Member, Shoptime, ShopOccupant, Bike, Feedback
 
 _controller = None
 
@@ -101,11 +101,11 @@ class Controller:
 			.filter(ShopOccupant.personID == Person.id) \
 			.order_by(ShopOccupant.start).all()
 
-	def AuthenticateMechanic(self, activity):
-		return self._ui.AuthenticateMechanic(activity)
+	def AuthenticateMechanic(self, parent, activity):
+		return self._ui.AuthenticateMechanic(parent, activity)
 
-	def ShowNewPersonDialog(self, firstName = u"", lastName = u""):
-		return self._ui.ShowNewPersonDialog(firstName, lastName)
+	def ShowNewPersonDialog(self, parent, firstName = u"", lastName = u""):
+		return self._ui.ShowNewPersonDialog(parent, firstName, lastName)
 
 	def SignPersonIn(self, person, type):
 		if person is None:
@@ -136,8 +136,9 @@ class Controller:
 		if person.occupantInfo:
 			shoptime = Shoptime()
 			shoptime.personID = person.id
-			shoptime.start = person.occupantInfo.start
-			shoptime.end = datetime.now()
+			shoptime.date =  person.occupantInfo.start.date()
+			shoptime.start = person.occupantInfo.start.time()
+			shoptime.end = datetime.now().time()
 			shoptime.type = person.occupantInfo.type
 			shoptime.notes = u""
 			
@@ -161,14 +162,25 @@ class Controller:
 		
 	def CreateBike(self, bike, person = None):
 		if person:
-			bike.personID = person.id
+			person.bikes.append(bike)
 		else:
 			bike.personID = None
-		db.session.add(bike)
+			db.session.add(bike)
+			
 		if self.Commit():
 			return bike
 		else:
 			return None
+			
+	def AddFeedback(self, feedback):
+		db.session.add(feedback)
+		if self.Commit():
+			return feedback
+		else:
+			return None
+			
+	def GetFeedback(self):
+		return db.session.query(Feedback).all()
 		
 	def GetLastPersonCreated(self):
 		return self._lastPersonCreateds	
@@ -179,11 +191,11 @@ class Controller:
 	def StopFlashing(self):
 		self._ui.ResetError()
 		
-	def ViewPersonInfo(self, person):
-		if self.AuthenticateMechanic("view info for {0}".format(person.Name())):
-			self._ui.ShowViewPersonDialog(person)
+	def ViewPersonInfo(self, parent, person):
+		if self.AuthenticateMechanic(parent, "view info for {0}".format(person.Name())):
+			self._ui.ShowViewPersonDialog(parent, person)
 
-def GetController(): 
+def GetController():
 	global _controller
 	if not _controller:
 		_controller = Controller()

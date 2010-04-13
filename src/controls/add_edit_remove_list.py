@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import wx
 from ..ui import MakeStaticBoxSizer
 		
@@ -18,20 +20,19 @@ class AddEditRemoveList(wx.Panel):
 		self._list = wx.ListBox(self)
 		outerSizer.Add(self._list, 1, wx.EXPAND | wx.ALL, 2)
 	
-		self._add = wx.Button(self, wx.ID_ANY, "Add {0}".format(buttonSuffix))
-		self._edit = wx.Button(self, wx.ID_ANY, "Edit {0}".format(buttonSuffix))
-		self._remove = wx.Button(self, wx.ID_ANY, "Remove {0}".format(buttonSuffix))
-		
-		self._add.Bind(wx.EVT_BUTTON, self._OnAdd)
-		self._edit.Bind(wx.EVT_BUTTON, self._OnEdit)
-		self._remove.Bind(wx.EVT_BUTTON, self._OnRemove)
-		
 		buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
-		buttonSizer.Add(self._add, 1, wx.EXPAND | wx.ALL, 2)
-		buttonSizer.Add(self._edit, 1, wx.EXPAND | wx.ALL, 2)
-		buttonSizer.Add(self._remove, 1, wx.EXPAND | wx.ALL, 2)
-		
 		outerSizer.Add(buttonSizer, 0, wx.EXPAND)
+		
+		def AddButton(text, onClick):
+			button = wx.Button(self,  label = "{0} {1}".format(text, buttonSuffix))
+			button.Bind(wx.EVT_BUTTON, onClick)
+			buttonSizer.Add(button, 1, wx.EXPAND | wx.ALL, 2)
+			return button
+	
+		self._add = AddButton("Add", self._OnAdd)
+		self._edit = AddButton("Edit", self._OnEdit)
+		self._remove = AddButton("Remove", self._OnRemove)
+		
 		self._Populate()
 		
 		self._list.Bind(wx.EVT_LISTBOX, self._OnListClick)

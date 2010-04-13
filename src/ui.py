@@ -61,7 +61,7 @@ def FormatTimedelta(timedelta):
 	hours = timedelta.days * 24
 	hours += timedelta.seconds / (3600)
 	minutes = (timedelta.seconds % 3600) / 60
-	return "{0}h {1}m".format(hours, minutes)
+	return "{0}h {1}m {2}s".format(hours, minutes, timedelta.seconds % 60)
 
 def DatetimeWxToPy(wxdt):
 	return datetime(

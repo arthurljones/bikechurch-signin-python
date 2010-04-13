@@ -1,8 +1,11 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-import wx
+import wx, datetime
 from ..ui import MedFont
 from window_blinker import WindowBlinker
+from ..dialogs.edit_dialog import FeedbackDialog
+from ..dialogs.mechanic_toolbox import MechanicToolboxDialog
+from ..controller import GetController
 		
 class StatusBar(wx.Panel):
 	def __init__(self, parent):
@@ -17,25 +20,44 @@ class StatusBar(wx.Panel):
 		innerSizer.AddGrowableCol(0)
 		outerSizer.Add(innerSizer, 0, wx.EXPAND)
 
-		self.textBG = wx.Panel(self)		
-		innerSizer.Add(self.textBG, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
+		self._textBG = wx.Panel(self)		
+		innerSizer.Add(self._textBG, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
 		textBGSizer = wx.BoxSizer(wx.VERTICAL)
-		self.textBG.SetSizer(textBGSizer)
-		self.text = wx.StaticText(self.textBG, wx.ID_ANY, "")
-		self.text.SetFont(MedFont())
-		textBGSizer.Add(self.text, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 5)
+		self._textBG.SetSizer(textBGSizer)
+		self._text = wx.StaticText(self._textBG, wx.ID_ANY, "")
+		self._text.SetFont(MedFont())
+		textBGSizer.Add(self._text, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 5)
 		
 		buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 		innerSizer.Add(buttonSizer, 0, wx.ALIGN_RIGHT | wx.EXPAND)
 		
-		def AddButton(label, flags = 0, height = 26):
+		def AddButton(label, onClick, flags = 0, height = 26):
 			button = wx.Button(self, wx.ID_ANY, label)
 			buttonSizer.Add(button, 1, wx.ALIGN_CENTER_VERTICAL | flags)
 			button.SetMaxSize((-1, height))
 			button.SetMinSize((button.GetMinSize()[0], height))
-		self.language = AddButton(u"En Español")
-		self.toolbox = AddButton(u"Mechanic's Toolbox")
+			button.Bind(wx.EVT_BUTTON, onClick)
+			return button
+			
+		self._feedback = AddButton(u"Leave Feedback", self._OnFeedback)
+		self._language = AddButton(u"En Español", self._OnLanguage)
+		self._toolbox = AddButton(u"Mechanic's Toolbox", self._OnToolbox)
 		
+	def _OnLanguage(self, event):
+		print("TODO: Implement language change")
+				
+	def _OnToolbox(self, event):
+		if GetController().AuthenticateMechanic(self, "use the mechanic toolbox"):
+			dialog = MechanicToolboxDialog(self)
+			dialog.ShowModal()
+		
+	def _OnFeedback(self, event):
+		dialog = FeedbackDialog(self)
+		if dialog.ShowModal() == wx.ID_OK:
+			feedback = dialog.Get()
+			feedback.date = datetime.datetime.now()
+			GetController().AddFeedback(feedback)
+				
 	def FlashError(self, error, targets = []):
 		self.StopAllFlashing()
 		
@@ -43,9 +65,9 @@ class StatusBar(wx.Panel):
 			iter(targets)
 		except TypeError:
 			targets = [targets]
-		targets.append(self.textBG)
+		targets.append(self._textBG)
 		
-		self.text.SetLabel(error)
+		self._text.SetLabel(error)
 		
 		for target in targets:				
 			blinker = WindowBlinker(target)
@@ -65,6 +87,6 @@ class StatusBar(wx.Panel):
 		
 	def ResetError(self):
 		self.StopAllFlashing()
-		self.text.SetLabel("Placeholder Text.")
+		self._text.SetLabel("")
 		self.Layout()
 				

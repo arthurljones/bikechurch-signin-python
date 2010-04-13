@@ -99,7 +99,7 @@ class SignInPanel(wx.Panel):
 			firstName = " ".join(nameWords[:halfWords])
 			lastName = " ".join(nameWords[halfWords:])
 			
-			if GetController().ShowNewPersonDialog(firstName, lastName):
+			if GetController().ShowNewPersonDialog(self, firstName, lastName):
 				GetController().SignPersonIn(None, type)
 				self.ResetValues()
 		else:

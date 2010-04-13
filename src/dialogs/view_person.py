@@ -10,9 +10,9 @@ from ..controls.add_edit_remove_list import AddEditRemoveList
 from edit_dialog import ShoptimeDialog, BikeDialog
 from ..controller import GetController
 		
-def _AddDialogFunc(EditorType):
+def _AddDialogFunc(parent, EditorType):
 	def AddDialog():
-		dialog = EditorType()
+		dialog = EditorType(parent)
 		if dialog.ShowModal() == wx.ID_OK:
 			return dialog.Get()
 		else:
@@ -20,9 +20,9 @@ def _AddDialogFunc(EditorType):
 			
 	return AddDialog
 	
-def _EditDialogFunc(EditorType):
+def _EditDialogFunc(parent, EditorType):
 	def EditDialog(object):
-		dialog = EditorType(object)
+		dialog = EditorType(parent, object)
 		return dialog.ShowModal() == wx.ID_OK
 		
 	return EditDialog
@@ -49,9 +49,9 @@ def _BikeListString(bike):
 	return " ".join(string)	
 		
 class ViewPersonDialog(wx.Dialog):
-	def __init__(self, person):
-		wx.Dialog.__init__(self, None, title = "Viewing Info For {0}".format(person.Name()),
-			size = (740, 450))
+	def __init__(self, parent, person):
+		wx.Dialog.__init__(self, parent, title = "Viewing Info For {0}".format(person.Name()),
+			size = (740, 470), style = wx.FRAME_FLOAT_ON_PARENT)
 		self._person = person
 		
 		outerSizer = wx.FlexGridSizer(2, 1)
@@ -77,13 +77,13 @@ class ViewPersonDialog(wx.Dialog):
 		posessive = person.PosessiveFirstName()	
 			
 		shoptimes = AddEditRemoveList(self, "{0} Shop Usage".format(posessive), 
-			"Hours", person.shoptimes, _AddDialogFunc(ShoptimeDialog),
-			_EditDialogFunc(ShoptimeDialog), lambda x: True,
+			"Hours", person.shoptimes, _AddDialogFunc(self, ShoptimeDialog),
+			_EditDialogFunc(self, ShoptimeDialog), lambda x: True,
 			_ShoptimeListString, lambda shoptime: shoptime.start)
 				
 		bikes = AddEditRemoveList(self, "{0} Bikes".format(posessive),
-			"Bike", person.bikes, _AddDialogFunc(BikeDialog),
-			_EditDialogFunc(BikeDialog), lambda x: True,
+			"Bike", person.bikes, _AddDialogFunc(self, BikeDialog),
+			_EditDialogFunc(self, BikeDialog), lambda x: True,
 			_BikeListString, lambda bike: bike.color)
 			
 		listsSizer.Add(shoptimes, 2, wx.EXPAND | wx.ALL, 8)
@@ -111,14 +111,20 @@ class ViewPersonDialog(wx.Dialog):
 		
 		#TODO - reenable once functionality is implemented
 		self._memberEditPanel.Disable()
+		
+		self.Layout()
+		self.CenterOnScreen()
 	
 	def _OnOK(self, event):
+		GetController().StopFlashing()
 		if self._personEditPanel.Validate(self._person):
 			self._personEditPanel.Update(self._person)
 			GetController().Commit()
 			self.EndModal(wx.ID_OK)
 		
 	def _OnCancel(self, event):
+		GetController().StopFlashing()
 		GetController().Rollback()
 		self.EndModal(wx.ID_CANCEL)
+
 

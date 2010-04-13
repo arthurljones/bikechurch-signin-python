@@ -1,15 +1,20 @@
-Short Term/TODO:
+Done (For checkin notes):
+Cleanup timers when closing window
+Cleaned up window manager behavior for child dialogs
+Added encoding line to files
 Implement feedback button
+
+Short Term/TODO:
 Mechanic's Toolbox:
 	Bike by serial number
 	View Person (without signing them in)
 	View Feedback
+Fix hours when signing person out (with more than 24 hrs, etc)
 
 Medium Term/Cleanup:
 More functional alternative to timectrl (it sucks)
 Member/Not Member/Expired in view person and occupants list
 Allow ChoiceField to supply a name dictionary
-Cleanup timers when closing window
 Additional validation for CSV import
 MoneyField for donation amounts
 NumberField

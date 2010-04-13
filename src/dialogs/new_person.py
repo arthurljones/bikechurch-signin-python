@@ -8,8 +8,9 @@ from ..controls.autowrapped_static_text import AutowrappedStaticText
 from ..controller import GetController
 
 class NewPersonDialog(wx.Dialog):
-	def __init__(self, firstName = "", lastName = ""):
-		wx.Dialog.__init__(self, None, title = "New Person Information")
+	def __init__(self, parent, firstName = "", lastName = ""):
+		wx.Dialog.__init__(self, parent, title = "New Person Information",
+			style = wx.FRAME_FLOAT_ON_PARENT)
 		
 		outerSizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(outerSizer)

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import wx
 import wx.lib.masked.timectrl
 from datetime import datetime

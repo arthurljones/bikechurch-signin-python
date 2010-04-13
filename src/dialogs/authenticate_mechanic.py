@@ -1,22 +1,25 @@
+# -*- coding: utf-8 -*-
+
 import wx
-from ..ui import MakeInfoEntrySizer, AddField
+from ..ui import MakeInfoEntrySizer, AddField, MedFont
 import hashlib
 from copy import copy
 
 class AuthenticateMechanicDialog(wx.Dialog):
 	passHash = "e82b4263a7d8618a5b458dda8658f35bdef7e14b" #sha1
 	
-	def __init__(self, actionDescription = "do that"):
-		wx.Dialog.__init__(self, None, title = "Enter Mechanic Password",
-			size = (300, 110))
+	def __init__(self, parent, actionDescription = "do that"):
+		print parent
+		wx.Dialog.__init__(self, parent, title = "Enter Mechanic Password",
+			size = (300, 120), style = wx.FRAME_FLOAT_ON_PARENT)
 
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(sizer)
 
 		text = wx.StaticText(self, wx.ID_ANY,
-			"You need a mechanic's permission to {0}.".format(
-				actionDescription))
+			"You need a mechanic's permission to {0}.".format(actionDescription))
 		sizer.Add(text, 0, wx.EXPAND | wx.ALL, 8)
+		text.SetFont(MedFont())
 				
 		entrySizer = MakeInfoEntrySizer()
 		self.password = AddField(self, entrySizer, None, "Password:",

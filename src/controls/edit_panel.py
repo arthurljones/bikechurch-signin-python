@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import wx, datetime
 from sqlalchemy import (Integer, Unicode, Date, DateTime, Time)
 from sqlalchemy.dialects.mysql.base import MSEnum 
-from ..db import Person, Member, Bike, Shoptime
+from ..db import Person, Member, Bike, Shoptime, Feedback
 from ..ui import MedFont, MakeInfoEntrySizer
 from field import TextField, ChoiceField, DateField, TimeField, DateTimeField
 from ..controller import GetController
@@ -156,6 +158,21 @@ class EditShoptimePanel(EditPanel):
 		elif not shoptime.type:
 			GetController().FlashError("You must select a type.",
 				[self["type"].Widget()])
+		else:
+			return True	
+		
+		return False
+
+class EditFeedbackPanel(EditPanel):
+	def __init__(self, parent):
+		EditPanel.__init__(self, parent, Feedback)
+	
+	def Validate(self):
+		feedback = self.Get()
+		
+		if not feedback.feedback:
+			GetController().FlashError("Please enter your feedback.",
+				[self["feedback"].Widget()])
 		else:
 			return True	
 		

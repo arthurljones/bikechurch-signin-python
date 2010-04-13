@@ -1,36 +1,44 @@
+# -*- coding: utf-8 -*-
+
 import wx
 
 class WindowBlinker(wx.EvtHandler):
 	def __init__(self, target, color = "pink", times = 4, period = 750):
 		wx.EvtHandler.__init__(self)
 		
-		self.times = times * 2
-		self.target = target
-		self.origColor = target.GetClassDefaultAttributes().colBg
-		self.blinkColor = color
-		self.period = period / 2
+		self._times = times * 2
+		self._target = target
+		self._origColor = target.GetClassDefaultAttributes().colBg
+		self._blinkColor = color
+		self._period = period / 2
 		
-		self.timer = wx.Timer(self)
-		self.Bind(wx.EVT_TIMER, self.OnTimer)
-		self.timer.Start(period)
+		self._timer = wx.Timer(self)
+		self.Bind(wx.EVT_TIMER, self._OnTimer)
+		self._timer.Start(period)
 		
-		self.target.SetBackgroundColour(self.blinkColor)
+		self._target.SetBackgroundColour(self._blinkColor)
+		
+	def __del__(self):
+		self.Stop()
+		wx.EvtHandler.__del__(self)
 
-	def OnTimer(self, event):
-		currColor = self.target.GetBackgroundColour()
-		if currColor == self.origColor:
-			self.target.SetBackgroundColour(self.blinkColor)
+	def _OnTimer(self, event):
+		currColor = self._target.GetBackgroundColour()
+		if currColor == self._origColor:
+			self._target.SetBackgroundColour(self._blinkColor)
 		else:
-			self.target.SetBackgroundColour(self.origColor)
+			self._target.SetBackgroundColour(self._origColor)
 		
-		self.times -= 1
-		if self.times <= 0:
+		self._times -= 1
+		if self._times <= 0:
 			self.Stop()
-		self.target.Refresh()
+		self._target.Refresh()
 	
 	def Done(self):
-		return self.times <= 0
+		return self._times <= 0
 		
 	def Stop(self):
-		self.target.SetBackgroundColour(self.origColor)
-		self.timer.Stop()
+		self._target.SetBackgroundColour(self._origColor)
+		if hasattr(self, "_timer"):
+			self._timer.Destroy()
+			del self._timer
