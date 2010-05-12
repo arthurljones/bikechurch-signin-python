@@ -28,12 +28,9 @@ def _EditDialogFunc(parent, EditorType):
 	return EditDialog
 
 def _ShoptimeListString(shoptime):
-	dtStart = datetime.datetime.combine(shoptime.date, shoptime.start)
-	dtEnd = datetime.datetime.combine(shoptime.date, shoptime.end)
-	startTime = dtStart.strftime("%a %b %d %Y %I:%m%p")
-	duration =  dtEnd - dtStart		
-	return "{0}: {1} of {2}".format(startTime, FormatTimedelta(duration),
-		GetShoptimeTypeDescription(shoptime.type))
+	duration =  shoptime.end - shoptime.start		
+	return "{0}: {1} of {2}".format(shoptime.start.strftime("%a %b %d %Y %I:%m%p"),
+		FormatTimedelta(duration), GetShoptimeTypeDescription(shoptime.type))
 						
 def _BikeListString(bike):
 	string = []

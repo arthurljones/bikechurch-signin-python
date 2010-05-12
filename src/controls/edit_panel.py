@@ -145,19 +145,16 @@ class EditShoptimePanel(EditPanel):
 	
 	def Validate(self):
 		shoptime = self.Get()
-		
-		dtStart = datetime.datetime.combine(shoptime.date, shoptime.start)
-		dtEnd = datetime.datetime.combine(shoptime.date, shoptime.end)
-		
-		if dtStart > datetime.datetime.now():
+				
+		if shoptime.start > datetime.datetime.now():
 			GetController().FlashError("Shoptime may not start in the future.",
-				[self["date"].Widget(), self["start"].Widget()])
-		elif dtEnd < dtStart:
+				self["start"].Widget())
+		elif shoptime.end < shoptime.start:
 			GetController().FlashError("End time must be later than start time.",
-				[self["end"].Widget()])
+				self["end"].Widget())
 		elif not shoptime.type:
 			GetController().FlashError("You must select a type.",
-				[self["type"].Widget()])
+				self["type"].Widget())
 		else:
 			return True	
 		

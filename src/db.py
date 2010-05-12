@@ -91,17 +91,15 @@ class Shoptime(Base):
 		
 	id		= Column(Integer, primary_key = True, unique = True, nullable = False)
 	personID	= Column(Integer, nullable = False, index = True)
-	date		= Column(Date, nullable = False, index = True)	
-	start		= Column(Time, nullable = False)
-	end		= Column(Time, nullable = False)
+	start		= Column(DateTime, nullable = False)
+	end		= Column(DateTime, nullable = False)
 	notes 		= Column(Unicode(200))
 	type 		= Column(MSEnum(*shoptimeChoices, strict = True),
 				nullable = False, index = True)
 				
 	fields = [
-		("date", "Date"),
-		("start", "Start Time"),
-		("end", "End Time"),
+		("start", "Start"),
+		("end", "End"),
 		("type", "Type"),
 		("notes", "Notes"),
 	]

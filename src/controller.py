@@ -1,6 +1,6 @@
  # -*- coding: utf-8 -*-
  
-import db, wx, MySQLdb, os
+import db, wx, MySQLdb, os, csv
 from datetime import datetime
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, OperationalError, InvalidRequestError
@@ -83,6 +83,22 @@ class Controller:
 		return db.session.query(Person) \
 			.filter(Person.id == personID).first()
 		
+	def GetCurrentMembers(self):
+		return db.session.query(Person) \
+			.join(Member) \
+			.filter(or_(
+				Member.endDate >= func.current_timestamp(),
+				Member.endDate == None)).all()
+	
+	def WriteCurrentMemberEmails(self, filename):
+		output = csv.writer(open(filename, "wb"))
+		for person in self.GetCurrentMembers():
+			if  person.memberInfo.emailAddress:
+				output.writerow((person.firstName, person.lastName,
+					person.memberInfo.emailAddress,
+					person.memberInfo.endDate))
+		
+		
 	def FindPeopleByPartialName(self, partialName):
 		namelen = len(partialName)
 		return db.session.query(Person).filter(
@@ -135,13 +151,11 @@ class Controller:
 	def SignPersonOut(self, person):		
 		if person.occupantInfo:
 			shoptime = Shoptime()
-			shoptime.personID = person.id
-			shoptime.date =  person.occupantInfo.start.date()
-			shoptime.start = person.occupantInfo.start.time()
-			shoptime.end = datetime.now().time()
+			shoptime.start = person.occupantInfo.start
+			shoptime.end = datetime.now()
 			shoptime.type = person.occupantInfo.type
 			shoptime.notes = u""
-			
+		
 			person.shoptimes.append(shoptime)
 			db.session.delete(person.occupantInfo)
 			

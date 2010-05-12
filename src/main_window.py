@@ -75,8 +75,6 @@ class MainWindow(wx.Frame, Delegator):
 		return dialog.ShowModal() == wx.ID_OK
 
 	def AuthenticateMechanic(self, parent, activity):
-		return True
-		
 		dialog = AuthenticateMechanicDialog(parent, activity)
 		return dialog.ShowModal() == wx.ID_OK
 

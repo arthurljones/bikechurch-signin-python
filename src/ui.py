@@ -19,6 +19,14 @@ def BigFont():
 		
 	return _sBigFont
 
+_sHugeFont = None
+def HugeFont():
+	global _sHugeFont
+	if not _sHugeFont:
+		_sHugeFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
+		
+	return _sHugeFont
+
 _typeDescriptions = {
 	"shoptime":	"Working on a Bike",
 	"parts":	"Looking for Parts",
@@ -61,7 +69,7 @@ def FormatTimedelta(timedelta):
 	hours = timedelta.days * 24
 	hours += timedelta.seconds / (3600)
 	minutes = (timedelta.seconds % 3600) / 60
-	return "{0}h {1}m {2}s".format(hours, minutes, timedelta.seconds % 60)
+	return "{0}h {1}m".format(hours, minutes)
 
 def DatetimeWxToPy(wxdt):
 	return datetime(

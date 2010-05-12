@@ -9,7 +9,6 @@ class AuthenticateMechanicDialog(wx.Dialog):
 	passHash = "e82b4263a7d8618a5b458dda8658f35bdef7e14b" #sha1
 	
 	def __init__(self, parent, actionDescription = "do that"):
-		print parent
 		wx.Dialog.__init__(self, parent, title = "Enter Mechanic Password",
 			size = (300, 120), style = wx.FRAME_FLOAT_ON_PARENT)
 

@@ -5,7 +5,9 @@ import wx, sys
 from src.csvImport import ReadMembersFromCSV
 from src.db import CreateTablesFromScratch
 from src.main_window import MainWindow
-from src.controller import ResetController
+from src.controller import GetController, ResetController
+
+from src.email_ import DoEmail
 
 from warnings import warn
 
@@ -37,13 +39,11 @@ def main(createDB = False):
 		ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")
 
 	ResetController()
+	GetController().WriteCurrentMemberEmails("emails.csv")
 	app = wx.App()
 	form = MainWindow()
 	app.MainLoop()
 	
 if __name__ == "__main__":
-	#cProfile.run("main()", "mainprof")
-	#stats = pstats.Stats("mainprof")
-	#stats.sort_stats('cumulative').print_stats(15)
 	main(0)
 

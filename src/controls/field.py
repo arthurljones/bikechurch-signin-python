@@ -133,7 +133,7 @@ class DateTimeField(Field):
 	def Get(self):
 		date = self._date.GetValue()
 		time = self._time.GetWxDateTime()
-		result = datetime(date.GetYear(), date.GetMonth(), date.GetDay(),
+		result = datetime(date.GetYear(), date.GetMonth() + 1, date.GetDay(),
 			hour = time.GetHour(), minute = time.GetMinute())
 		return result 
 

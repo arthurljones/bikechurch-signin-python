@@ -1,14 +1,7 @@
-Done (For checkin notes):
-Cleanup timers when closing window
-Cleaned up window manager behavior for child dialogs
-Added encoding line to files
-Implement feedback button
-
 Short Term/TODO:
 Mechanic's Toolbox:
 	Bike by serial number
-	View Person (without signing them in)
-	View Feedback
+	View Person (without signing them in)	
 Fix hours when signing person out (with more than 24 hrs, etc)
 
 Medium Term/Cleanup:
