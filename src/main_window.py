@@ -61,6 +61,8 @@ class MainWindow(wx.Frame, Delegator):
 		self._occupantsList.Layout()
 		self._signinPanel.Layout()
 		
+		#GetController().DebugSignRandomPeopleIn(20)
+		
 		self.Show()
 		
 	def _OnResize(self, event):

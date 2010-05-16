@@ -7,7 +7,7 @@ class WindowBlinker(wx.EvtHandler):
 		wx.EvtHandler.__init__(self)
 		
 		self._times = times * 2
-		self._target = target
+		self._target = target			
 		self._origColor = target.GetClassDefaultAttributes().colBg
 		self._blinkColor = color
 		self._period = period / 2

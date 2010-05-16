@@ -24,9 +24,9 @@ class OccupantLine():
 			self._elements.append(text)
 			return text
 
-		AddOccupantLabel(person.Name())
-		AddOccupantLabel(u"{0}".format(GetShoptimeTypeDescription(type)))
-		self.timeText = AddOccupantLabel(u"", wx.ALIGN_RIGHT)
+		self._name = AddOccupantLabel(person.Name())
+		self._type = AddOccupantLabel(u"{0}".format(GetShoptimeTypeDescription(type)))
+		self._timeText = AddOccupantLabel(u"", wx.ALIGN_RIGHT)
 		
 		buttonSizer = wx.BoxSizer()
 		self._elements.append(buttonSizer)
@@ -50,6 +50,12 @@ class OccupantLine():
 	def GetElements(self):
 		return self._elements
 		
+	def GetVerticalPos(self):
+		return self._timeText.GetPosition()[1]
+		
+	def GetNameWidget(self):
+		return self._name
+		
 	def OnViewInfoClicked(self, event):
 		GetController().ViewPersonInfo(self._parent, self._person)
 		
@@ -57,7 +63,7 @@ class OccupantLine():
 		GetController().SignPersonOut(self._person)
 		
 	def UpdateTime(self):
-		self.timeText.SetLabel(FormatTimedelta(datetime.now() - self._startTime))
+		self._timeText.SetLabel(FormatTimedelta(datetime.now() - self._startTime))
 		
 class OccupantsList(wx.Panel):
 	def __init__(self, parent):
@@ -75,22 +81,27 @@ class OccupantsList(wx.Panel):
 		titleSizer.AddSpacer((0, 0), 1, wx.EXPAND, 5)
 		titleSizer.Add(self.dateText, 0, wx.ALL, 5)
 		
+		self._scrollRate = 20
 		self._scrollbox = wx.ScrolledWindow(self)
+		self._scrollbox.SetScrollRate(0, self._scrollRate)
+		self._scrollSizer = wx.BoxSizer()
+		self._scrollbox.SetSizer(self._scrollSizer)
+		
+		self._gridContainer = wx.Panel(self._scrollbox)
+		self._scrollSizer.Add(self._gridContainer, 1, wx.EXPAND)
 
 		self._listSizer = wx.FlexGridSizer(rows = 0, cols = 4, hgap = 10, vgap = 0)
 		self._listSizer.SetFlexibleDirection(wx.BOTH)
 		self._listSizer.AddGrowableCol(1, 1)
 		self._listSizer.AddGrowableCol(2, 1)
-		self._scrollbox.SetSizer(self._listSizer)
-		self._scrollbox.SetScrollRate(0, 20)
-		self._scrollbox.Bind(wx.EVT_SCROLLWIN_THUMBTRACK, self.OnThumbTrack)
-		
+		self._gridContainer.SetSizer(self._listSizer)
+			
 		def AddColumnHeader(name, flags = 0):
-			label = wx.StaticText(self._scrollbox, wx.ID_ANY, name)
+			label = wx.StaticText(self._gridContainer, wx.ID_ANY, name)
 			label.SetFont(wx.Font(12, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL))
 			localSizer = wx.BoxSizer(wx.VERTICAL)
 			localSizer.Add(label, flag = flags)
-			localSizer.Add(wx.StaticLine(self._scrollbox), 0, wx.EXPAND)
+			localSizer.Add(wx.StaticLine(self._gridContainer), 0, wx.EXPAND)
 			self._listSizer.Add(localSizer, 0, wx.ALIGN_CENTER | wx.EXPAND)	
 
 		AddColumnHeader(u"Name")
@@ -118,25 +129,34 @@ class OccupantsList(wx.Panel):
 		
 		self.UpdateTimes()
 	
-	def AddOccupant(self, person, startTime, type):
-		occupant = OccupantLine(self._scrollbox, self._listSizer, person, startTime, type)
-		self.occupants.append(occupant)
-		self._listSizer.Layout()
-	
-	def RemoveOccupant(self, person):
+	def _GetOccupant(self, person):
 		for occupant in self.occupants:
 			if occupant.GetPerson() is person:
-				for element in occupant.GetElements():
-					self._listSizer.Detach(element)
-					element.Destroy()
-				self.occupants.remove(occupant)
-				break
+				return occupant
+	
+	def AddOccupant(self, person, startTime, type):
+		occupant = OccupantLine(self._gridContainer , self._listSizer, person, startTime, type)
+		self.occupants.append(occupant)					
+		self._scrollbox.FitInside()
+		self._scrollbox.Scroll(-1, occupant.GetVerticalPos() / self._scrollRate)
+	
+	def RemoveOccupant(self, person):
+		occupant = self._GetOccupant(person)
+		if occupant:
+			for element in occupant.GetElements():
+				self._listSizer.Detach(element)
+				element.Destroy()
+			self.occupants.remove(occupant)
 											
-		self._listSizer.Layout()
-				
-	def OnThumbTrack(self, event):
-		pass
-			
+		self._scrollbox.FitInside()
+
+	def GetOccupantNameWidget(self, person):
+		occupant = self._GetOccupant(person)
+		if occupant:
+			return occupant.GetNameWidget()
+		else:
+			return None
+
 	def OnTimer(self, event):
 		self.UpdateTimes()
 		

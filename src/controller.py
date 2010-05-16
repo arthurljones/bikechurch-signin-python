@@ -129,9 +129,10 @@ class Controller:
 			
 		if person.occupantInfo is not None:
 			if person.occupantInfo.type == type:
+				widget = self._ui.GetOccupantNameWidget(person)
+				error = "{0} is already signed in to do {1}"
 				self._ui.FlashError(
-					"{0} is already signed in to do {1}".format(
-					person.Name(), type))
+					error.format(person.Name(), type), [widget])
 				return
 			else:
 				self.SignPersonOut(person)
@@ -208,6 +209,17 @@ class Controller:
 	def ViewPersonInfo(self, parent, person):
 		if self.AuthenticateMechanic(parent, "view info for {0}".format(person.Name())):
 			self._ui.ShowViewPersonDialog(parent, person)
+			
+	def DebugSignRandomPeopleIn(self, howmany):
+		for person in self.GetPeopleInShop():
+			self.SignPersonOut(person)
+		
+		people = db.session.query(Person) \
+			.order_by(func.rand()) \
+			.limit(howmany).all()
+			
+		for person in people:
+			self.SignPersonIn(person, "shoptime")
 
 def GetController():
 	global _controller

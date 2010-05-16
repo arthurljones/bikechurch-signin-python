@@ -1,10 +1,18 @@
 Short Term/TODO:
+Force DB recreation and reload on schema change
+Debug  Mode
 Mechanic's Toolbox:
 	Bike by serial number
-	View Person (without signing them in)	
-Fix hours when signing person out (with more than 24 hrs, etc)
+	View Person (without signing them in)
+	View shop occupants by date
+"Sign Everybody Out" button
+Inhibit shutdown
+Prompt on shutdown/close for "Sign Everybody Out"
 
 Medium Term/Cleanup:
+Fix hours when signing person out (with more than 24 hrs, etc)
+Figure out why occupants aren't flashing
+Scroll to occupant when flashing
 More functional alternative to timectrl (it sucks)
 Member/Not Member/Expired in view person and occupants list
 Allow ChoiceField to supply a name dictionary
@@ -13,7 +21,6 @@ MoneyField for donation amounts
 NumberField
 Field validation (numberField, moneyField, etc)
 Add "type" for worktrade
-Bugfix: scroll functionality can get stuck in a weird position when removing items
 Check for duplicate bike serials and issue a warning
 Use _ to prefix implementation properties in classes
 Keyboard mnemonics for controls/commands
