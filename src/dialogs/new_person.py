@@ -10,7 +10,7 @@ from ..controller import GetController
 class NewPersonDialog(wx.Dialog):
 	def __init__(self, parent, firstName = "", lastName = ""):
 		wx.Dialog.__init__(self, parent, title = "New Person Information",
-			style = wx.FRAME_FLOAT_ON_PARENT)
+			style = wx.FRAME_FLOAT_ON_PARENT, size = (280, 400))
 		
 		outerSizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(outerSizer)
@@ -46,7 +46,7 @@ class NewPersonDialog(wx.Dialog):
 		ok.Bind(wx.EVT_BUTTON, self.OnOK)
 		cancel.Bind(wx.EVT_BUTTON, self.OnCancel)
 		
-		self.GetSizer().SetMinSize((200, 0))
+		self.GetSizer().SetMinSize((200, 400))
 	
 	def OnOK(self, event):
 		if self.editNamePanel.Validate():
