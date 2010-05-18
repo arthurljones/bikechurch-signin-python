@@ -17,8 +17,30 @@ class NameEnteredEvent(wx.PyCommandEvent):
 	
 	def SetName(self, name):
 		self._name = name
-		
 wx.EVT_NAME_ENTERED = wx.PyEventBinder(NameEnteredEvent.eventType)
+
+class ReturnHitEvent(wx.PyCommandEvent):
+	eventType = wx.NewEventType()
+	def __init__(self, sender, name):
+		wx.PyCommandEvent.__init__(self)
+		self.SetEventType(ReturnHitEvent.eventType)
+		self.SetEventObject(sender)
+		self._name = name
+
+	def GetName(self):
+		return self._name
+	
+	def SetName(self, name):
+		self._name = name	
+wx.EVT_RETURN_HIT = wx.PyEventBinder(ReturnHitEvent.eventType)
+
+class EmptyListClickedEvent(wx.PyCommandEvent):
+	eventType = wx.NewEventType()
+	def __init__(self, sender):
+		wx.PyCommandEvent.__init__(self)
+		self.SetEventType(EmptyListClickedEvent.eventType)
+		self.SetEventObject(sender)
+wx.EVT_EMPTY_LIST_CLICKED = wx.PyEventBinder(EmptyListClickedEvent.eventType)
 
 class PersonSelectedEvent(wx.PyCommandEvent):
 	eventType = wx.NewEventType()
@@ -33,7 +55,6 @@ class PersonSelectedEvent(wx.PyCommandEvent):
 	
 	def SetPerson(self, person):
 		self._person = person
-		
 wx.EVT_PERSON_SELECTED = wx.PyEventBinder(PersonSelectedEvent.eventType)
 
 class SelectPersonPanel(wx.Panel):
@@ -46,9 +67,11 @@ class SelectPersonPanel(wx.Panel):
 		self.SetSizer(sizer)
 		
 		self._nameEntryDefaultText = defaultEntry
-		self._nameEntry = wx.TextCtrl(self, wx.ID_ANY, self._nameEntryDefaultText)
+		self._nameEntry = wx.TextCtrl(self, wx.ID_ANY, self._nameEntryDefaultText,
+			style = wx.TE_PROCESS_ENTER)
 		self._nameEntry.Bind(wx.EVT_TEXT, self._OnNameEntryChange)
 		self._nameEntry.Bind(wx.EVT_SET_FOCUS, self._OnNameEntryFocus)
+		self._nameEntry.Bind(wx.EVT_TEXT_ENTER, self._OnReturnHit)
 		sizer.Add(self._nameEntry, 1, wx.EXPAND)
 
 		AddLabel(self, sizer, MedFont(), listLabel)
@@ -56,7 +79,13 @@ class SelectPersonPanel(wx.Panel):
 		self._nameListBox = wx.ListBox(self, wx.ID_ANY)
 		self._nameListBox.Bind(wx.EVT_LISTBOX, self._OnListClick)
 		self._nameListBox.Bind(wx.EVT_LISTBOX_DCLICK, self._OnListClick)
+		self._nameListBox.Bind(wx.EVT_KEY_DOWN, self._OnListKeydown)
+		for event in [wx.EVT_LEFT_UP, wx.EVT_MIDDLE_DOWN, wx.EVT_RIGHT_DOWN,
+			wx.EVT_LEFT_DCLICK, wx.EVT_MIDDLE_DCLICK, wx.EVT_RIGHT_DCLICK]:
+			self._nameListBox.Bind(event, self._OnListDeadSpaceClick)
+
 		sizer.Add(self._nameListBox, 1, wx.EXPAND)
+		self._nameListBox.SetSizeHints(180, 80)
 	
 	def GetDefaultName(self):
 		return self._nameEntryDefaultText
@@ -74,6 +103,9 @@ class SelectPersonPanel(wx.Panel):
 	def ResetValues(self):
 		self._nameEntry.SetValue(self._nameEntryDefaultText)
 		self._nameListBox.Clear()
+		
+	def SetFocus(self):
+		self._nameEntry.SetFocus()
 	
 	def _PopulateList(self, partialName):	
 		self._nameListBox.Clear()
@@ -120,4 +152,25 @@ class SelectPersonPanel(wx.Panel):
 			self._SendEvent(PersonSelectedEvent(self, person))
 			self._suppressNextListChange = True
 			self._nameEntry.SetValue(selection)
+			
+	def _OnListDeadSpaceClick(self, event):
+		if self._nameListBox.GetCount() == 0:
+			self._SendEvent(EmptyListClickedEvent(self))
+			
+	def _OnReturnHit(self, event):
+		selection = self._nameEntry.GetValue()
+		self._SendEvent(ReturnHitEvent(self, selection))
+		
+	def _OnListKeydown(self, event):
+		if event.GetKeyCode() == wx.WXK_RETURN:
+			selection = self._nameEntry.GetValue()
+			self._SendEvent(ReturnHitEvent(self, self.GetNameEntered()))
+		else:
+			event.Pass()
+		
+	def GetNameEntryWidget(self):
+		return self._nameEntry
+		
+	def GetNameListWidget(self):
+		return self._nameListBox
 			

@@ -23,7 +23,12 @@ class WindowBlinker(wx.EvtHandler):
 		wx.EvtHandler.__del__(self)
 
 	def _OnTimer(self, event):
-		currColor = self._target.GetBackgroundColour()
+		try:
+			currColor = self._target.GetBackgroundColour()
+		except wx.PyDeadObjectError, e:
+			self._timer.Destroy()
+			return
+		
 		if currColor == self._origColor:
 			self._target.SetBackgroundColour(self._blinkColor)
 		else:

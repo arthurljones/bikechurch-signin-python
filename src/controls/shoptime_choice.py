@@ -27,16 +27,21 @@ class ShoptimeChoicePanel(wx.Panel):
 			button.SetFont(BigFont())
 			sizer.Add(button, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
 			self._buttonMap[button.GetId()] = type
+			return button
 		
 		AddLabel(self, sizer, MedFont(), u"What do you want to do?")
 		sizer.AddSpacer((0, 0), 0, wx.EXPAND)
-		AddButton(u"Work on my bike!", "shoptime")
-		AddButton(u"Look for parts!", "parts")
-		AddButton(u"Do work trade!", "worktrade")
-		AddButton(u"Volunteer!", "volunteer")
+		self._buttons = []
+		self._buttons.append(AddButton(u"Work on my bike!", "shoptime"))
+		self._buttons.append(AddButton(u"Look for parts!", "parts"))
+		self._buttons.append(AddButton(u"Do work trade!", "worktrade"))
+		self._buttons.append(AddButton(u"Volunteer!", "volunteer"))
 		
 		self.Bind(wx.EVT_BUTTON, self._OnButton)
 		
 	def _OnButton(self, event):
 		event = ShoptimeChoiceEvent(self, self._buttonMap[event.GetEventObject().GetId()])
 		self.GetEventHandler().AddPendingEvent(event)
+		
+	def GetWidgets(self):
+		return self._buttons

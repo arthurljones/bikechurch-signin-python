@@ -34,9 +34,9 @@ class MainWindow(wx.Frame, Delegator):
 		self.SetSizer(sizer)
 		self.Centre(wx.BOTH)
 		
-		screenSizer = wx.FlexGridSizer(1, 2)
-		screenSizer.AddGrowableCol(1)
-		screenSizer.AddGrowableRow(0)
+		screenSizer = wx.BoxSizer(wx.HORIZONTAL)#wx.FlexGridSizer(1, 2)
+		#screenSizer.AddGrowableCol(1)
+		#screenSizer.AddGrowableRow(0)
 		
 		self._statusBar = StatusBar(self)
 		self.PushDelegate(self._statusBar)
@@ -47,7 +47,7 @@ class MainWindow(wx.Frame, Delegator):
 		self._occupantsList = OccupantsList(self)
 		self._signinPanel = SignInPanel(self)
 		
-		screenSizer.Add(self._signinPanel, 0, wx.EXPAND | wx.ALL, 8)
+		screenSizer.Add(self._signinPanel, 0, wx.ALL, 8)
 		screenSizer.Add(self._occupantsList, 1, wx.EXPAND | wx.ALL, 8)
 		
 		self.PushDelegate(self._occupantsList)

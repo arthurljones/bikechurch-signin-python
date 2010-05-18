@@ -16,20 +16,23 @@ class SignInPanel(wx.Panel):
 		self.SetSizer(sizer)
 		
 		AddLabel(self, sizer, HugeFont(), u"Sign In Here", wx.ALIGN_CENTER)
-		AddLabel(self, sizer, MedFont(), u"Hi! What's your name?")
+		AddLabel(self, sizer, MedFont(), u"Hi! Type your name here:")
 		
-		self._selectPerson = SelectPersonPanel(self, u"Type your name here.",
-			u"If you've been here before,\nclick your name in the list:")
-		sizer.Add(self._selectPerson, 1, wx.EXPAND)
+		self._selectPerson = SelectPersonPanel(self, u"",
+			u"Click your name in the\nlist if it's here:")
+		sizer.Add(self._selectPerson, 0, wx.EXPAND)
 		
 		self._shoptimeChoice = ShoptimeChoicePanel(self)
 		sizer.Add(self._shoptimeChoice, 0, wx.EXPAND)
 		
 		self.Bind(wx.EVT_NAME_ENTERED, self._OnNameEntered)
+		self.Bind(wx.EVT_RETURN_HIT, self._OnNameReturn)
 		self.Bind(wx.EVT_PERSON_SELECTED, lambda e: "{0} selected".format(e.GetPerson()))
 		self.Bind(wx.EVT_SHOPTIME_CHOICE, self._OnShoptimeChoice)
+		self.Bind(wx.EVT_EMPTY_LIST_CLICKED, self._OnEmptyListClicked)
 		
 		self._shoptimeChoice.Disable()
+		self.ResetValues()
 			
 	def _OnNameEntered(self, event):
 		name = event.GetName()
@@ -37,6 +40,8 @@ class SignInPanel(wx.Panel):
 		self._shoptimeChoice.Enable(nameEntered)
 	
 	def _OnShoptimeChoice(self, event):
+		GetController().StopFlashing()
+		
 		type = event.GetType()
 		
 		if type == "worktrade":
@@ -62,6 +67,27 @@ class SignInPanel(wx.Panel):
 			if GetController().ShowNewPersonDialog(self, firstName, lastName):
 				GetController().SignPersonIn(None, type)
 				self.ResetValues()
+				
+	def _FlashTasks(self):
+		widgets = self._shoptimeChoice.GetWidgets()
+		GetController().FlashError("Select a task.", widgets)
+		
+	def _FlashName(self):
+		widgets = [self._selectPerson.GetNameEntryWidget()]
+		GetController().FlashError("Type your name.", widgets)
+				
+	def _OnNameReturn(self, event):
+		if event.GetName():
+			self._FlashTasks()
+		else:
+			self._FlashName()
+			
+	def _OnEmptyListClicked(self, event):
+		if self._selectPerson.GetNameEntered():
+			self._FlashTasks()
+		else:
+			self._FlashName()		
 			
 	def ResetValues(self):
 		self._selectPerson.ResetValues()
+		self._selectPerson.SetFocus()

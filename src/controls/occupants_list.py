@@ -17,17 +17,6 @@ class OccupantLine():
 		if self._person.firstName and self._person.firstName[-1] == "s":
 			possesiveChar = ""
 
-		def AddOccupantLabel(string, flags = 0):
-			text = wx.StaticText(parent, wx.ID_ANY, string)
-			text.SetFont(wx.Font(9, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL))
-			sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | flags)
-			self._elements.append(text)
-			return text
-
-		self._name = AddOccupantLabel(person.Name())
-		self._type = AddOccupantLabel(u"{0}".format(GetShoptimeTypeDescription(type)))
-		self._timeText = AddOccupantLabel(u"", wx.ALIGN_RIGHT)
-		
 		buttonSizer = wx.BoxSizer()
 		self._elements.append(buttonSizer)
 		sizer.Add(buttonSizer, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
@@ -41,6 +30,17 @@ class OccupantLine():
 			
 		AddOccupantButton(u"View Info", self.OnViewInfoClicked)
 		AddOccupantButton(u"Sign Out", self.OnSignOutClicked)
+
+		def AddOccupantLabel(string, flags = 0):
+			text = wx.StaticText(parent, wx.ID_ANY, string)
+			text.SetFont(wx.Font(9, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL))
+			sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | flags)
+			self._elements.append(text)
+			return text
+
+		self._name = AddOccupantLabel(person.Name())
+		self._type = AddOccupantLabel(u"{0}".format(GetShoptimeTypeDescription(type)))
+		self._timeText = AddOccupantLabel(u"", wx.ALIGN_RIGHT)
 		
 		self.UpdateTime()
 		 
@@ -103,11 +103,11 @@ class OccupantsList(wx.Panel):
 			localSizer.Add(label, flag = flags)
 			localSizer.Add(wx.StaticLine(self._gridContainer), 0, wx.EXPAND)
 			self._listSizer.Add(localSizer, 0, wx.ALIGN_CENTER | wx.EXPAND)	
-
+		
+		AddColumnHeader(u"")
 		AddColumnHeader(u"Name")
 		AddColumnHeader(u"Activity")
 		AddColumnHeader(u"Time In Shop", wx.ALIGN_RIGHT)
-		AddColumnHeader(u"")
 		
 		peopleInShop = GetController().GetPeopleInShop()
 		if peopleInShop is not None:
