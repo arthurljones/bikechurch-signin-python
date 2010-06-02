@@ -1,7 +1,7 @@
 #!/usr/bin/python
  # -*- coding: utf-8 -*-
  
-import wx, sys	
+import wx, sys, datetime
 from src.csvImport import ReadMembersFromCSV
 from src.db import CreateTablesFromScratch
 from src.main_window import MainWindow
@@ -28,7 +28,8 @@ def CheckVersion(packageName, minimumVersion):
 	return True
 
 def main(createDB = False):
-	print("Starting bikechurch-signin v{0}".format(".".join([str(x) for x in version])))
+	print("{1} Starting bikechurch-signin v{0}".format(".".join([str(x) for x in version]),
+		datetime.datetime.now()))
 
 	CheckVersion("wx", "2.8")
 	CheckVersion("MySQLdb", "1.2.2")
