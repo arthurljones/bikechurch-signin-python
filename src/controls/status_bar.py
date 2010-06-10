@@ -6,6 +6,7 @@ from window_blinker import WindowBlinker
 from ..dialogs.edit_dialog import FeedbackDialog
 from ..dialogs.mechanic_toolbox import MechanicToolboxDialog
 from ..controller import GetController
+from ..strings import trans
 		
 class StatusBar(wx.Panel):
 	def __init__(self, parent):
@@ -39,15 +40,11 @@ class StatusBar(wx.Panel):
 			button.Bind(wx.EVT_BUTTON, onClick)
 			return button
 			
-		self._feedback = AddButton(u"Leave Feedback", self._OnFeedback)
-		self._language = AddButton(u"En Español", self._OnLanguage)
-		self._toolbox = AddButton(u"Mechanic's Toolbox", self._OnToolbox)
-		
-	def _OnLanguage(self, event):
-		print("TODO: Implement language change")
+		self._feedback = AddButton(trans.statusButtonFeedback, self._OnFeedback)
+		self._toolbox = AddButton(trans.statusButtonToolbox, self._OnToolbox)
 				
 	def _OnToolbox(self, event):
-		if GetController().AuthenticateMechanic(self, "use the mechanic toolbox"):
+		if GetController().AuthenticateMechanic(self, trans.authenticateToolbox):
 			dialog = MechanicToolboxDialog(self)
 			dialog.ShowModal()
 		

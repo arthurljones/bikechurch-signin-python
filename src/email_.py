@@ -7,7 +7,7 @@ from email.mime.image import MIMEImage
 from email.encoders import encode_base64
 
 def DoEmail():
-	sendMail("thebikechurch@gmail.com", "biciglesia",
+	sendMail("thebikechurch@gmail.com", "xxx", #real password goes here... todo
 		"arthur.l.jones@gmail.com", "test", "testing")
 
 def _GetAttachment(attachmentFilePath):

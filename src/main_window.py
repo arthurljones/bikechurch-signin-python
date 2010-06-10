@@ -12,11 +12,13 @@ from dialogs.new_person import NewPersonDialog
 from dialogs.authenticate_mechanic import AuthenticateMechanicDialog
 from dialogs.view_person import ViewPersonDialog
 
+from .strings import trans
+
 class MainWindow(wx.Frame, Delegator):
 	def __init__(self):
 		size = (900, 520)
 		wx.Frame.__init__(self, None, id = wx.ID_ANY,
-			title = u"Welcome To The Bike Church!", size = size,
+			title = trans.mainWindowTitle, size = size,
 			style = (wx.RESIZE_BORDER | wx.SYSTEM_MENU# | wx.STAY_ON_TOP
 				| wx.CAPTION | wx.CLOSE_BOX | wx.TAB_TRAVERSAL))
 			
@@ -90,7 +92,7 @@ class MainWindow(wx.Frame, Delegator):
 	def _OnClose(self, event):
 		if not event.CanVeto():
 			self.Destroy()
-		elif self.AuthenticateMechanic(self, "close the signin program"):
+		elif self.AuthenticateMechanic(self, trans.authenticateWindowClose):
 			self.Destroy()
 		else:
 			event.Veto()

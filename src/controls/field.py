@@ -45,14 +45,27 @@ class TextField(Field):
 class ChoiceField(Field):
 	def __init__(self, parent, sizer, column, label, default = lambda: ""):
 		self._choice = wx.Choice(parent)
-		self._choice.SetItems(column.type.enums)
+		if hasattr(column.type, ("choiceDict")):
+			self._choiceDict = column.type.choiceDict
+			print self._choiceDict
+		else:
+			self._choiceDict = {}
+			for enum in column.type.enums:
+				self._choiceDict[enum] = enum
+				
+		self._inverseChoiceDict = dict((v,k) for k, v in self._choiceDict.iteritems())
+
+		self._choice.SetItems([self._choiceDict[n] for n in column.type.enums])
 		Field.__init__(self, parent, sizer, column, label, self._choice, default)
 		
 	def Get(self):
-		return self.Widget().GetStringSelection()
+		return self._choiceDict[self.Widget().GetStringSelection()]
 		
 	def Set(self, value):
-		return self.Widget().SetStringSelection(value)
+		if value in self._inverseChoiceDict:
+			return self.Widget().SetStringSelection(self._inverseChoiceDict[value])
+		else:
+			return self.Widget().SetStringSelection(value)
 		
 class DateField(Field):
 	def __init__(self, parent, sizer, column, label, default = datetime.now):

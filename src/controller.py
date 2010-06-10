@@ -1,10 +1,12 @@
  # -*- coding: utf-8 -*-
  
 import db, wx, MySQLdb, os, csv
+from strings import trans
 from datetime import datetime
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, OperationalError, InvalidRequestError
 from db import Person, Member, Shoptime, ShopOccupant, Bike, Feedback
+from ui import GetShoptimeTypeDescription
 
 _controller = None
 
@@ -130,9 +132,11 @@ class Controller:
 		if person.occupantInfo is not None:
 			if person.occupantInfo.type == type:
 				widget = self._ui.GetOccupantNameWidget(person)
-				error = "{0} is already signed in to do {1}"
+				error = trans.sigininAlreadySignedIn
+				typeDesc = GetShoptimeTypeDescription(type)
+				print typeDesc
 				self._ui.FlashError(
-					error.format(person.Name(), type), [widget])
+					error.format(person.Name(), typeDesc), [widget])
 				return
 			else:
 				self.SignPersonOut(person)
@@ -207,7 +211,7 @@ class Controller:
 		self._ui.ResetError()
 		
 	def ViewPersonInfo(self, parent, person):
-		if self.AuthenticateMechanic(parent, "view info for {0}".format(person.Name())):
+		if self.AuthenticateMechanic(parent, trans.authenticateView.format(person.Name())):
 			self._ui.ShowViewPersonDialog(parent, person)
 			
 	def DebugSignRandomPeopleIn(self, howmany):

@@ -6,6 +6,7 @@ from ..ui import MedFont, HugeFont, MakeStaticBoxSizer, AddLabel
 from shoptime_choice import ShoptimeChoicePanel
 from select_person_panel import SelectPersonPanel
 from ..controller import GetController
+from ..strings import trans
 
 class SignInPanel(wx.Panel):
 	def __init__(self, parent):
@@ -14,12 +15,11 @@ class SignInPanel(wx.Panel):
 		
 		sizer = MakeStaticBoxSizer(self, style = wx.VERTICAL)
 		self.SetSizer(sizer)
+
+		AddLabel(self, sizer, HugeFont(), trans.signinIntro, wx.ALIGN_CENTER)
+		AddLabel(self, sizer, MedFont(), trans.signinGreeting)
 		
-		AddLabel(self, sizer, HugeFont(), u"Sign In Here", wx.ALIGN_CENTER)
-		AddLabel(self, sizer, MedFont(), u"Hi! Type your name here:")
-		
-		self._selectPerson = SelectPersonPanel(self, u"",
-			u"Click your name in the\nlist if it's here:")
+		self._selectPerson = SelectPersonPanel(self, u"", trans.signinClickName)
 		sizer.Add(self._selectPerson, 0, wx.EXPAND)
 		
 		self._shoptimeChoice = ShoptimeChoicePanel(self)
@@ -43,13 +43,15 @@ class SignInPanel(wx.Panel):
 		GetController().StopFlashing()
 		
 		type = event.GetType()
-		
+
 		if type == "worktrade":
-			if not GetController().AuthenticateMechanic(self, "do worktrade"):
+			if not GetController().AuthenticateMechanic(self,
+				trans.authenticateWorktrade):
 				return
 				
 		elif type == "volunteer":
-			if not GetController().AuthenticateMechanic(self, "volunteer"):
+			if not GetController().AuthenticateMechanic(self,
+				trans.authenticateVolunteer):
 				return
 			
 		person = self._selectPerson.GetPerson()
@@ -67,14 +69,14 @@ class SignInPanel(wx.Panel):
 			if GetController().ShowNewPersonDialog(self, firstName, lastName):
 				GetController().SignPersonIn(None, type)
 				self.ResetValues()
-				
+
 	def _FlashTasks(self):
 		widgets = self._shoptimeChoice.GetWidgets()
-		GetController().FlashError("Select a task.", widgets)
+		GetController().FlashError(trans.signin.selectTask, widgets)
 		
 	def _FlashName(self):
 		widgets = [self._selectPerson.GetNameEntryWidget()]
-		GetController().FlashError("Type your name.", widgets)
+		GetController().FlashError(trans.signin.enterName, widgets)
 				
 	def _OnNameReturn(self, event):
 		if event.GetName():

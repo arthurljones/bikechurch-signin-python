@@ -9,6 +9,7 @@ from ..controls.autowrapped_static_text import AutowrappedStaticText
 from ..controls.add_edit_remove_list import AddEditRemoveList
 from edit_dialog import ShoptimeDialog, BikeDialog
 from ..controller import GetController
+from ..strings import trans
 		
 def _AddDialogFunc(parent, EditorType):
 	def AddDialog():
@@ -43,7 +44,7 @@ def _BikeListString(bike):
 	string.append("{0} bike:".format(bike.type))
 	string.append("S/N {0}".format(bike.serial))
 	
-	return " ".join(string)	
+	return " ".join(string)
 		
 class ViewPersonDialog(wx.Dialog):
 	def __init__(self, parent, person):

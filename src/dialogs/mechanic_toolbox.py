@@ -4,6 +4,7 @@ import wx
 from ..controller import GetController
 from ..ui import AddLabel, MakeInfoEntrySizer, MedFont
 from ..controls.autowrapped_static_text import AutowrappedStaticText
+from ..strings import trans
 
 def FormatFeedbackDate(feedback):
 	return feedback.date.strftime("%a %b %d at %I%p")

@@ -2,6 +2,7 @@
  
 import wx, time
 from datetime import datetime
+import db
 
 _sMedFont = None
 def MedFont():
@@ -27,16 +28,9 @@ def HugeFont():
 		
 	return _sHugeFont
 
-_typeDescriptions = {
-	"shoptime":	"Working on a Bike",
-	"parts":	"Looking for Parts",
-	"worktrade":	"Doing Worktrade",
-	"volunteer":	"Volunteering"
-	}
-
 def GetShoptimeTypeDescription(type):
-	if type in _typeDescriptions:
-		return _typeDescriptions[type]
+	if type in db.shoptimeChoices:
+		return db.shoptimeChoices[type]
 	else:
 		return "\"{0}\"".format(type)
 

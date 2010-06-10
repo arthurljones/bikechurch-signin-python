@@ -6,33 +6,32 @@ from ..ui import AddLabel, MedFont, MakeStaticBoxSizer
 from ..controls.edit_panel import EditPersonPanel, EditBikePanel
 from ..controls.autowrapped_static_text import AutowrappedStaticText
 from ..controller import GetController
+from ..strings import trans
 
 class NewPersonDialog(wx.Dialog):
 	def __init__(self, parent, firstName = "", lastName = ""):
-		wx.Dialog.__init__(self, parent, title = "New Person Information",
+		wx.Dialog.__init__(self, parent, title = trans.newPersonTitle,
 			style = wx.FRAME_FLOAT_ON_PARENT, size = (280, 400))
 		
 		outerSizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(outerSizer)
 
 		AddLabel(self, outerSizer, MedFont(), \
-			"Since you haven't used this system before, "
-			"please tell us your name and bike information.",
-			type = AutowrappedStaticText)
+			trans.newPersonInfo, type = AutowrappedStaticText)
 		
 		person = Person()
 		person.firstName = firstName
 		person.lastName = lastName
 		
-		nameEntrySizer = MakeStaticBoxSizer(self, u"Your Name", wx.VERTICAL)
-		AddLabel(self, nameEntrySizer, MedFont(), u"Type Your Name:")
+		nameEntrySizer = MakeStaticBoxSizer(self, trans.newPersonNameTitle, wx.VERTICAL)
+		AddLabel(self, nameEntrySizer, MedFont(), trans.newPersonNameIntro)
 		self.editNamePanel = EditPersonPanel(self)
 		self.editNamePanel.Set(person)
 		nameEntrySizer.Add(self.editNamePanel, 0, wx.EXPAND)
 		outerSizer.Add(nameEntrySizer, 0, wx.EXPAND)
 		
-		bikeEntrySizer = MakeStaticBoxSizer(self, u"Your Bike", wx.VERTICAL)
-		AddLabel(self, bikeEntrySizer, MedFont(), "Describe Your Bike (if you have one):")			
+		bikeEntrySizer = MakeStaticBoxSizer(self, trans.newPersonBikeTitle, wx.VERTICAL)
+		AddLabel(self, bikeEntrySizer, MedFont(), trans.newPersonBikeIntro)			
 		self.editBikePanel = EditBikePanel(self)
 		bikeEntrySizer.Add(self.editBikePanel, 0, wx.EXPAND)
 		outerSizer.Add(bikeEntrySizer, 0, wx.EXPAND)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import wx, datetime
+from ..strings import trans
 from sqlalchemy import (Integer, Unicode, Date, DateTime, Time)
 from sqlalchemy.dialects.mysql.base import MSEnum 
 from ..db import Person, Member, Bike, Shoptime, Feedback
@@ -77,17 +78,14 @@ class EditPersonPanel(EditPanel):
 			and updating.lastName == person.lastName)
 		
 		if not person.firstName:
-			GetController().FlashError(
-				"You must enter at least your first name.",
+			GetController().FlashError(trans.editPersonFirstName,
 				[self["firstName"].Widget()])
 		elif len(person.firstName) + len(person.lastName) < 3:
-			GetController().FlashError(
-				"Your name must have at least three letters.",
+			GetController().FlashError(trans.editPersonThreeLetters,
 				[self["firstName"].Widget(), self["lastName"].Widget()])
 		elif not namesMatch and GetController().GetPersonByFullName(
 			person.firstName, person.lastName):
-			GetController().FlashError(
-				"There's already somebody with that name in the database.",
+			GetController().FlashError(trans.editPersonAlreadyExists,
 				[self["firstName"].Widget(), self["lastName"].Widget()])
 		else:
 			return True
@@ -104,9 +102,7 @@ class EditBikePanel(EditPanel):
 			if not self[value].Get():
 				errors.append(self[value].Widget())		
 		if errors:
-			GetController().FlashError(
-			"You need at least the color, type, and serial # for your bike",
-			errors)
+			GetController().FlashError(trans.editBikeNotEnoughInfo, errors)
 			return False
 			
 		return True
@@ -144,16 +140,16 @@ class EditShoptimePanel(EditPanel):
 		self["start"].Set(datetime.datetime.now() - datetime.timedelta(hours = 1))
 	
 	def Validate(self):
-		shoptime = self.Get()
+		shoptime = self.Get()		
 				
 		if shoptime.start > datetime.datetime.now():
-			GetController().FlashError("Shoptime may not start in the future.",
+			GetController().FlashError(trans.editShoptimeNoFuture,
 				self["start"].Widget())
 		elif shoptime.end < shoptime.start:
-			GetController().FlashError("End time must be later than start time.",
+			GetController().FlashError(trans.editShoptimeNoTimeTravel,
 				self["end"].Widget())
 		elif not shoptime.type:
-			GetController().FlashError("You must select a type.",
+			GetController().FlashError(trans.editShoptimeNeedType,
 				self["type"].Widget())
 		else:
 			return True	
@@ -168,7 +164,7 @@ class EditFeedbackPanel(EditPanel):
 		feedback = self.Get()
 		
 		if not feedback.feedback:
-			GetController().FlashError("Please enter your feedback.",
+			GetController().FlashError(trans.editFeedbackNeedFeedback,
 				[self["feedback"].Widget()])
 		else:
 			return True	

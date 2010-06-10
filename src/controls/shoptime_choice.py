@@ -2,6 +2,7 @@
  
 import wx
 from ..ui import AddLabel, MedFont, BigFont
+from ..strings import trans
 
 class ShoptimeChoiceEvent(wx.PyCommandEvent):
 	eventType = wx.NewEventType()
@@ -29,13 +30,13 @@ class ShoptimeChoicePanel(wx.Panel):
 			self._buttonMap[button.GetId()] = type
 			return button
 		
-		AddLabel(self, sizer, MedFont(), u"What do you want to do?")
+		AddLabel(self, sizer, MedFont(), trans.signinIntro)
 		sizer.AddSpacer((0, 0), 0, wx.EXPAND)
 		self._buttons = []
-		self._buttons.append(AddButton(u"Work on my bike!", "shoptime"))
-		self._buttons.append(AddButton(u"Look for parts!", "parts"))
-		self._buttons.append(AddButton(u"Do work trade!", "worktrade"))
-		self._buttons.append(AddButton(u"Volunteer!", "volunteer"))
+		self._buttons.append(AddButton(trans.signinShoptime, "shoptime"))
+		self._buttons.append(AddButton(trans.signinParts, "parts"))
+		self._buttons.append(AddButton(trans.signinWorktrade, "worktrade"))
+		self._buttons.append(AddButton(trans.signinVolunteer, "volunteer"))
 		
 		self.Bind(wx.EVT_BUTTON, self._OnButton)
 		

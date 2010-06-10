@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*-
  
 import sys, time
+from .strings import trans
 from sqlalchemy import (create_engine, MetaData, Column, Table, Integer, Unicode,
 	Index, ForeignKeyConstraint, Date, DateTime, Time)
 from sqlalchemy.dialects.mysql.base import MSEnum 
@@ -30,8 +31,8 @@ class Person(Base):
 		cascade = "all, delete, delete-orphan")
 	
 	fields = [
-		("firstName", "First Name"),
-		("lastName", "Last Name"),
+		("firstName", trans.patronFirstName),
+		("lastName", trans.patronLastName),
 	]
 	
 	def Name(self):
@@ -64,22 +65,22 @@ class Member(Base):
 	notes		= Column(Unicode(200))
 	
 	fields = [
-		("startDate", "Start Date"),
-		("endDate", "End Date", ForeverDateField),
-		("donation", "Donation $"),
-		("phoneNumber", "Phone Number"),
-		("emailAddress", "Email Address"),
-		("mailingAddress", "Mail Address"),
-		("notes", "Notes"),
+		("startDate", trans.memberStart),
+		("endDate", trans.memberEnd, ForeverDateField),
+		("donation", trans.memberDonation),
+		("phoneNumber", trans.memberPhone),
+		("emailAddress", trans.memberEmail),
+		("mailingAddress", trans.memberSnailmail),
+		("notes", trans.memberNotes),
 	]
 	
-shoptimeChoices = [
-	'shoptime',
-	'parts',
-	'worktrade',
-	'volunteer',
-	#'clerkship',
-]
+shoptimeChoices = {
+	'shoptime' : trans.shoptimeTypeWorking,
+	'parts' : trans.shoptimeTypeParts,
+	'worktrade' : trans.shoptimeTypeWorktrade,
+	'volunteer' : trans.shoptimeTypeVolunteer,
+	#'clerkship' : "Doing a clerkship",
+}
 
 class Shoptime(Base):
 	__tablename__ = 'shoptime'
@@ -94,19 +95,21 @@ class Shoptime(Base):
 	start		= Column(DateTime, nullable = False)
 	end		= Column(DateTime, nullable = False)
 	notes 		= Column(Unicode(200))
-	type 		= Column(MSEnum(*shoptimeChoices, strict = True),
+	type 		= Column(MSEnum(*shoptimeChoices.keys(), strict = True),
 				nullable = False, index = True)
-				
+	
 	fields = [
-		("start", "Start"),
-		("end", "End"),
-		("type", "Type"),
-		("notes", "Notes"),
+		("start", trans.shoptimeStart),
+		("end", trans.shoptimeEnd),
+		("type", trans.shoptimeType),
+		("notes", trans.shoptimeNotes),
 	]
 	
 	def __repr__(self):
 		return "<{0}> {1} From {2} Until {3}".format(
 			self.__class__.__name__, self.type, self.start, self.end)		
+	
+Shoptime.__table__.c.type.type.choiceDict = shoptimeChoices
 	
 class ShopOccupant(Base):
 	__tablename__ = 'shopOccupants'
@@ -153,13 +156,13 @@ class Bike(Base):
 	brand		= Column(Unicode(64))
 	model		= Column(Unicode(64))
 	serial		= Column(Unicode(64), nullable = False, index = True)
-				
+
 	fields = [
-		("type", "Type"),
-		("color", "Color"),
-		("brand", "Brand"),
-		("model", "Model"),
-		("serial", "Serial #"),
+		("type", trans.bikeType),
+		("color", trans.bikeColor),
+		("brand", trans.bikeBrand),
+		("model", trans.bikeModel),
+		("serial", trans.bikeSerial),
 	]
 	
 	def __repr__(self):
@@ -179,8 +182,8 @@ class Feedback(Base):
 	feedback	= Column(Unicode(500), nullable = False)
 				
 	fields = [
-		("name", "Your Name (Optional)"),
-		("feedback", "Your Feedback"),
+		("name", trans.feedbackName),
+		("feedback", trans.feedbackFeedback),
 	]
 	
 	def __repr__(self):

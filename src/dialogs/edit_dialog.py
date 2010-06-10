@@ -3,11 +3,16 @@
 import wx
 from ..controller import GetController
 from ..controls.edit_panel import EditShoptimePanel, EditBikePanel, EditFeedbackPanel
+from ..strings import trans
 
 class EditDialog(wx.Dialog):	
 	def __init__(self, parent, EditPanelType, typeName, size, object = None):
 		self._object = object
-		title = "{0} {1}".format("Edit" if object else "Add", typeName)
+		title = ""
+		if object:
+			title = trans.editEditTitle.format(typeName)
+		else:
+			title = trans.editAddTitle.format(typeName)
 		wx.Dialog.__init__(self, parent, title = title, size = size,
 			style = wx.FRAME_FLOAT_ON_PARENT)
 
@@ -51,16 +56,16 @@ class EditDialog(wx.Dialog):
 		
 class ShoptimeDialog(EditDialog):
 	def __init__(self, parent, object = None):
-		EditDialog.__init__(self, parent, EditShoptimePanel, "Shoptime", (300, 200), object)
+		EditDialog.__init__(self, parent, EditShoptimePanel, trans.editShoptime,
+			(300, 200), object)
 		
 class BikeDialog(EditDialog):
 	def __init__(self, parent, object = None):
-		EditDialog.__init__(self, parent, EditBikePanel, "Bike", (250, 200), object)
+		EditDialog.__init__(self, parent, EditBikePanel, trans.editBike,
+			(250, 200), object)
 		
 class FeedbackDialog(EditDialog):
 	def __init__(self, parent, object = None):
 		EditDialog.__init__(self, parent, EditFeedbackPanel, "", (340, 160), object)
-		self.SetTitle("Leave Feedback")
-	
-	
+		self.SetTitle(trans.feedbackTitle)
 	

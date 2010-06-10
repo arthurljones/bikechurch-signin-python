@@ -4,6 +4,7 @@ import wx
 from datetime import datetime
 from ..ui import FormatTimedelta, GetShoptimeTypeDescription
 from ..controller import GetController
+from ..strings import trans
 
 class OccupantLine():	
 	def __init__(self, parent, sizer, person, startTime, type):
@@ -28,8 +29,8 @@ class OccupantLine():
 			button.Bind(wx.EVT_BUTTON, onClick)
 			self._elements.append(button)
 			
-		AddOccupantButton(u"View Info", self.OnViewInfoClicked)
-		AddOccupantButton(u"Sign Out", self.OnSignOutClicked)
+		AddOccupantButton(trans.occupantViewButton, self.OnViewInfoClicked)
+		AddOccupantButton(trans.occupantSignoutButton, self.OnSignOutClicked)
 
 		def AddOccupantLabel(string, flags = 0):
 			text = wx.StaticText(parent, wx.ID_ANY, string)
@@ -71,7 +72,7 @@ class OccupantsList(wx.Panel):
 		self.occupants = []
 
 		titleFont = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL)
-		self.titleText = wx.StaticText(self, wx.ID_ANY, u"Who's in the Shop:")
+		self.titleText = wx.StaticText(self, wx.ID_ANY, trans.occupantListHeader)
 		self.titleText.SetFont(titleFont)
 		self.dateText = wx.StaticText(self, wx.ID_ANY, u"")
 		self.dateText.SetFont(titleFont)
@@ -105,10 +106,10 @@ class OccupantsList(wx.Panel):
 			self._listSizer.Add(localSizer, 0, wx.ALIGN_CENTER | wx.EXPAND)	
 		
 		AddColumnHeader(u"")
-		AddColumnHeader(u"Name")
-		AddColumnHeader(u"Activity")
-		AddColumnHeader(u"Time In Shop", wx.ALIGN_RIGHT)
-		
+		AddColumnHeader(trans.occupantColumnName)
+		AddColumnHeader(trans.occupantColumnActivity)
+		AddColumnHeader(trans.occupantColumnTime, wx.ALIGN_RIGHT)
+
 		peopleInShop = GetController().GetPeopleInShop()
 		if peopleInShop is not None:
 			for person in peopleInShop:
