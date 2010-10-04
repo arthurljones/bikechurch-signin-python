@@ -2,7 +2,7 @@
  
 import wx
 
-from ui import Delegator
+from ui import Delegator, winSizes
 from controller import GetController
 from controls.status_bar import StatusBar
 from controls.occupants_list import OccupantsList
@@ -16,7 +16,7 @@ from .strings import trans
 
 class MainWindow(wx.Frame, Delegator):
 	def __init__(self):
-		size = (1000, 650)
+		size = winSizes.mainWindow
 		wx.Frame.__init__(self, None, id = wx.ID_ANY,
 			title = trans.mainWindowTitle, size = size,
 			style = (wx.RESIZE_BORDER | wx.SYSTEM_MENU# | wx.STAY_ON_TOP
@@ -92,7 +92,7 @@ class MainWindow(wx.Frame, Delegator):
 	def _OnClose(self, event):
 		if not event.CanVeto():
 			self.Destroy()
-		elif self.AuthenticateMechanic(self, trans.authenticateWindowClose):
+		elif GetController().AuthenticateMechanic(self, trans.authenticateWindowClose):
 			self.Destroy()
 		else:
 			event.Veto()

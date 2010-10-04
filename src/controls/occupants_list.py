@@ -102,7 +102,7 @@ class OccupantsList(wx.Panel):
 			label.SetFont(wx.Font(12, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL))
 			localSizer = wx.BoxSizer(wx.VERTICAL)
 			localSizer.Add(label, flag = flags)
-			localSizer.Add(wx.StaticLine(self._gridContainer), 0, wx.EXPAND)
+			localSizer.Add(wx.StaticLine(self._gridContainer), wx.ALIGN_BOTTOM, wx.EXPAND)
 			self._listSizer.Add(localSizer, 0, wx.ALIGN_CENTER | wx.EXPAND)	
 		
 		AddColumnHeader(u"")

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import wx
-from ..ui import MakeInfoEntrySizer, AddField, MedFont
+from ..ui import MakeInfoEntrySizer, AddField, MedFont, winSizes
 import hashlib
 from copy import copy
 from ..strings import trans
@@ -11,7 +11,7 @@ class AuthenticateMechanicDialog(wx.Dialog):
 	
 	def __init__(self, parent, actionDescription = trans.authenticateGeneric):
 		wx.Dialog.__init__(self, parent, title = trans.enterPassword,
-			size = (300, 120), style = wx.FRAME_FLOAT_ON_PARENT)
+			size = winSizes.authenticateMechanic, style = wx.FRAME_FLOAT_ON_PARENT)
 
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(sizer)

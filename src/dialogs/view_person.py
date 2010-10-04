@@ -2,7 +2,7 @@
  
 import wx, datetime
 from ..ui import (AddLabel, MedFont, FormatTimedelta, GetShoptimeTypeDescription, 
-	MakeStaticBoxSizer)
+	MakeStaticBoxSizer, winSizes)
 from ..db import Shoptime, Bike
 from ..controls.edit_panel import EditPersonPanel, EditMemberPanel
 from ..controls.autowrapped_static_text import AutowrappedStaticText
@@ -49,7 +49,7 @@ def _BikeListString(bike):
 class ViewPersonDialog(wx.Dialog):
 	def __init__(self, parent, person):
 		wx.Dialog.__init__(self, parent, title = "Viewing Info For {0}".format(person.Name()),
-			size = (740, 470), style = wx.FRAME_FLOAT_ON_PARENT)
+			size = winSizes.viewPerson, style = wx.FRAME_FLOAT_ON_PARENT)
 		self._person = person
 		
 		outerSizer = wx.FlexGridSizer(2, 1)

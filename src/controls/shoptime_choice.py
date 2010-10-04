@@ -30,13 +30,13 @@ class ShoptimeChoicePanel(wx.Panel):
 			self._buttonMap[button.GetId()] = type
 			return button
 		
-		AddLabel(self, sizer, MedFont(), trans.signinIntro)
-		sizer.AddSpacer((0, 0), 0, wx.EXPAND)
+		AddLabel(self, sizer, MedFont(), trans.shoptimeIntro)
+		#sizer.AddSpacer((0, 0), 0, wx.EXPAND)
 		self._buttons = []
-		self._buttons.append(AddButton(trans.signinShoptime, "shoptime"))
-		self._buttons.append(AddButton(trans.signinParts, "parts"))
-		self._buttons.append(AddButton(trans.signinWorktrade, "worktrade"))
-		self._buttons.append(AddButton(trans.signinVolunteer, "volunteer"))
+		self._buttons.append(AddButton(trans.shoptimeShoptime, "shoptime"))
+		self._buttons.append(AddButton(trans.shoptimeParts, "parts"))
+		self._buttons.append(AddButton(trans.shoptimeWorktrade, "worktrade"))
+		self._buttons.append(AddButton(trans.shoptimeVolunteer, "volunteer"))
 		
 		self.Bind(wx.EVT_BUTTON, self._OnButton)
 		

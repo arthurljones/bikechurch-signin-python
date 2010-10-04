@@ -85,7 +85,7 @@ class SelectPersonPanel(wx.Panel):
 			self._nameListBox.Bind(event, self._OnListDeadSpaceClick)
 
 		sizer.Add(self._nameListBox, 1, wx.EXPAND)
-		self._nameListBox.SetSizeHints(180, 80)
+		self._nameListBox.SetSizeHints(200, 80)
 	
 	def GetDefaultName(self):
 		return self._nameEntryDefaultText

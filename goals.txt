@@ -1,6 +1,6 @@
 Short Term/TODO:
 Force DB recreation and reload on schema change
-Debug  Mode
+Debug Mode
 Mechanic's Toolbox:
 	Bike by serial number
 	View Person (without signing them in)

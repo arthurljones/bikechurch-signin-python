@@ -117,3 +117,16 @@ class Delegator(object):
 					
 		raise AttributeError("No attribute \'{0}\' in {1} or delegates".format(
 			attr, self.__class__.__name__))
+			
+class WindowSizes:
+	pass
+
+winSizes = WindowSizes()
+
+winSizes.mainWindow = (1000, 550)
+winSizes.authenticateMechanic = (300, 140)
+winSizes.newPerson = (280, 400)
+winSizes.viewPerson = (740, 470)
+winSizes.shoptimeDialog = (300, 200)
+winSizes.bikeDialog = (250, 200)
+winSizes.feedbackDialog = (340, 160)

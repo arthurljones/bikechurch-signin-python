@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import wx
+from ..ui import winSizes
 from ..controller import GetController
 from ..controls.edit_panel import EditShoptimePanel, EditBikePanel, EditFeedbackPanel
 from ..strings import trans
@@ -57,15 +58,16 @@ class EditDialog(wx.Dialog):
 class ShoptimeDialog(EditDialog):
 	def __init__(self, parent, object = None):
 		EditDialog.__init__(self, parent, EditShoptimePanel, trans.editShoptime,
-			(300, 200), object)
+			winSizes.shoptimeDialog, object)
 		
 class BikeDialog(EditDialog):
 	def __init__(self, parent, object = None):
 		EditDialog.__init__(self, parent, EditBikePanel, trans.editBike,
-			(250, 200), object)
+			winSizes.bikeDialog, object)
 		
 class FeedbackDialog(EditDialog):
 	def __init__(self, parent, object = None):
-		EditDialog.__init__(self, parent, EditFeedbackPanel, "", (340, 160), object)
+		EditDialog.__init__(self, parent, EditFeedbackPanel, "", 
+			winSizes.feedbackDialog, object)
 		self.SetTitle(trans.feedbackTitle)
 	

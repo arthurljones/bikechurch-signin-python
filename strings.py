@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-class Empty:
+class Translator:
 	def __getattr__(self, name):
-		return "zzz"
+		raise RuntimeError("Missing translation for {0}".format(name))
 	
-trans = Empty()
+trans = Translator()
 
 #NOTE: Mechanic toolbox and member info screens have not been set up for translation.
 #	This can be fixed when I get back from my tour. -AJ
@@ -59,8 +59,8 @@ trans.bikeModel = "Model/Modelo"
 trans.bikeSerial = "Serial #/Numero de Serie"
 
 #Field descriptions for Feedback
-trans.feedbackName = "Your Name (Optional)/Su Nombre (si quiere)"
-trans.feedbackFeedback = "Your Feedback/Su comentario"
+trans.feedbackName = "Your Name (Optional)\nSu Nombre (si quiere)"
+trans.feedbackFeedback = "Your Feedback\nSu comentario"
 
 #Errors that flash if you have entered invalid/incomplete info in an editor dialog
 trans.signinSelectTask = "Select a task."
@@ -79,23 +79,23 @@ trans.editFeedbackNeedFeedback = "Please enter your feedback."
 trans.occupantViewButton = "View Info"
 trans.occupantSignoutButton = u"Sign Out"
 #Occupant list column headers
-trans.occupantListHeader = u"Who's in the Shop:\n/Quienes están en el Taller:"
-trans.occupantColumnName = u"Name\n/Nombre"
-trans.occupantColumnActivity = u"Activity\n/Actividad"
-trans.occupantColumnTime = u"Time In Shop\n/Duración de Visita"
+trans.occupantListHeader = u"Who's in the Shop:\nQuienes están en el Taller:"
+trans.occupantColumnName = u"Name\nNombre"
+trans.occupantColumnActivity = u"Activity\nActividad"
+trans.occupantColumnTime = u"Time In Shop\nDuración de Visita"
 
 #Signin panel info
 trans.signinIntro = u"Sign In Here/Firme aquí"
-trans.signinGreeting = u"Hi! Type your name here:\n/Hola! Escriba su nombre aquí:"
-trans.signinClickName = u"Click your name in the\nlist if it's here:/Sí aparece su \nnombre en la lista,\nhaz clic en el nombre:"
+trans.signinGreeting = u"Hi! Type your name here:\nHola! Escriba su nombre aquí:"
+trans.signinClickName = u"Click your name in the list if it's here:\nSí aparece su nombre en la lista,\nhaz clic en el nombre:"
 
 #Signin choice intro
-trans.signinIntro = u"What do you \nwant to do?\n/Que es lo que \nquiere hacer?"
+trans.shoptimeIntro = u"What do you want to do?\nQue es lo que quiere hacer?"
 #Signin panel shoptime button labels
-trans.signinShoptime = u"Work on my bike!\n/Arreglar mi bici"
-trans.signinParts = u"Look for parts!\n/Buscar partes"
-trans.signinWorktrade = u"Do work trade!\n/Trabajar para credito"
-trans.signinVolunteer = u"Volunteer!\n/Voluntar"
+trans.shoptimeShoptime = u"Work on my bike!\nArreglar mi bici"
+trans.shoptimeParts = u"Look for parts!\nBuscar partes"
+trans.shoptimeWorktrade = u"Do work trade!\nTrabajar para credito"
+trans.shoptimeVolunteer = u"Volunteer!\nVoluntar"
 
 #Statusbar buttons
 trans.statusButtonFeedback = u"Leave Feedback"
@@ -119,5 +119,3 @@ trans.newPersonNameIntro = u"Type Your Name:/Entre su nombre:"
 trans.newPersonBikeTitle = u"Your Bike/Su bici"
 trans.newPersonBikeIntro = "Describe Your Bike (if you have one):\n/Describe su bici (si tiene una):"
 
-#Uncommenting the folliwng line will display all translatable strings as "xxx" in the program
-#trans = Empty()

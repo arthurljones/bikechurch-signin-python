@@ -2,7 +2,7 @@
  
 import wx
 from ..db import Person
-from ..ui import AddLabel, MedFont, MakeStaticBoxSizer
+from ..ui import AddLabel, MedFont, MakeStaticBoxSizer, winSizes
 from ..controls.edit_panel import EditPersonPanel, EditBikePanel
 from ..controls.autowrapped_static_text import AutowrappedStaticText
 from ..controller import GetController
@@ -11,7 +11,7 @@ from ..strings import trans
 class NewPersonDialog(wx.Dialog):
 	def __init__(self, parent, firstName = "", lastName = ""):
 		wx.Dialog.__init__(self, parent, title = trans.newPersonTitle,
-			style = wx.FRAME_FLOAT_ON_PARENT, size = (280, 400))
+			style = wx.FRAME_FLOAT_ON_PARENT, size = winSizes.newPerson)
 		
 		outerSizer = wx.BoxSizer(wx.VERTICAL)
 		self.SetSizer(outerSizer)
