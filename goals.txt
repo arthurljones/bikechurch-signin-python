@@ -1,31 +1,29 @@
 Short Term/TODO:
-Force DB recreation and reload on schema change
-Debug Mode
+Debug Mode (to circumvent authentication dialog, etc)
 Mechanic's Toolbox:
+	Close program
 	Bike by serial number
 	View Person (without signing them in)
 	View shop occupants by date
-"Sign Everybody Out" button
 Inhibit shutdown
-Prompt on shutdown/close for "Sign Everybody Out"
+"Sign Everybody Out And Shutdown" button
 
 Medium Term/Cleanup:
 Fix hours when signing person out (with more than 24 hrs, etc)
 Figure out why occupants aren't flashing
 Scroll to occupant when flashing
 More functional alternative to timectrl (it sucks)
-Member/Not Member/Expired in view person and occupants list
-Allow ChoiceField to supply a name dictionary
 Additional validation for CSV import
-MoneyField for donation amounts
-NumberField
-Field validation (numberField, moneyField, etc)
+MoneyField for donation amounts w/validation
+NumberField w/validation
 Add "type" for worktrade
 Check for duplicate bike serials and issue a warning
 Use _ to prefix implementation properties in classes
-Keyboard mnemonics for controls/commands
+Keyboard mnemonics for controls/commands (ex: enter is an "OK" click)
 
 Long Term:
+Member/Not Member/Expired in view person and occupants list
+Force DB recreation and reload on schema change
 Polish GUI behavior
 Document process for determining how and why to add a feature
 Instant switch between spanish/english
