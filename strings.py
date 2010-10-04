@@ -115,9 +115,9 @@ trans.feedbackTitle = "Leave Feedback"
 
 #New person window
 trans.newPersonTitle = "New Person Information"
-trans.newPersonIntro = "Since you haven't used this system before, please tell us your name and bike information.\n/Como no ha usado el sistema antes, por favor entre su nombre y la información de la bici"
+trans.newPersonIntro = "Since you haven't used this system before, please tell us your name and bike information.\nComo no ha usado el sistema antes, por favor entre su nombre y la información de la bici"
 trans.newPersonNameTitle = u"Your Name/Su nombre"
 trans.newPersonNameIntro = u"Type Your Name:/Entre su nombre:"
 trans.newPersonBikeTitle = u"Your Bike/Su bici"
-trans.newPersonBikeIntro = "Describe Your Bike (if you have one):\n/Describe su bici (si tiene una):"
+trans.newPersonBikeIntro = "Describe Your Bike (if you have one):\nDescribe su bici (si tiene una):"
 

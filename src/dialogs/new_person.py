@@ -17,7 +17,7 @@ class NewPersonDialog(wx.Dialog):
 		self.SetSizer(outerSizer)
 
 		AddLabel(self, outerSizer, MedFont(), \
-			trans.newPersonInfo, type = AutowrappedStaticText)
+			trans.newPersonIntro, type = AutowrappedStaticText)
 		
 		person = Person()
 		person.firstName = firstName

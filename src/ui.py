@@ -125,7 +125,7 @@ winSizes = WindowSizes()
 
 winSizes.mainWindow = (1000, 550)
 winSizes.authenticateMechanic = (300, 140)
-winSizes.newPerson = (280, 400)
+winSizes.newPerson = (350, 450)
 winSizes.viewPerson = (740, 470)
 winSizes.shoptimeDialog = (300, 200)
 winSizes.bikeDialog = (250, 200)

@@ -57,9 +57,15 @@ class ChoiceField(Field):
 
 		self._choice.SetItems([self._choiceDict[n] for n in column.type.enums])
 		Field.__init__(self, parent, sizer, column, label, self._choice, default)
+		self._default = default
 		
 	def Get(self):
-		return self._choiceDict[self.Widget().GetStringSelection()]
+		selection = self.Widget().GetStringSelection()
+		
+		if selection == self._default():
+			return None
+		else:
+			return self._choiceDict[selection]
 		
 	def Set(self, value):
 		if value in self._inverseChoiceDict:
