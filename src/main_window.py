@@ -16,7 +16,7 @@ from .strings import trans
 
 class MainWindow(wx.Frame, Delegator):
 	def __init__(self):
-		size = (900, 520)
+		size = (1000, 650)
 		wx.Frame.__init__(self, None, id = wx.ID_ANY,
 			title = trans.mainWindowTitle, size = size,
 			style = (wx.RESIZE_BORDER | wx.SYSTEM_MENU# | wx.STAY_ON_TOP
