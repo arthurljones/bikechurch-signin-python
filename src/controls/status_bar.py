@@ -39,7 +39,8 @@ class StatusBar(wx.Panel):
 			button.SetMinSize((button.GetMinSize()[0], height))
 			button.Bind(wx.EVT_BUTTON, onClick)
 			return button
-			
+		
+		self._signout = AddButton(trans.statusSignEverybodyOut, self._OnSignEverybodyOut)
 		self._feedback = AddButton(trans.statusButtonFeedback, self._OnFeedback)
 		self._toolbox = AddButton(trans.statusButtonToolbox, self._OnToolbox)
 				
@@ -54,6 +55,12 @@ class StatusBar(wx.Panel):
 			feedback = dialog.Get()
 			feedback.date = datetime.datetime.now()
 			GetController().AddFeedback(feedback)
+			
+	def _OnSignEverybodyOut(self, event):
+		if GetController().AuthenticateMechanic(self, trans.authenticateSignEverybodyOut):
+			people = GetController().GetPeopleInShop()
+			for person in people:
+				GetController().SignPersonOut(person)
 				
 	def FlashError(self, error, targets = []):
 		self.StopAllFlashing()

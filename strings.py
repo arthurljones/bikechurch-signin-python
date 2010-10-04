@@ -22,6 +22,7 @@ trans.authenticateWindowClose = "close the signin program"
 trans.authenticateWorktrade = "do worktrade/trabajar para credito"
 trans.authenticateVolunteer = "volunteer/ser voluntario"
 trans.authenticateToolbox = "use the mechanic toolbox"
+trans.authenticateSignEverybodyOut = "sign everybody out"
 
 #Title of main window
 trans.mainWindowTitle = u"Welcome To The Bike Church!/Bienvenid@s a la Biciglesia!"
@@ -98,6 +99,7 @@ trans.shoptimeWorktrade = u"Do work trade!\nTrabajar para credito"
 trans.shoptimeVolunteer = u"Volunteer!\nVoluntar"
 
 #Statusbar buttons
+trans.statusSignEverybodyOut = u"Sign Everybody Out"
 trans.statusButtonFeedback = u"Leave Feedback"
 trans.statusButtonToolbox = u"Mechanic's Toolbox"
 

@@ -120,8 +120,7 @@ class Controller:
 			.order_by(ShopOccupant.start).all()
 
 	def AuthenticateMechanic(self, parent, activity):
-		return True
-		#return self._ui.AuthenticateMechanic(parent, activity)
+		return self._ui.AuthenticateMechanic(parent, activity)
 
 	def ShowNewPersonDialog(self, parent, firstName = u"", lastName = u""):
 		return self._ui.ShowNewPersonDialog(parent, firstName, lastName)
