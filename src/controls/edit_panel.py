@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import wx, datetime
-from ..strings import trans
+from strings import trans
 from sqlalchemy import (Integer, Unicode, Date, DateTime, Time)
 from sqlalchemy.dialects.mysql.base import MSEnum 
-from ..db import Person, Member, Bike, Shoptime, Feedback
-from ..ui import MedFont, MakeInfoEntrySizer
+from src.db import Person, Member, Bike, Shoptime, Feedback
+from src.ui import MedFont, MakeInfoEntrySizer
 from field import TextField, ChoiceField, DateField, TimeField, DateTimeField
-from ..controller import GetController
+from src.controller import GetController
 
 def SetFieldType(ColumnType, FieldType):
 	ColumnType.FieldType = FieldType
@@ -16,8 +16,8 @@ def SetFieldType(ColumnType, FieldType):
 SetFieldType(Integer,	TextField)
 SetFieldType(Unicode,	TextField)
 SetFieldType(MSEnum,	ChoiceField)
-SetFieldType(Date,	DateField)
-SetFieldType(Time,	TimeField)
+SetFieldType(Date,		DateField)
+SetFieldType(Time,		TimeField)
 SetFieldType(DateTime,	DateTimeField)
 
 class EditPanel(wx.Panel):
@@ -95,6 +95,23 @@ class EditPersonPanel(EditPanel):
 class EditBikePanel(EditPanel):
 	def __init__(self, parent):
 		EditPanel.__init__(self, parent, Bike)
+		
+		bikeTypes = [
+		'Mountain',
+		'Road',
+		'Hybrid', 
+		'Cruiser',
+		'Three Speed',
+		'Recumbent',
+		'Chopper',
+		'Mixte',
+		'Tallbike',
+		'Town Bike',
+		'Touring',
+		'Track',
+		'Other',
+		]
+				
 	
 	def Validate(self):
 		errors = []

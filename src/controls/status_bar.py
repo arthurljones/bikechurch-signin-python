@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import wx, datetime
-from ..ui import MedFont
+from src.ui import MedFont
 from window_blinker import WindowBlinker
-from ..dialogs.edit_dialog import FeedbackDialog
-from ..dialogs.mechanic_toolbox import MechanicToolboxDialog
-from ..controller import GetController
-from ..strings import trans
+from src.dialogs.edit_dialog import FeedbackDialog
+from src.dialogs.mechanic_toolbox import MechanicToolboxDialog
+from src.controller import GetController
+from strings import trans
 		
 class StatusBar(wx.Panel):
 	def __init__(self, parent):
@@ -40,13 +40,12 @@ class StatusBar(wx.Panel):
 			button.Bind(wx.EVT_BUTTON, onClick)
 			return button
 		
-		self._signout = AddButton(trans.statusSignEverybodyOut, self._OnSignEverybodyOut)
 		self._feedback = AddButton(trans.statusButtonFeedback, self._OnFeedback)
 		self._toolbox = AddButton(trans.statusButtonToolbox, self._OnToolbox)
 				
 	def _OnToolbox(self, event):
 		if GetController().AuthenticateMechanic(self, trans.authenticateToolbox):
-			dialog = MechanicToolboxDialog(self)
+			dialog = MechanicToolboxDialog()
 			dialog.ShowModal()
 		
 	def _OnFeedback(self, event):
@@ -55,12 +54,6 @@ class StatusBar(wx.Panel):
 			feedback = dialog.Get()
 			feedback.date = datetime.datetime.now()
 			GetController().AddFeedback(feedback)
-			
-	def _OnSignEverybodyOut(self, event):
-		if GetController().AuthenticateMechanic(self, trans.authenticateSignEverybodyOut):
-			people = GetController().GetPeopleInShop()
-			for person in people:
-				GetController().SignPersonOut(person)
 				
 	def FlashError(self, error, targets = []):
 		self.StopAllFlashing()

@@ -1,8 +1,8 @@
  # -*- coding: utf-8 -*-
  
 import wx
-from ..ui import AddLabel, MedFont, BigFont
-from ..strings import trans
+from src.ui import AddLabel, MedFont, BigFont
+from strings import trans
 
 class ShoptimeChoiceEvent(wx.PyCommandEvent):
 	eventType = wx.NewEventType()

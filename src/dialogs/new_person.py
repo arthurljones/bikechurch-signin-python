@@ -1,12 +1,12 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 import wx
-from ..db import Person
-from ..ui import AddLabel, MedFont, MakeStaticBoxSizer, winSizes
-from ..controls.edit_panel import EditPersonPanel, EditBikePanel
-from ..controls.autowrapped_static_text import AutowrappedStaticText
-from ..controller import GetController
-from ..strings import trans
+from src.db import Person
+from src.ui import AddLabel, MedFont, MakeStaticBoxSizer, winSizes
+from src.controls.edit_panel import EditPersonPanel, EditBikePanel
+from src.controls.autowrapped_static_text import AutowrappedStaticText
+from src.controller import GetController
+from strings import trans
 
 class NewPersonDialog(wx.Dialog):
 	def __init__(self, parent, firstName = "", lastName = ""):

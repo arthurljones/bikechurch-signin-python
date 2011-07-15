@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import wx
-from ..ui import winSizes
-from ..controller import GetController
-from ..controls.edit_panel import EditShoptimePanel, EditBikePanel, EditFeedbackPanel
-from ..strings import trans
+from src.ui import winSizes
+from src.controller import GetController
+from src.controls.edit_panel import EditShoptimePanel, EditBikePanel, EditFeedbackPanel
+from strings import trans
 
 class EditDialog(wx.Dialog):	
 	def __init__(self, parent, EditPanelType, typeName, size, object = None):

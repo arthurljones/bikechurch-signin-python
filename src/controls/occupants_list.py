@@ -2,9 +2,9 @@
  
 import wx
 from datetime import datetime
-from ..ui import FormatTimedelta, GetShoptimeTypeDescription
-from ..controller import GetController
-from ..strings import trans
+from src.ui import FormatTimedelta, GetShoptimeTypeDescription
+from src.controller import GetController
+from strings import trans
 
 class OccupantLine():	
 	def __init__(self, parent, sizer, person, startTime, type):

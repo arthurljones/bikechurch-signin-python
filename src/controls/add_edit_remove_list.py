@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import wx
-from ..ui import MakeStaticBoxSizer
+from src.ui import MakeStaticBoxSizer
 		
 class AddEditRemoveList(wx.Panel):
 	def __init__(self, parent, label, buttonSuffix, items,

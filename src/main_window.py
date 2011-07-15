@@ -1,5 +1,5 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 import wx
 
 from ui import Delegator, winSizes
@@ -8,11 +8,13 @@ from controls.status_bar import StatusBar
 from controls.occupants_list import OccupantsList
 from controls.signin_panel import SignInPanel
 
+from controls.find_bike import FindBikeDialog
+
 from dialogs.new_person import NewPersonDialog
 from dialogs.authenticate_mechanic import AuthenticateMechanicDialog
 from dialogs.view_person import ViewPersonDialog
 
-from .strings import trans
+from strings import trans
 
 class MainWindow(wx.Frame, Delegator):
 	def __init__(self):
@@ -62,8 +64,6 @@ class MainWindow(wx.Frame, Delegator):
 		self.Layout()
 		self._occupantsList.Layout()
 		self._signinPanel.Layout()
-		
-		#GetController().DebugSignRandomPeopleIn(20)
 		
 		self.Show()
 		

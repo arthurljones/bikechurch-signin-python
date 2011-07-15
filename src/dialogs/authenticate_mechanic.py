@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import wx
-from ..ui import MakeInfoEntrySizer, AddField, MedFont, winSizes
+from src.ui import MakeInfoEntrySizer, AddField, MedFont, winSizes
 import hashlib
-from copy import copy
-from ..strings import trans
+from strings import trans
 
 class AuthenticateMechanicDialog(wx.Dialog):
 	passHash = "e82b4263a7d8618a5b458dda8658f35bdef7e14b" #sha1

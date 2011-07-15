@@ -3,7 +3,7 @@
 import wx
 import wx.lib.masked.timectrl
 from datetime import datetime
-from ..ui import MedFont, DatetimeWxToPy, DatetimePyToWx
+from src.ui import MedFont, DatetimeWxToPy, DatetimePyToWx
 
 class Field(object):
 	def __init__(self, parent, sizer, column, label, entry, default):
@@ -54,8 +54,9 @@ class ChoiceField(Field):
 				self._choiceDict[enum] = enum
 				
 		self._inverseChoiceDict = dict((v,k) for k, v in self._choiceDict.iteritems())
-
-		self._choice.SetItems([self._choiceDict[n] for n in column.type.enums])
+		choices = [self._choiceDict[n] for n in column.type.enums]
+		choices.insert(0, default())
+		self._choice.SetItems(choices)
 		Field.__init__(self, parent, sizer, column, label, self._choice, default)
 		self._default = default
 		

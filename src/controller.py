@@ -7,6 +7,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, OperationalError, InvalidRequestError
 from db import Person, Member, Shoptime, ShopOccupant, Bike, Feedback
 from ui import GetShoptimeTypeDescription
+from difflib import SequenceMatcher
 
 _controller = None
 
@@ -52,9 +53,44 @@ def HandleSQLAlchemyError(error):
 	
 	db.session.rollback()
 
+def FuzzyStringSearch(searchString,
+					sequence,
+					key = lambda x : x,
+					sanitizer = lambda x: x.lower().replace('0', 'o'),
+					resultCount = 10,
+					isJunk = None):
+
+	matcher = SequenceMatcher(isJunk)
+	matcher.set_seq2(sanitizer(searchString))
+	
+	matches = []
+	
+	for item in sequence:
+		matcher.set_seq1(sanitizer(key(item)))
+		if matcher.quick_ratio() >= 0.5:
+			ratio = matcher.ratio()
+			if (ratio >= 0.5):
+				matches.append((item, ratio))
+				
+	matches.sort(key = lambda x: -x[1])
+	return matches[:resultCount]
+
+
 class Controller:
 	def __init__(self):
 		self._lastPersonCreated = None
+		
+		#results = FuzzyStringSearch(searchString = "DM039",
+		#						sequence = db.session.query(Bike).all(),
+		#						key = lambda bike: bike.serial)
+		
+		#results = FuzzyStringSearch(searchString = "Jimmy James",
+		#							sequence = db.session.query(Person).all(),
+		#							key = lambda x: "{0} {1}".format(x.firstName, x.lastName),
+		#							isJunk = lambda x: x in " \t")
+		
+		#for item in results:
+		#	print item
 		
 	def SetUI(self, ui):
 		self._ui = ui
@@ -102,6 +138,7 @@ class Controller:
 		
 		
 	def FindPeopleByPartialName(self, partialName):
+		partialName = ' '.join(partialName.split()) #strip out extra spaces
 		namelen = len(partialName)
 		return db.session.query(Person).filter(
 			or_(
@@ -113,6 +150,7 @@ class Controller:
 			)
 		).all()
 		
+		
 	def GetPeopleInShop(self):
 		return db.session.query(Person) \
 			.join(ShopOccupant) \
@@ -120,7 +158,8 @@ class Controller:
 			.order_by(ShopOccupant.start).all()
 
 	def AuthenticateMechanic(self, parent, activity):
-		return self._ui.AuthenticateMechanic(parent, activity)
+		return True
+		#return self._ui.AuthenticateMechanic(parent, activity)
 
 	def ShowNewPersonDialog(self, parent, firstName = u"", lastName = u""):
 		return self._ui.ShowNewPersonDialog(parent, firstName, lastName)
@@ -202,7 +241,7 @@ class Controller:
 		return db.session.query(Feedback).all()
 		
 	def GetLastPersonCreated(self):
-		return self._lastPersonCreateds	
+		return self._lastPersonCreated
 		
 	def FlashError(self, *argv, **argd):
 		self._ui.FlashError(*argv, **argd)

@@ -1,7 +1,6 @@
- # -*- coding: utf-8 -*-
- 
-import sys, time
-from .strings import trans
+# -*- coding: utf-8 -*-
+
+from strings import trans
 from sqlalchemy import (create_engine, MetaData, Column, Table, Integer, Unicode,
 	Index, ForeignKeyConstraint, Date, DateTime, Time)
 from sqlalchemy.dialects.mysql.base import MSEnum 
@@ -21,14 +20,14 @@ class Person(Base):
 	firstName	= Column(Unicode(64), nullable = False)
 	lastName 	= Column(Unicode(64))
 	
-	memberInfo	= relationship('Member', backref = 'person', uselist = False,
-		cascade = "all, delete, delete-orphan")
-	shoptimes	= relationship('Shoptime', backref = 'person',
-		cascade = "all, delete, delete-orphan")
-	occupantInfo	= relationship('ShopOccupant', backref = 'person', uselist = False,
-		cascade = "all, delete")
-	bikes		= relationship('Bike', backref = 'owner',
-		cascade = "all, delete, delete-orphan")
+	memberInfo	 = relationship('Member', backref = 'person', uselist = False,
+		cascade  = "all, delete, delete-orphan")
+	shoptimes	 = relationship('Shoptime', backref = 'person',
+		cascade  = "all, delete, delete-orphan")
+	occupantInfo = relationship('ShopOccupant', backref = 'person', uselist = False,
+		cascade  = "all, delete")
+	bikes		 = relationship('Bike', backref = 'owner',
+		cascade  = "all, delete, delete-orphan")
 	
 	fields = [
 		("firstName", trans.patronFirstName),
@@ -124,23 +123,7 @@ class ShopOccupant(Base):
 	start		= Column(DateTime, nullable = False)
 	type 		= Column(MSEnum(*shoptimeChoices, strict = True),
 				nullable = False, index = True)
-	
-bikeTypes = [
-	'Mountain',
-	'Road',
-	'Hybrid', 
-	'Cruiser',
-	'Three Speed',
-	'Recumbent',
-	'Chopper',
-	'Mixte',
-	'Tallbike',
-	'Town Bike',
-	'Touring',
-	'Track',
-	'Other',
-]
-				
+
 class Bike(Base):
 	__tablename__ = 'bikes'
 	__table_args__ = (
@@ -149,9 +132,9 @@ class Bike(Base):
 		{ 'mysql_engine' : 'InnoDB', 'mysql_charset' : 'utf8' }
 	)
 		
-	id		= Column(Integer, primary_key = True, unique = True, nullable = False)
+	id			= Column(Integer, primary_key = True, unique = True, nullable = False)
 	personID	= Column(Integer, index = True)
-	type		= Column(MSEnum(*bikeTypes, strict = True), nullable = False)
+	type		= Column(Unicode(64), nullable = False)
 	color		= Column(Unicode(64), nullable = False)
 	brand		= Column(Unicode(64))
 	model		= Column(Unicode(64))
@@ -201,6 +184,8 @@ def CreateTablesFromScratch():
 	Base.metadata.create_all(bind = engine)
 	
 	print("...Success")
+
+#alter table bikes change type type NVARCHAR(64) not null;
 
 _Session = None
 _engine = None

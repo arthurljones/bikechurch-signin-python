@@ -1,15 +1,12 @@
- # -*- coding: utf-8 -*-
- 
-import wx, datetime
-from ..ui import (AddLabel, MedFont, FormatTimedelta, GetShoptimeTypeDescription, 
+# -*- coding: utf-8 -*-
+
+import wx
+from src.ui import (FormatTimedelta, GetShoptimeTypeDescription, 
 	MakeStaticBoxSizer, winSizes)
-from ..db import Shoptime, Bike
-from ..controls.edit_panel import EditPersonPanel, EditMemberPanel
-from ..controls.autowrapped_static_text import AutowrappedStaticText
-from ..controls.add_edit_remove_list import AddEditRemoveList
+from src.controls.edit_panel import EditPersonPanel, EditMemberPanel
+from src.controls.add_edit_remove_list import AddEditRemoveList
 from edit_dialog import ShoptimeDialog, BikeDialog
-from ..controller import GetController
-from ..strings import trans
+from src.controller import GetController
 		
 def _AddDialogFunc(parent, EditorType):
 	def AddDialog():

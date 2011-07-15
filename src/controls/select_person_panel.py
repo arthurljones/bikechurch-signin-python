@@ -1,8 +1,8 @@
  # -*- coding: utf-8 -*-
  
 import wx
-from ..ui import MedFont, AddLabel
-from ..controller import GetController
+from src.ui import MedFont, AddLabel
+from src.controller import GetController
 
 class NameEnteredEvent(wx.PyCommandEvent):
 	eventType = wx.NewEventType()
@@ -119,7 +119,9 @@ class SelectPersonPanel(wx.Panel):
 			self._nameListBox.SetSelection(-1)
 			
 			for i in range(len(names)):
-				if partialName.lower() == names[i].lower():
+				enteredName = partialName.lower().split()
+				listName = names[i].lower().split()
+				if enteredName == listName:
 					self._nameListBox.SetSelection(i)
 					event.SetPerson(self._people[i])
 					break

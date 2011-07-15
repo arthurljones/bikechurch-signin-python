@@ -1,6 +1,6 @@
  # -*- coding: utf-8 -*-
  
-import wx, time
+import wx
 from datetime import datetime
 import db
 
@@ -128,5 +128,7 @@ winSizes.authenticateMechanic = (300, 140)
 winSizes.newPerson = (350, 450)
 winSizes.viewPerson = (740, 470)
 winSizes.shoptimeDialog = (300, 200)
-winSizes.bikeDialog = (250, 200)
+winSizes.bikeDialog = (330, 200)
 winSizes.feedbackDialog = (340, 160)
+winSizes.mechanicToolbox = (250, 150)
+winSizes.findBike = (450, 370)

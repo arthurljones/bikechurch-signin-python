@@ -1,12 +1,12 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 import wx
 from math import ceil
-from ..ui import MedFont, HugeFont, MakeStaticBoxSizer, AddLabel
+from src.ui import MedFont, HugeFont, MakeStaticBoxSizer, AddLabel
 from shoptime_choice import ShoptimeChoicePanel
 from select_person_panel import SelectPersonPanel
-from ..controller import GetController
-from ..strings import trans
+from src.controller import GetController
+from strings import trans
 
 class SignInPanel(wx.Panel):
 	def __init__(self, parent):
@@ -40,23 +40,24 @@ class SignInPanel(wx.Panel):
 		self._shoptimeChoice.Enable(nameEntered)
 	
 	def _OnShoptimeChoice(self, event):
-		GetController().StopFlashing()
+		controller = GetController()
+		controller.StopFlashing()
 		
 		type = event.GetType()
 
 		if type == "worktrade":
-			if not GetController().AuthenticateMechanic(self,
+			if not controller.AuthenticateMechanic(self,
 				trans.authenticateWorktrade):
 				return
 				
 		elif type == "volunteer":
-			if not GetController().AuthenticateMechanic(self,
+			if not controller.AuthenticateMechanic(self,
 				trans.authenticateVolunteer):
 				return
 			
 		person = self._selectPerson.GetPerson()
 		if person:
-			if GetController().SignPersonIn(person, type):
+			if controller.SignPersonIn(person, type):
 				self.ResetValues()
 		else:
 			name = self._selectPerson.GetNameEntered()
@@ -66,8 +67,12 @@ class SignInPanel(wx.Panel):
 			firstName = " ".join(nameWords[:halfWords])
 			lastName = " ".join(nameWords[halfWords:])
 			
-			if GetController().ShowNewPersonDialog(self, firstName, lastName):
-				GetController().SignPersonIn(None, type)
+			person = controller.GetPersonByFullName(firstName, lastName)
+			if person:
+				if controller.SignPersonIn(person, type):
+					self.ResetValues()
+			elif controller.ShowNewPersonDialog(self, firstName, lastName):
+				controller.SignPersonIn(None, type)
 				self.ResetValues()
 
 	def _FlashTasks(self):
