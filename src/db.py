@@ -92,7 +92,7 @@ class Shoptime(Base):
 	id		= Column(Integer, primary_key = True, unique = True, nullable = False)
 	personID	= Column(Integer, nullable = False, index = True)
 	start		= Column(DateTime, nullable = False)
-	end		= Column(DateTime, nullable = False)
+	end			= Column(DateTime)
 	notes 		= Column(Unicode(200))
 	type 		= Column(MSEnum(*shoptimeChoices.keys(), strict = True),
 				nullable = False, index = True)
@@ -184,8 +184,6 @@ def CreateTablesFromScratch():
 	Base.metadata.create_all(bind = engine)
 	
 	print("...Success")
-
-#alter table bikes change type type NVARCHAR(64) not null;
 
 _Session = None
 _engine = None

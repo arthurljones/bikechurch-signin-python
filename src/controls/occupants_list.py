@@ -1,5 +1,5 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 import wx
 from datetime import datetime
 from src.ui import FormatTimedelta, GetShoptimeTypeDescription
@@ -13,10 +13,6 @@ class OccupantLine():
 		self._startTime = startTime
 		type = type
 		self._elements = []
-		
-		possesiveChar = "s"
-		if self._person.firstName and self._person.firstName[-1] == "s":
-			possesiveChar = ""
 
 		buttonSizer = wx.BoxSizer()
 		self._elements.append(buttonSizer)
@@ -44,7 +40,7 @@ class OccupantLine():
 		self._timeText = AddOccupantLabel(u"", wx.ALIGN_RIGHT)
 		
 		self.UpdateTime()
-		 
+		
 	def GetPerson(self):
 		return self._person
 	

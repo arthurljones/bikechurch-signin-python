@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import wx
 import wx.lib.masked.timectrl
 from datetime import datetime
 from src.ui import MedFont, DatetimeWxToPy, DatetimePyToWx
@@ -47,7 +46,6 @@ class ChoiceField(Field):
 		self._choice = wx.Choice(parent)
 		if hasattr(column.type, ("choiceDict")):
 			self._choiceDict = column.type.choiceDict
-			print self._choiceDict
 		else:
 			self._choiceDict = {}
 			for enum in column.type.enums:

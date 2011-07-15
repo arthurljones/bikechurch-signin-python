@@ -10,17 +10,14 @@ from warnings import warn
 
 version = (0, 1, 0)
 
-#FIXED: If you type in your name again, but do not click on it in the option box, it thinks you are a brand new person
-#FIXED: Typed-in name results in "duplicate name" error in new person screen, where it shouldn't be anyway
-#DONE: Run inside a python script so that we can capture output to a log.
-
+#TODO: Fix shoptime editor to allow unspecified end timee
 #TODO: Fix long login times for people signed in overnight or longer
 #BUG: Names list fails to bring up names after program is running for days
 #TODO: Reset horizontal name listbox position to origin when changing names
 #TODO: BMX should be an option for type of bike!
 #TODO: Be able to search by patron, past date, or bike
-#TODO: Arrow down from text box selects entries in list
 #TODO: Edit current shoptime
+#TODO: Notes on patrons
 
 def CheckVersion(packageName, minimumVersion):
 	package = __import__(packageName)
@@ -42,13 +39,18 @@ def main(createDB = False):
 
 	CheckVersion("wx", "2.8")
 	CheckVersion("MySQLdb", "1.2.2")
-	CheckVersion("sqlalchemy", "0.7")
+	CheckVersion("sqlalchemy", "0.6")
 
 	if createDB:				 
 		CreateTablesFromScratch()
 		ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")
 
 	ResetController()
+	
+	#GetController().FixLongShoptimes()
+	#alter table bikes change type type NVARCHAR(64) not null;
+	#alter table shoptime column end end DATETIME
+	
 	app = wx.App()
 	MainWindow()
 	app.MainLoop()

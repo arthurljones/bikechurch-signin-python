@@ -8,8 +8,6 @@ from controls.status_bar import StatusBar
 from controls.occupants_list import OccupantsList
 from controls.signin_panel import SignInPanel
 
-from controls.find_bike import FindBikeDialog
-
 from dialogs.new_person import NewPersonDialog
 from dialogs.authenticate_mechanic import AuthenticateMechanicDialog
 from dialogs.view_person import ViewPersonDialog
@@ -65,11 +63,18 @@ class MainWindow(wx.Frame, Delegator):
 		self._occupantsList.Layout()
 		self._signinPanel.Layout()
 		
+		#Call the controller's periodic update every minute
+		self.Bind(wx.EVT_TIMER, GetController().PeriodicUpdate)
+		self.updateTimer = wx.Timer(self)
+		self.updateTimer.Start(60000)
+		
+		self.UpdateTimes()
+		
 		self.Show()
 		
 	def _OnResize(self, event):
 		self.Layout()
-		
+			
 	def ShowNewPersonDialog(self, parent, firstName = "", lastName = ""):
 		dialog = NewPersonDialog(parent, firstName, lastName)
 		return dialog.ShowModal() == wx.ID_OK

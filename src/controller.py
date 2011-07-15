@@ -2,11 +2,11 @@
  
 import db, wx, MySQLdb, os, csv
 from strings import trans
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, OperationalError, InvalidRequestError
 from db import Person, Member, Shoptime, ShopOccupant, Bike, Feedback
-from ui import GetShoptimeTypeDescription
+from ui import GetShoptimeTypeDescription, FormatTimedelta
 from difflib import SequenceMatcher
 
 _controller = None
@@ -79,7 +79,9 @@ def FuzzyStringSearch(searchString,
 class Controller:
 	def __init__(self):
 		self._lastPersonCreated = None
+		self._signoutTimeout = 5 #hours
 		
+		self.PeriodicUpdate(None)
 		#results = FuzzyStringSearch(searchString = "DM039",
 		#						sequence = db.session.query(Bike).all(),
 		#						key = lambda bike: bike.serial)
@@ -149,7 +151,7 @@ class Controller:
 				func.left(Person.firstName + u" " + Person.lastName, namelen) == partialName
 			)
 		).all()
-		
+	
 		
 	def GetPeopleInShop(self):
 		return db.session.query(Person) \
@@ -159,21 +161,24 @@ class Controller:
 
 	def AuthenticateMechanic(self, parent, activity):
 		return True
-		#return self._ui.AuthenticateMechanic(parent, activity)
+		#if self._ui is not None:
+		#	return self._ui.AuthenticateMechanic(parent, activity)
 
 	def ShowNewPersonDialog(self, parent, firstName = u"", lastName = u""):
-		return self._ui.ShowNewPersonDialog(parent, firstName, lastName)
+		if self._ui is not None:
+			return self._ui.ShowNewPersonDialog(parent, firstName, lastName)
+		else:
+			return None
 
 	def SignPersonIn(self, person, type):
 		if person is None:
 			person = self._lastPersonCreated
 			
-		if person.occupantInfo is not None:
+		if self._ui is not None and person.occupantInfo is not None:
 			if person.occupantInfo.type == type:
 				widget = self._ui.GetOccupantNameWidget(person)
 				error = trans.sigininAlreadySignedIn
 				typeDesc = GetShoptimeTypeDescription(type)
-				print typeDesc
 				self._ui.FlashError(
 					error.format(person.Name(), typeDesc), [widget])
 				return
@@ -187,16 +192,20 @@ class Controller:
 		person.occupantInfo = occupant
 		
 		if self.Commit():
-			self._ui.AddOccupant(person, datetime.now(), type)
+			if self._ui is not None:
+				self._ui.AddOccupant(person, datetime.now(), type)
 			return occupant
 		else:
 			return None
 
-	def SignPersonOut(self, person):		
+	def SignPersonOut(self, person):
 		if person.occupantInfo:
 			shoptime = Shoptime()
 			shoptime.start = person.occupantInfo.start
-			shoptime.end = datetime.now()
+			if datetime.now() - shoptime.start > timedelta(hours = self._signoutTimeout):
+				shoptime.end = None
+			else:
+				shoptime.end = datetime.now()
 			shoptime.type = person.occupantInfo.type
 			shoptime.notes = u""
 		
@@ -207,8 +216,9 @@ class Controller:
 		else:
 			raise RuntimeError("Trying to sign {0} out, "\
 				"but they aren't in the occupants table.".format(person))
-				
-		self._ui.RemoveOccupant(person)
+		
+		if self._ui is not None:		
+			self._ui.RemoveOccupant(person)
 			
 	def CreatePerson(self, person):
 		db.session.add(person)
@@ -244,14 +254,26 @@ class Controller:
 		return self._lastPersonCreated
 		
 	def FlashError(self, *argv, **argd):
-		self._ui.FlashError(*argv, **argd)
+		if self._ui is not None:
+			self._ui.FlashError(*argv, **argd)
 		
 	def StopFlashing(self):
-		self._ui.ResetError()
+		if self._ui is not None:
+			self._ui.ResetError()
 		
 	def ViewPersonInfo(self, parent, person):
 		if self.AuthenticateMechanic(parent, trans.authenticateView.format(person.Name())):
-			self._ui.ShowViewPersonDialog(parent, person)
+			if self._ui is not None:
+				self._ui.ShowViewPersonDialog(parent, person)
+			
+	def PeriodicUpdate(self, event):
+		people = self.GetPeopleInShop()
+		timeout = 8
+		for person in people:
+			if datetime.now() - person.occupantInfo.start > timedelta(hours = self._signoutTimeout):
+				print("{0} has been signed in for more than {1} hours and has been removed." \
+					.format(person.Name(), self._signoutTimeout))
+				self.SignPersonOut(person)
 			
 	def DebugSignRandomPeopleIn(self, howmany):
 		for person in self.GetPeopleInShop():
@@ -263,6 +285,22 @@ class Controller:
 			
 		for person in people:
 			self.SignPersonIn(person, "shoptime")
+			
+	def FixLongShoptimes(self):
+		shoptimes = db.session.query(Shoptime).all()
+		
+		maxTime = timedelta(hours = self._signoutTimeout)
+		for shoptime in shoptimes:
+			if shoptime.end is not None:
+				duration = shoptime.end - shoptime.start
+				if duration > maxTime:
+					shoptime.end = None
+					print("{0}: {1} of {2} marked indefinite.".format(
+						shoptime.person.Name(),
+						FormatTimedelta(duration),
+						shoptime.type))
+
+		self.Commit()
 
 def GetController():
 	global _controller
