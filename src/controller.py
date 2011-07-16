@@ -3,7 +3,7 @@
 import db, wx, MySQLdb, os, csv
 from strings import trans
 from datetime import datetime, timedelta
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, and_
 from sqlalchemy.exc import IntegrityError, OperationalError, InvalidRequestError
 from db import Person, Member, Shoptime, ShopOccupant, Bike, Feedback
 from ui import GetShoptimeTypeDescription, FormatTimedelta
@@ -135,8 +135,7 @@ class Controller:
 		for person in self.GetCurrentMembers():
 			if  person.memberInfo.emailAddress:
 				output.writerow((person.firstName, person.lastName,
-					person.memberInfo.emailAddress,
-					person.memberInfo.endDate))
+					person.memberInfo.emailAddress,	person.memberInfo.endDate))
 		
 		
 	def FindPeopleByPartialName(self, partialName):
@@ -159,10 +158,16 @@ class Controller:
 			.filter(ShopOccupant.personID == Person.id) \
 			.order_by(ShopOccupant.start).all()
 
+	def FindPeopleBySerialNumber(self, serial):
+		return db.session.query(Person) \
+			.join(Bike) \
+			.filter(and_( \
+				Bike.personID == Person.id, \
+				func.instr(Bike.serial, serial) > 0)).all()
+
 	def AuthenticateMechanic(self, parent, activity):
-		return True
-		#if self._ui is not None:
-		#	return self._ui.AuthenticateMechanic(parent, activity)
+		if self._ui is not None:
+			return self._ui.AuthenticateMechanic(parent, activity)
 
 	def ShowNewPersonDialog(self, parent, firstName = u"", lastName = u""):
 		if self._ui is not None:

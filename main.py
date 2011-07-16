@@ -48,8 +48,6 @@ def main(createDB = False):
 	ResetController()
 	
 	#GetController().FixLongShoptimes()
-	#alter table bikes change type type NVARCHAR(64) not null;
-	#alter table shoptime column end end DATETIME
 	
 	app = wx.App()
 	MainWindow()
