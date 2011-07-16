@@ -43,12 +43,13 @@ class OccupantLine():
 		def AddOccupantLabel(string, flags = 0):
 			text = wx.StaticText(parent, wx.ID_ANY, label = string)
 			text.SetFont(lablelFont)
+			text.SetMaxSize((180, -1))
 			text.Layout()
 			sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | flags)
 			self._elements.append(text)
 			return text
 
-		printName = ShortenNameIfTooWide(person.Name(), lablelFont, parent, 145)
+		printName = ShortenNameIfTooWide(person.Name(), lablelFont, parent, 180)
 
 		self._name = AddOccupantLabel(printName)
 		self._type = AddOccupantLabel(u"{0}".format(GetShoptimeTypeDescription(type)))
