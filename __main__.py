@@ -10,6 +10,7 @@ from warnings import warn
 
 version = (0, 1, 0)
 
+#BUG: Long patron names push time in shop off the right side of the window
 #TODO: Fix shoptime editor to allow unspecified end timee
 #TODO: Fix long login times for people signed in overnight or longer
 #BUG: Names list fails to bring up names after program is running for days
@@ -46,8 +47,6 @@ def main(createDB = False):
 		ReadMembersFromCSV("members.csv", "succeeded.csv", "failed.csv")
 
 	ResetController()
-	
-	#GetController().FixLongShoptimes()
 	
 	app = wx.App()
 	MainWindow()
