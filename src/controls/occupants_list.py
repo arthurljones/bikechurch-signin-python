@@ -76,7 +76,8 @@ class OccupantLine():
 		GetController().SignPersonOut(self._person)
 		
 	def UpdateTime(self):
-		self._timeText.SetLabel(FormatTimedelta(datetime.now() - self._startTime))
+		#HACK: Extra spaces on end to clear the vertical scrollbar
+		self._timeText.SetLabel(FormatTimedelta(datetime.now() - self._startTime) + "    ")
 		
 class OccupantsList(wx.Panel):
 	def __init__(self, parent):
@@ -131,6 +132,7 @@ class OccupantsList(wx.Panel):
 		gridSizer = wx.FlexGridSizer(2, 1)
 		gridSizer.SetFlexibleDirection(wx.BOTH)
 		gridSizer.AddGrowableCol(0)
+		gridSizer.AddGrowableCol(1)
 		gridSizer.AddGrowableRow(1)
 		gridSizer.Add(titleSizer, 1, wx.EXPAND)
 		gridSizer.Add(self._scrollbox, 1, wx.EXPAND)
