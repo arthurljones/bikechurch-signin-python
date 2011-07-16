@@ -67,7 +67,6 @@ class MainWindow(wx.Frame, Delegator):
 		self.Bind(wx.EVT_TIMER, GetController().PeriodicUpdate)
 		self.updateTimer = wx.Timer(self)
 		self.updateTimer.Start(60000)
-		print GetController().FindPeopleBySerialNumber("12781")
 		
 		self.UpdateTimes()
 		

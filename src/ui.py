@@ -91,6 +91,11 @@ def DatetimePyToWx(pydt):
 		
 	return wxdt
 
+def GetTextSize(text, font, parent):
+	dc = wx.ClientDC(parent);
+	dc.SetFont(font)
+	return dc.GetTextExtent(text)
+
 class Delegator(object):
 	def __init__(self):
 		self._delegates = []

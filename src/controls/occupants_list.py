@@ -2,9 +2,20 @@
 
 import wx
 from datetime import datetime
-from src.ui import FormatTimedelta, GetShoptimeTypeDescription
+from src.ui import FormatTimedelta, GetShoptimeTypeDescription, GetTextSize
 from src.controller import GetController
 from strings import trans
+
+def ShortenNameIfTooWide(name, font, parent, maxwidth):
+	if GetTextSize(name, font, parent)[0] > maxwidth:
+		name = name[:-1]
+		
+		while GetTextSize(name + "...", font, parent)[0] > maxwidth and len(name) > 0:
+			name = name[:-1]
+		
+		return name + "..."
+	else:
+		return name
 
 class OccupantLine():	
 	def __init__(self, parent, sizer, person, startTime, type):
@@ -28,14 +39,18 @@ class OccupantLine():
 		AddOccupantButton(trans.occupantViewButton, self.OnViewInfoClicked)
 		AddOccupantButton(trans.occupantSignoutButton, self.OnSignOutClicked)
 
+		lablelFont = wx.Font(9, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL)
 		def AddOccupantLabel(string, flags = 0):
-			text = wx.StaticText(parent, wx.ID_ANY, string)
-			text.SetFont(wx.Font(9, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL))
+			text = wx.StaticText(parent, wx.ID_ANY, label = string)
+			text.SetFont(lablelFont)
+			text.Layout()
 			sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | flags)
 			self._elements.append(text)
 			return text
 
-		self._name = AddOccupantLabel(person.Name())
+		printName = ShortenNameIfTooWide(person.Name(), lablelFont, parent, 145)
+
+		self._name = AddOccupantLabel(printName)
 		self._type = AddOccupantLabel(u"{0}".format(GetShoptimeTypeDescription(type)))
 		self._timeText = AddOccupantLabel(u"", wx.ALIGN_RIGHT)
 		
