@@ -2,21 +2,24 @@
 
 import wx
 from datetime import datetime
-from src.ui import FormatTimedelta, GetShoptimeTypeDescription, GetTextSize
+from src.ui import FormatTimedelta, GetShoptimeTypeDescription
 from src.controller import GetController
 from strings import trans
 
-def ShortenNameIfTooWide(name, font, parent, maxwidth):
-	if GetTextSize(name, font, parent)[0] > maxwidth:
-		name = name[:-1]
-		
-		while GetTextSize(name + "...", font, parent)[0] > maxwidth and len(name) > 0:
-			name = name[:-1]
-		
-		return name + "..."
-	else:
-		return name
+def Ellipsize(text, maxWidth, font, parent):	
+	control = wx.StaticText(parent, wx.ID_ANY, label = "")
+	control.SetFont(font)
 
+	if control.GetTextExtent(text)[0] <= maxWidth:
+		control.Destroy()
+		return text
+	
+	while control.GetTextExtent(text + "...")[0] > maxWidth and len(text) > 0:
+		text = text[:-1]
+		
+	control.Destroy()
+	return text + "..."
+		
 class OccupantLine():	
 	def __init__(self, parent, sizer, person, startTime, type):
 		self._parent = parent
@@ -39,21 +42,23 @@ class OccupantLine():
 		AddOccupantButton(trans.occupantViewButton, self.OnViewInfoClicked)
 		AddOccupantButton(trans.occupantSignoutButton, self.OnSignOutClicked)
 
-		lablelFont = wx.Font(9, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL)
-		def AddOccupantLabel(string, flags = 0):
+		labelFont = wx.Font(9, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.NORMAL)
+		def AddOccupantLabel(string, flags = 0, maxWidth = -1):
 			text = wx.StaticText(parent, wx.ID_ANY, label = string)
-			text.SetFont(lablelFont)
-			text.SetMaxSize((180, -1))
-			text.Layout()
+			text.SetFont(labelFont)
 			sizer.Add(text, 0, wx.ALIGN_CENTER_VERTICAL | flags)
 			self._elements.append(text)
 			return text
 
-		printName = ShortenNameIfTooWide(person.Name(), lablelFont, parent, 180)
+		name = Ellipsize(person.Name(), 230, labelFont, parent)
 
-		self._name = AddOccupantLabel(printName)
+		self._name = AddOccupantLabel(name)
 		self._type = AddOccupantLabel(u"{0}".format(GetShoptimeTypeDescription(type)))
 		self._timeText = AddOccupantLabel(u"", wx.ALIGN_RIGHT)
+		
+		sizer.Layout()
+	
+		sizer.RecalcSizes()
 		
 		self.UpdateTime()
 		
@@ -76,8 +81,7 @@ class OccupantLine():
 		GetController().SignPersonOut(self._person)
 		
 	def UpdateTime(self):
-		#HACK: Extra spaces on end to clear the vertical scrollbar
-		self._timeText.SetLabel(FormatTimedelta(datetime.now() - self._startTime) + "    ")
+		self._timeText.SetLabel(FormatTimedelta(datetime.now() - self._startTime))
 		
 class OccupantsList(wx.Panel):
 	def __init__(self, parent):
@@ -106,8 +110,7 @@ class OccupantsList(wx.Panel):
 
 		self._listSizer = wx.FlexGridSizer(rows = 0, cols = 4, hgap = 10, vgap = 0)
 		self._listSizer.SetFlexibleDirection(wx.BOTH)
-		self._listSizer.AddGrowableCol(1, 1)
-		self._listSizer.AddGrowableCol(2, 1)
+		self._listSizer.AddGrowableCol(1)
 		self._gridContainer.SetSizer(self._listSizer)
 			
 		def AddColumnHeader(name, flags = 0):
@@ -123,20 +126,20 @@ class OccupantsList(wx.Panel):
 		AddColumnHeader(trans.occupantColumnActivity)
 		AddColumnHeader(trans.occupantColumnTime, wx.ALIGN_RIGHT)
 
+		outerSizer = wx.FlexGridSizer(2, 1)
+		outerSizer.SetFlexibleDirection(wx.BOTH)
+		outerSizer.AddGrowableCol(0)
+		outerSizer.AddGrowableCol(1)
+		outerSizer.AddGrowableRow(1)
+		outerSizer.Add(titleSizer, 1, wx.EXPAND)
+		outerSizer.Add(self._scrollbox, 1, wx.EXPAND)
+		self.SetSizer(outerSizer)
+		
 		peopleInShop = GetController().GetPeopleInShop()
 		if peopleInShop is not None:
 			for person in peopleInShop:
 				self.AddOccupant(person,
 					person.occupantInfo.start, person.occupantInfo.type)
-
-		gridSizer = wx.FlexGridSizer(2, 1)
-		gridSizer.SetFlexibleDirection(wx.BOTH)
-		gridSizer.AddGrowableCol(0)
-		gridSizer.AddGrowableCol(1)
-		gridSizer.AddGrowableRow(1)
-		gridSizer.Add(titleSizer, 1, wx.EXPAND)
-		gridSizer.Add(self._scrollbox, 1, wx.EXPAND)
-		self.SetSizer(gridSizer)
 		
 		self.Bind(wx.EVT_TIMER, self.OnTimer)
 		self.updateTimer = wx.Timer(self)
@@ -157,14 +160,15 @@ class OccupantsList(wx.Panel):
 	
 	def RemoveOccupant(self, person):
 		occupant = self._GetOccupant(person)
-		if occupant:
+		if occupant:			
 			for element in occupant.GetElements():
 				self._listSizer.Detach(element)
 				element.Destroy()
 			self.occupants.remove(occupant)
-											
-		self._scrollbox.FitInside()
-
+			
+			self._listSizer.RecalcSizes()	
+			self._scrollbox.FitInside()
+			
 	def GetOccupantNameWidget(self, person):
 		occupant = self._GetOccupant(person)
 		if occupant:
@@ -172,7 +176,7 @@ class OccupantsList(wx.Panel):
 		else:
 			return None
 
-	def OnTimer(self, event):
+	def OnTimer(self, event):		
 		self.UpdateTimes()
 		
 	def UpdateTimes(self):

@@ -80,7 +80,7 @@ class Controller:
 	def __init__(self):
 		self._lastPersonCreated = None
 		self._signoutTimeout = 5 #hours
-		
+		self._ui = None
 		self.PeriodicUpdate(None)
 		#results = FuzzyStringSearch(searchString = "DM039",
 		#						sequence = db.session.query(Bike).all(),

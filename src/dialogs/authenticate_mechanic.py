@@ -16,7 +16,8 @@ class AuthenticateMechanicDialog(wx.Dialog):
 		self.SetSizer(sizer)
 
 		text = wx.StaticText(self, wx.ID_ANY, 
-			trans.mechanicPermission.format(actionDescription))
+			trans.mechanicPermission.format(actionDescription),
+			style = wx.ST_DOTS_MIDDLE)
 		sizer.Add(text, 0, wx.EXPAND | wx.ALL, 8)
 		text.SetFont(MedFont())
 				

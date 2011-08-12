@@ -1,5 +1,5 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 import wx
 from src.ui import MedFont, AddLabel
 from src.controller import GetController
@@ -76,7 +76,7 @@ class SelectPersonPanel(wx.Panel):
 
 		AddLabel(self, sizer, MedFont(), listLabel)
 		
-		self._nameListBox = wx.ListBox(self, wx.ID_ANY)
+		self._nameListBox = wx.ListBox(self, wx.ID_ANY, style = wx.LB_NEEDED_SB)
 		self._nameListBox.Bind(wx.EVT_LISTBOX, self._OnListClick)
 		self._nameListBox.Bind(wx.EVT_LISTBOX_DCLICK, self._OnListClick)
 		self._nameListBox.Bind(wx.EVT_KEY_DOWN, self._OnListKeydown)
@@ -139,6 +139,8 @@ class SelectPersonPanel(wx.Panel):
 			self._suppressNextListChange = False
 		else:
 			self._PopulateList(partialName)
+	
+		self._nameListBox.SetFirstItem(0)
 			
 	def _OnNameEntryFocus(self, event):
 		name = self._nameEntry.GetValue()
@@ -165,7 +167,6 @@ class SelectPersonPanel(wx.Panel):
 		
 	def _OnListKeydown(self, event):
 		if event.GetKeyCode() == wx.WXK_RETURN:
-			selection = self._nameEntry.GetValue()
 			self._SendEvent(ReturnHitEvent(self, self.GetNameEntered()))
 		else:
 			event.Pass()

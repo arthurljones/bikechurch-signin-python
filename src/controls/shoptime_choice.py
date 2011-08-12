@@ -1,5 +1,5 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 import wx
 from src.ui import AddLabel, MedFont, BigFont
 from strings import trans
@@ -35,8 +35,8 @@ class ShoptimeChoicePanel(wx.Panel):
 		self._buttons = []
 		self._buttons.append(AddButton(trans.shoptimeShoptime, "shoptime"))
 		self._buttons.append(AddButton(trans.shoptimeParts, "parts"))
-		self._buttons.append(AddButton(trans.shoptimeWorktrade, "worktrade"))
-		self._buttons.append(AddButton(trans.shoptimeVolunteer, "volunteer"))
+		#self._buttons.append(AddButton(trans.shoptimeWorktrade, "worktrade"))
+		#self._buttons.append(AddButton(trans.shoptimeVolunteer, "volunteer"))
 		
 		self.Bind(wx.EVT_BUTTON, self._OnButton)
 		

@@ -41,10 +41,10 @@ trans.memberSnailmail = "Mail Address/Dirección"
 trans.memberNotes = "Notes/Notas"
 
 #Descriptions of shoptime types
-trans.shoptimeTypeWorking = "working on a bike/arreglando una bici"
-trans.shoptimeTypeParts = "looking for parts/buscando partes"
-trans.shoptimeTypeWorktrade = "doing worktrade/trabajando para credito"
-trans.shoptimeTypeVolunteer = "volunteering/un voluntario"
+trans.shoptimeTypeWorking = "working on a bike/\narreglando una bici"
+trans.shoptimeTypeParts = "looking for parts/\nbuscando partes"
+trans.shoptimeTypeWorktrade = "doing worktrade/\ntrabajando para credito"
+trans.shoptimeTypeVolunteer = "volunteering/\nun voluntario"
 
 #Field descriptions for shoptime values
 trans.shoptimeStart = "Start/Inicio"
