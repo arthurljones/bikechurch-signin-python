@@ -76,16 +76,8 @@ class SelectPersonPanel(wx.Panel):
 
 		AddLabel(self, sizer, MedFont(), listLabel)
 		
-		self._nameListBox = wx.ListBox(self, wx.ID_ANY, style = wx.LB_NEEDED_SB)
-		self._nameListBox.Bind(wx.EVT_LISTBOX, self._OnListClick)
-		self._nameListBox.Bind(wx.EVT_LISTBOX_DCLICK, self._OnListClick)
-		self._nameListBox.Bind(wx.EVT_KEY_DOWN, self._OnListKeydown)
-		for event in [wx.EVT_LEFT_UP, wx.EVT_MIDDLE_DOWN, wx.EVT_RIGHT_DOWN,
-			wx.EVT_LEFT_DCLICK, wx.EVT_MIDDLE_DCLICK, wx.EVT_RIGHT_DCLICK]:
-			self._nameListBox.Bind(event, self._OnListDeadSpaceClick)
-
-		sizer.Add(self._nameListBox, 1, wx.EXPAND)
-		self._nameListBox.SetSizeHints(200, 80)
+		self._nameListBox = None
+		self._PopulateList("")
 	
 	def GetDefaultName(self):
 		return self._nameEntryDefaultText
@@ -108,7 +100,27 @@ class SelectPersonPanel(wx.Panel):
 		self._nameEntry.SetFocus()
 	
 	def _PopulateList(self, partialName):	
-		self._nameListBox.Clear()
+		if self._nameListBox is not None:
+			self._nameListBox.Destroy()
+			
+		#We recreate the listbox here because there's no way to reset horizontal
+		#	size or scroll position on an existiing box. Very long names widen the
+		#	scrollbox, leaving it possible to set the scrollbar to a point where no
+		#	results are visible. This confuses patrons.
+		self._nameListBox = wx.ListBox(self, wx.ID_ANY, style = wx.LB_NEEDED_SB)
+		self._nameListBox.Bind(wx.EVT_LISTBOX, self._OnListClick)
+		self._nameListBox.Bind(wx.EVT_LISTBOX_DCLICK, self._OnListClick)
+		self._nameListBox.Bind(wx.EVT_KEY_DOWN, self._OnListKeydown)
+		for event in [wx.EVT_LEFT_UP, wx.EVT_MIDDLE_DOWN, wx.EVT_RIGHT_DOWN,
+			wx.EVT_LEFT_DCLICK, wx.EVT_MIDDLE_DCLICK, wx.EVT_RIGHT_DCLICK]:
+			self._nameListBox.Bind(event, self._OnListDeadSpaceClick)
+		
+		self.GetSizer().Insert(2, self._nameListBox, 1, wx.EXPAND)
+		
+		self._nameListBox.SetSizeHints(200, 80)
+		self._nameListBox.SetVirtualSize((1, 1))
+		self.GetSizer().Layout()
+
 		event = PersonSelectedEvent(self, None)
 		
 		if partialName:
@@ -125,6 +137,11 @@ class SelectPersonPanel(wx.Panel):
 					self._nameListBox.SetSelection(i)
 					event.SetPerson(self._people[i])
 					break
+
+
+		self._nameListBox.Layout()
+		self._nameListBox.Fit()
+		self._nameListBox.FitInside()
 	
 		self._SendEvent(event)
 	
@@ -139,8 +156,6 @@ class SelectPersonPanel(wx.Panel):
 			self._suppressNextListChange = False
 		else:
 			self._PopulateList(partialName)
-	
-		self._nameListBox.SetFirstItem(0)
 			
 	def _OnNameEntryFocus(self, event):
 		name = self._nameEntry.GetValue()

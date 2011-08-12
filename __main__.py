@@ -10,7 +10,6 @@ from warnings import warn
 
 version = (0, 1, 0)
 
-#BUG: Long patron names push time in shop off the right side of the window
 #TODO: Fix shoptime editor to allow unspecified end time
 #BUG: Names list fails to bring up names after program is running for days
 #TODO: Reset horizontal name listbox position to origin when changing names

@@ -77,11 +77,11 @@ class SignInPanel(wx.Panel):
 
 	def _FlashTasks(self):
 		widgets = self._shoptimeChoice.GetWidgets()
-		GetController().FlashError(trans.signin.selectTask, widgets)
+		GetController().FlashError(trans.signinselectTask, widgets)
 		
 	def _FlashName(self):
 		widgets = [self._selectPerson.GetNameEntryWidget()]
-		GetController().FlashError(trans.signin.enterName, widgets)
+		GetController().FlashError(trans.signinenterName, widgets)
 				
 	def _OnNameReturn(self, event):
 		if event.GetName():
