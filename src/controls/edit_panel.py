@@ -12,7 +12,6 @@ from src.controller import GetController
 def SetFieldType(ColumnType, FieldType):
 	ColumnType.FieldType = FieldType
 	
-#Set up field type information in sqlalchemy column types
 SetFieldType(Integer,	TextField)
 SetFieldType(Unicode,	TextField)
 SetFieldType(MSEnum,	ChoiceField)
@@ -29,15 +28,18 @@ class EditPanel(wx.Panel):
 		self.SetSizer(sizer)
 		
 		self._fields = {}
-		for field in tableType.fields:
-			name = field[0]
-			label = field[1]
+		for tableField in tableType.fields:
+			name = tableField[0]
+			label = tableField[1]
 			column = getattr(tableType.__table__.c, name)
-			Type = column.type.FieldType
-			if len(field) >= 3:
-				Type = field[2]
-			field = Type(self, sizer, column, label)
-			self._fields[name] = field
+			fieldEditor = None
+			if len(tableField) >= 3:
+				fieldEditor = tableField[2]
+			else:
+				fieldEditor = column.type.FieldType()
+			
+			fieldEditor.Setup(self, sizer, column, label)
+			self._fields[name] = fieldEditor
 		
 	def __getitem__(self, field):
 		return self._fields[field]

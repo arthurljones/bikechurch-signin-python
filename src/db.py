@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 #hack?
-from controls.field import ForeverDateField
+from controls.field import ForeverDateField, ChoiceField
 
 Base = declarative_base()
 
@@ -65,7 +65,7 @@ class Member(Base):
 	
 	fields = [
 		("startDate", trans.memberStart),
-		("endDate", trans.memberEnd, ForeverDateField),
+		("endDate", trans.memberEnd, ForeverDateField()),
 		("donation", trans.memberDonation),
 		("phoneNumber", trans.memberPhone),
 		("emailAddress", trans.memberEmail),
@@ -100,16 +100,14 @@ class Shoptime(Base):
 	fields = [
 		("start", trans.shoptimeStart),
 		("end", trans.shoptimeEnd),
-		("type", trans.shoptimeType),
+		("type", trans.shoptimeType, ChoiceField(choiceDict = shoptimeChoices)),
 		("notes", trans.shoptimeNotes),
 	]
 	
 	def __repr__(self):
 		return "<{0}> {1} From {2} Until {3}".format(
 			self.__class__.__name__, self.type, self.start, self.end)		
-	
-Shoptime.__table__.c.type.type.choiceDict = shoptimeChoices
-	
+
 class ShopOccupant(Base):
 	__tablename__ = 'shopOccupants'
 	__table_args__ = (
@@ -123,6 +121,22 @@ class ShopOccupant(Base):
 	start		= Column(DateTime, nullable = False)
 	type 		= Column(MSEnum(*shoptimeChoices, strict = True),
 				nullable = False, index = True)
+
+bikeTypes = [
+	'Mountain',
+	'Road',
+	'Hybrid',
+	'BMX',
+	'Cruiser',
+	'Recumbent',
+	'Tallbike',
+	'Town Bike',
+	'Touring',
+	'Track',
+	'Other',
+]
+
+bikeTypeDict = dict([(x, x) for x in bikeTypes])
 
 class Bike(Base):
 	__tablename__ = 'bikes'
@@ -141,7 +155,7 @@ class Bike(Base):
 	serial		= Column(Unicode(64), nullable = False, index = True)
 
 	fields = [
-		("type", trans.bikeType),
+		("type", trans.bikeType, ChoiceField(choiceDict = bikeTypeDict)),
 		("color", trans.bikeColor),
 		("brand", trans.bikeBrand),
 		("model", trans.bikeModel),

@@ -5,36 +5,46 @@ from datetime import datetime
 from src.ui import MedFont, DatetimeWxToPy, DatetimePyToWx
 
 class Field(object):
-	def __init__(self, parent, sizer, column, label, entry, default):
-		self._default = default
-		self._entry = entry
+	def __init__(self, default):
+		self._setup = False
+		self._Default = default
+		
+	def Setup(self, parent, sizer, column, label, entryWidget):
+		self._entryWidget = entryWidget
 		
 		labelCtrl = wx.StaticText(parent, label = label)
 		labelCtrl.SetFont(MedFont())
 		
 		sizer.Add(labelCtrl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.ALL, 5)
-		sizer.Add(entry, 1, wx.EXPAND)
+		sizer.Add(entryWidget, 1, wx.EXPAND)
 		
 		self.Reset()
-		
+		self._setup = True
+				
 	def Default(self):
-		return self._default()
+		return self._Default()
 		
 	def Reset(self):
 		return self.Set(self.Default())
 		
 	def Widget(self):
-		return self._entry
+		return self._entryWidget
+	
+	def IsStarted(self):
+		return self._setup
 		
 class TextField(Field):
-	def __init__(self, parent, sizer, column, label, default = lambda: ""):
+	def __init__(self, default = lambda: ""):
+		Field.__init__(self, default)
+		
+	def Setup(self, parent, sizer, column, label):	
 		style = 0
 		if hasattr(column.type, "length") and column.type.length >= 200:
 			style = wx.TE_MULTILINE
 			
 		text = wx.TextCtrl(parent, style = style)
-		Field.__init__(self, parent, sizer, column, label, text, default)
-		
+		Field.Setup(self, parent, sizer, column, label, text)
+			
 	def Get(self):
 		return unicode(self.Widget().GetValue())
 		
@@ -42,26 +52,27 @@ class TextField(Field):
 		return self.Widget().SetValue(unicode(value))
 		
 class ChoiceField(Field):
-	def __init__(self, parent, sizer, column, label, default = lambda: ""):
+	def __init__(self, default = lambda: "", choiceDict = None):
+		Field.__init__(self, default)
+		self._choiceDict = choiceDict
+		
+	def Setup(self, parent, sizer, column, label):
 		self._choice = wx.Choice(parent)
-		if hasattr(column.type, ("choiceDict")):
-			self._choiceDict = column.type.choiceDict
-		else:
+		if self._choiceDict is None:
 			self._choiceDict = {}
 			for enum in column.type.enums:
 				self._choiceDict[enum] = enum
 				
 		self._inverseChoiceDict = dict((v,k) for k, v in self._choiceDict.iteritems())
-		choices = [self._choiceDict[n] for n in column.type.enums]
-		choices.insert(0, default())
+		choices = self._choiceDict.values()
+		choices.insert(0, self._Default())
 		self._choice.SetItems(choices)
-		Field.__init__(self, parent, sizer, column, label, self._choice, default)
-		self._default = default
+		Field.Setup(self, parent, sizer, column, label, self._choice)
 		
 	def Get(self):
 		selection = self.Widget().GetStringSelection()
 		
-		if selection == self._default():
+		if selection == self._Default():
 			return None
 		else:
 			return self._choiceDict[selection]
@@ -73,9 +84,12 @@ class ChoiceField(Field):
 			return self.Widget().SetStringSelection(value)
 		
 class DateField(Field):
-	def __init__(self, parent, sizer, column, label, default = datetime.now):
+	def __init__(self, default = datetime.now):
+		Field.__init__(self, default)
+		
+	def Setup(self, parent, sizer, column, label):
 		self._date = wx.DatePickerCtrl(parent)
-		Field.__init__(self, parent, sizer, column, label, self._date, default)
+		Field.Setup(self, parent, sizer, column, label, self._date)		
 		
 	def Get(self):
 		return DatetimeWxToPy(self.Widget().GetValue()).date()
@@ -84,7 +98,10 @@ class DateField(Field):
 		return self.Widget().SetValue(DatetimePyToWx(value))
 		
 class ForeverDateField(Field):
-	def __init__(self, parent, sizer, column, label, default = datetime.now):
+	def __init__(self, default = datetime.now):
+		Field.__init__(self, default)
+		
+	def Setup(self, parent, sizer, column, label):
 		innerSizer = wx.BoxSizer(wx.HORIZONTAL)
 		self._date = wx.DatePickerCtrl(parent)
 		self._forever = wx.CheckBox(parent, label = "Never")
@@ -92,7 +109,7 @@ class ForeverDateField(Field):
 		innerSizer.Add(self._date, 1, wx.EXPAND)
 		innerSizer.Add(self._forever, 0, wx.EXPAND)
 		
-		Field.__init__(self, parent, sizer, column, label, innerSizer, default)
+		Field.Setup(self, parent, sizer, column, label, innerSizer)
 		
 		self._forever.Bind(wx.EVT_CHECKBOX, self._OnCheckbox)
 		
@@ -127,9 +144,12 @@ class ForeverDateField(Field):
 		return self._date, self._forever
 		
 class TimeField(Field):
-	def __init__(self, parent, sizer, column, label, default = datetime.now):
+	def __init__(self, default = datetime.now):
+		Field.__init__(self, default)
+		
+	def Setup(self, parent, sizer, column, label):
 		self._time = wx.lib.masked.timectrl.TimeCtrl(parent, format = "HHMM")
-		Field.__init__(self, parent, sizer, column, label, self._time, default)	\
+		Field.Setup(self, parent, sizer, column, label, self._time)
 		
 	def Get(self):
 		return DatetimeWxToPy(self.Widget().GetWxDateTime()).time()
@@ -138,7 +158,10 @@ class TimeField(Field):
 		return self.Widget().SetValue(DatetimePyToWx(value))
 		
 class DateTimeField(Field):
-	def __init__(self, parent, sizer, column, label, default = datetime.now):
+	def __init__(self, default = datetime.now):
+		Field.__init__(self, default)
+		
+	def Setup(self, parent, sizer, column, label):
 		innerSizer = wx.BoxSizer(wx.HORIZONTAL)
 		self._date = wx.DatePickerCtrl(parent)
 		self._time = wx.lib.masked.timectrl.TimeCtrl(parent, format = "HHMM")
@@ -146,7 +169,7 @@ class DateTimeField(Field):
 		innerSizer.Add(self._date, 1, wx.EXPAND)
 		innerSizer.Add(self._time, 1, wx.EXPAND)
 		
-		Field.__init__(self, parent, sizer, column, label, innerSizer, default)
+		Field.Setup(self, parent, sizer, column, label, innerSizer)
 		
 	def Get(self):
 		date = self._date.GetValue()
